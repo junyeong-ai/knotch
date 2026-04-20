@@ -31,7 +31,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.94"
 license = "MIT OR Apache-2.0"
@@ -119,23 +119,23 @@ iai-callgrind    = "0.14"
 tempfile         = "3.12"
 
 # --- internal workspace deps ---
-knotch-kernel        = { version = "0.1.0", path = "crates/knotch-kernel" }
-knotch-proto         = { version = "0.1.0", path = "crates/knotch-proto" }
-knotch-derive        = { version = "0.1.0", path = "crates/knotch-derive" }
-knotch-storage       = { version = "0.1.0", path = "crates/knotch-storage" }
-knotch-lock          = { version = "0.1.0", path = "crates/knotch-lock" }
-knotch-vcs           = { version = "0.1.0", path = "crates/knotch-vcs" }
-knotch-workflow      = { version = "0.1.0", path = "crates/knotch-workflow" }
-knotch-schema        = { version = "0.1.0", path = "crates/knotch-schema" }
-knotch-observer      = { version = "0.1.0", path = "crates/knotch-observer" }
-knotch-reconciler    = { version = "0.1.0", path = "crates/knotch-reconciler" }
-knotch-query         = { version = "0.1.0", path = "crates/knotch-query" }
-knotch-tracing       = { version = "0.1.0", path = "crates/knotch-tracing" }
-knotch-linter        = { version = "0.1.0", path = "crates/knotch-linter" }
-knotch-testing       = { version = "0.1.0", path = "crates/knotch-testing" }
-knotch-agent         = { version = "0.1.0", path = "crates/knotch-agent" }
-knotch-frontmatter   = { version = "0.1.0", path = "crates/knotch-frontmatter" }
-knotch-adr           = { version = "0.1.0", path = "crates/knotch-adr" }
+knotch-kernel        = { version = "0.2.0", path = "crates/knotch-kernel" }
+knotch-proto         = { version = "0.2.0", path = "crates/knotch-proto" }
+knotch-derive        = { version = "0.2.0", path = "crates/knotch-derive" }
+knotch-storage       = { version = "0.2.0", path = "crates/knotch-storage" }
+knotch-lock          = { version = "0.2.0", path = "crates/knotch-lock" }
+knotch-vcs           = { version = "0.2.0", path = "crates/knotch-vcs" }
+knotch-workflow      = { version = "0.2.0", path = "crates/knotch-workflow" }
+knotch-schema        = { version = "0.2.0", path = "crates/knotch-schema" }
+knotch-observer      = { version = "0.2.0", path = "crates/knotch-observer" }
+knotch-reconciler    = { version = "0.2.0", path = "crates/knotch-reconciler" }
+knotch-query         = { version = "0.2.0", path = "crates/knotch-query" }
+knotch-tracing       = { version = "0.2.0", path = "crates/knotch-tracing" }
+knotch-linter        = { version = "0.2.0", path = "crates/knotch-linter" }
+knotch-testing       = { version = "0.2.0", path = "crates/knotch-testing" }
+knotch-agent         = { version = "0.2.0", path = "crates/knotch-agent" }
+knotch-frontmatter   = { version = "0.2.0", path = "crates/knotch-frontmatter" }
+knotch-adr           = { version = "0.2.0", path = "crates/knotch-adr" }
 
 [profile.release]
 lto = "thin"

@@ -1021,6 +1021,24 @@ pub fn knotch_kernel::precondition::ArtifactCheck::exists(&self, path: &std::pat
 pub trait knotch_kernel::precondition::VerifyCommit: core::marker::Send + core::marker::Sync
 pub fn knotch_kernel::precondition::VerifyCommit::verify(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_kernel::error::PreconditionError>
 pub mod knotch_kernel::project
+pub struct knotch_kernel::project::MilestoneCostEntry<W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_kernel::project::MilestoneCostEntry::cost: knotch_kernel::causation::Cost
+pub knotch_kernel::project::MilestoneCostEntry::milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone
+impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::clone::Clone
+pub fn knotch_kernel::project::MilestoneCostEntry<W>::clone(&self) -> knotch_kernel::project::MilestoneCostEntry<W>
+impl<W: core::cmp::Eq + knotch_kernel::workflow::WorkflowKind> core::cmp::Eq for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::cmp::Eq
+impl<W: core::cmp::PartialEq + knotch_kernel::workflow::WorkflowKind> core::cmp::PartialEq for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::cmp::PartialEq
+pub fn knotch_kernel::project::MilestoneCostEntry<W>::eq(&self, other: &knotch_kernel::project::MilestoneCostEntry<W>) -> bool
+impl<W: core::fmt::Debug + knotch_kernel::workflow::WorkflowKind> core::fmt::Debug for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::fmt::Debug
+pub fn knotch_kernel::project::MilestoneCostEntry<W>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<W: knotch_kernel::workflow::WorkflowKind> core::marker::StructuralPartialEq for knotch_kernel::project::MilestoneCostEntry<W>
+impl<W> core::marker::Freeze for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::Freeze
+impl<W> core::marker::Send for knotch_kernel::project::MilestoneCostEntry<W>
+impl<W> core::marker::Sync for knotch_kernel::project::MilestoneCostEntry<W>
+impl<W> core::marker::Unpin for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::UnsafeUnpin
+impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe
+impl<W> core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe
 pub struct knotch_kernel::project::ModelTimelineEntry
 pub knotch_kernel::project::ModelTimelineEntry::at: jiff::timestamp::Timestamp
 pub knotch_kernel::project::ModelTimelineEntry::model: knotch_kernel::causation::ModelId
@@ -1079,6 +1097,8 @@ impl core::marker::Unpin for knotch_kernel::project::ToolCallFailureEntry
 impl core::marker::UnsafeUnpin for knotch_kernel::project::ToolCallFailureEntry
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::ToolCallFailureEntry
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::ToolCallFailureEntry
+pub fn knotch_kernel::project::cost_by_milestone<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::project::MilestoneCostEntry<W>>
+pub fn knotch_kernel::project::cost_by_phase<W: knotch_kernel::workflow::WorkflowKind>(workflow: &W, log: &knotch_kernel::log::Log<W>) -> rustc_hash::FxHashMap<<W as knotch_kernel::workflow::WorkflowKind>::Phase, knotch_kernel::causation::Cost>
 pub fn knotch_kernel::project::current_phase<W: knotch_kernel::workflow::WorkflowKind>(workflow: &W, log: &knotch_kernel::log::Log<W>) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Phase>
 pub fn knotch_kernel::project::current_status<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> core::option::Option<knotch_kernel::status::StatusId>
 pub fn knotch_kernel::project::effective_events<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::event::Event<W>>
