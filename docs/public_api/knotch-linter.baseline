@@ -1,5 +1,3 @@
- Documenting knotch-linter v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-linter)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.85s
 pub mod knotch_linter
 pub mod knotch_linter::report
 pub enum knotch_linter::report::Severity

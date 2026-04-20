@@ -1,6 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
- Documenting knotch-tracing v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-tracing)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.87s
 pub mod knotch_tracing
 pub mod knotch_tracing::attrs
 pub struct knotch_tracing::attrs::Attrs

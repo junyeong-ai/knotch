@@ -1,17 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
-    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
-    Checking knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
- Documenting knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
-warning: unresolved link to `super::KnotchGate::prerequisites`
-  --> crates/knotch-workflow/src/knotch/events.rs:65:35
-   |
-65 | /// [`KnotchGate::prerequisites`](super::KnotchGate::prerequisites);
-   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the enum `KnotchGate` has no variant or associated item named `prerequisites`
-   |
-   = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
-
-warning: `knotch-workflow` (lib doc) generated 1 warning
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.60s
 pub mod knotch_workflow
 pub mod knotch_workflow::config
 #[non_exhaustive] pub enum knotch_workflow::config::ConfigError
@@ -173,11 +159,18 @@ impl core::marker::UnsafeUnpin for knotch_workflow::dynamic::DynamicExtension
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::dynamic::DynamicExtension
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::dynamic::DynamicExtension
 pub struct knotch_workflow::dynamic::DynamicGate(pub compact_str::CompactString)
+impl knotch_workflow::dynamic::DynamicGate
+pub fn knotch_workflow::dynamic::DynamicGate::as_str(&self) -> &str
+pub fn knotch_workflow::dynamic::DynamicGate::new(id: impl core::convert::Into<compact_str::CompactString>) -> Self
 impl core::clone::Clone for knotch_workflow::dynamic::DynamicGate
 pub fn knotch_workflow::dynamic::DynamicGate::clone(&self) -> knotch_workflow::dynamic::DynamicGate
 impl core::cmp::Eq for knotch_workflow::dynamic::DynamicGate
 impl core::cmp::PartialEq for knotch_workflow::dynamic::DynamicGate
 pub fn knotch_workflow::dynamic::DynamicGate::eq(&self, other: &knotch_workflow::dynamic::DynamicGate) -> bool
+impl core::convert::From<&str> for knotch_workflow::dynamic::DynamicGate
+pub fn knotch_workflow::dynamic::DynamicGate::from(s: &str) -> Self
+impl core::convert::From<compact_str::CompactString> for knotch_workflow::dynamic::DynamicGate
+pub fn knotch_workflow::dynamic::DynamicGate::from(s: compact_str::CompactString) -> Self
 impl core::fmt::Debug for knotch_workflow::dynamic::DynamicGate
 pub fn knotch_workflow::dynamic::DynamicGate::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_workflow::dynamic::DynamicGate
@@ -197,11 +190,18 @@ impl core::marker::UnsafeUnpin for knotch_workflow::dynamic::DynamicGate
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::dynamic::DynamicGate
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::dynamic::DynamicGate
 pub struct knotch_workflow::dynamic::DynamicMilestone(pub compact_str::CompactString)
+impl knotch_workflow::dynamic::DynamicMilestone
+pub fn knotch_workflow::dynamic::DynamicMilestone::as_str(&self) -> &str
+pub fn knotch_workflow::dynamic::DynamicMilestone::new(id: impl core::convert::Into<compact_str::CompactString>) -> Self
 impl core::clone::Clone for knotch_workflow::dynamic::DynamicMilestone
 pub fn knotch_workflow::dynamic::DynamicMilestone::clone(&self) -> knotch_workflow::dynamic::DynamicMilestone
 impl core::cmp::Eq for knotch_workflow::dynamic::DynamicMilestone
 impl core::cmp::PartialEq for knotch_workflow::dynamic::DynamicMilestone
 pub fn knotch_workflow::dynamic::DynamicMilestone::eq(&self, other: &knotch_workflow::dynamic::DynamicMilestone) -> bool
+impl core::convert::From<&str> for knotch_workflow::dynamic::DynamicMilestone
+pub fn knotch_workflow::dynamic::DynamicMilestone::from(s: &str) -> Self
+impl core::convert::From<compact_str::CompactString> for knotch_workflow::dynamic::DynamicMilestone
+pub fn knotch_workflow::dynamic::DynamicMilestone::from(s: compact_str::CompactString) -> Self
 impl core::fmt::Debug for knotch_workflow::dynamic::DynamicMilestone
 pub fn knotch_workflow::dynamic::DynamicMilestone::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_workflow::dynamic::DynamicMilestone
@@ -620,11 +620,18 @@ impl core::marker::UnsafeUnpin for knotch_workflow::dynamic::DynamicExtension
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::dynamic::DynamicExtension
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::dynamic::DynamicExtension
 pub struct knotch_workflow::DynamicGate(pub compact_str::CompactString)
+impl knotch_workflow::dynamic::DynamicGate
+pub fn knotch_workflow::dynamic::DynamicGate::as_str(&self) -> &str
+pub fn knotch_workflow::dynamic::DynamicGate::new(id: impl core::convert::Into<compact_str::CompactString>) -> Self
 impl core::clone::Clone for knotch_workflow::dynamic::DynamicGate
 pub fn knotch_workflow::dynamic::DynamicGate::clone(&self) -> knotch_workflow::dynamic::DynamicGate
 impl core::cmp::Eq for knotch_workflow::dynamic::DynamicGate
 impl core::cmp::PartialEq for knotch_workflow::dynamic::DynamicGate
 pub fn knotch_workflow::dynamic::DynamicGate::eq(&self, other: &knotch_workflow::dynamic::DynamicGate) -> bool
+impl core::convert::From<&str> for knotch_workflow::dynamic::DynamicGate
+pub fn knotch_workflow::dynamic::DynamicGate::from(s: &str) -> Self
+impl core::convert::From<compact_str::CompactString> for knotch_workflow::dynamic::DynamicGate
+pub fn knotch_workflow::dynamic::DynamicGate::from(s: compact_str::CompactString) -> Self
 impl core::fmt::Debug for knotch_workflow::dynamic::DynamicGate
 pub fn knotch_workflow::dynamic::DynamicGate::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_workflow::dynamic::DynamicGate
@@ -644,11 +651,18 @@ impl core::marker::UnsafeUnpin for knotch_workflow::dynamic::DynamicGate
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::dynamic::DynamicGate
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::dynamic::DynamicGate
 pub struct knotch_workflow::DynamicMilestone(pub compact_str::CompactString)
+impl knotch_workflow::dynamic::DynamicMilestone
+pub fn knotch_workflow::dynamic::DynamicMilestone::as_str(&self) -> &str
+pub fn knotch_workflow::dynamic::DynamicMilestone::new(id: impl core::convert::Into<compact_str::CompactString>) -> Self
 impl core::clone::Clone for knotch_workflow::dynamic::DynamicMilestone
 pub fn knotch_workflow::dynamic::DynamicMilestone::clone(&self) -> knotch_workflow::dynamic::DynamicMilestone
 impl core::cmp::Eq for knotch_workflow::dynamic::DynamicMilestone
 impl core::cmp::PartialEq for knotch_workflow::dynamic::DynamicMilestone
 pub fn knotch_workflow::dynamic::DynamicMilestone::eq(&self, other: &knotch_workflow::dynamic::DynamicMilestone) -> bool
+impl core::convert::From<&str> for knotch_workflow::dynamic::DynamicMilestone
+pub fn knotch_workflow::dynamic::DynamicMilestone::from(s: &str) -> Self
+impl core::convert::From<compact_str::CompactString> for knotch_workflow::dynamic::DynamicMilestone
+pub fn knotch_workflow::dynamic::DynamicMilestone::from(s: compact_str::CompactString) -> Self
 impl core::fmt::Debug for knotch_workflow::dynamic::DynamicMilestone
 pub fn knotch_workflow::dynamic::DynamicMilestone::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_workflow::dynamic::DynamicMilestone

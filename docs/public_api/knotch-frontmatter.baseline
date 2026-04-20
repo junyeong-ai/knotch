@@ -1,5 +1,3 @@
- Documenting knotch-frontmatter v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-frontmatter)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.93s
 pub mod knotch_frontmatter
 pub use knotch_frontmatter::FieldSchema
 pub use knotch_frontmatter::FieldType

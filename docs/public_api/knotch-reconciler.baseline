@@ -1,5 +1,3 @@
- Documenting knotch-reconciler v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-reconciler)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.12s
 pub mod knotch_reconciler
 #[non_exhaustive] pub enum knotch_reconciler::ReconcileError
 pub knotch_reconciler::ReconcileError::JoinError(alloc::string::String)

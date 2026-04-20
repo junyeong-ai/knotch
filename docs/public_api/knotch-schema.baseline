@@ -1,5 +1,3 @@
- Documenting knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.90s
 pub mod knotch_schema
 pub mod knotch_schema::frontmatter
 #[non_exhaustive] pub enum knotch_schema::frontmatter::FieldType

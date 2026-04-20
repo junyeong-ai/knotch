@@ -1,7 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
-    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
- Documenting knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.71s
 pub mod knotch_storage
 pub mod knotch_storage::atomic
 pub async fn knotch_storage::atomic::write(target: &std::path::Path, contents: &[u8]) -> std::io::error::Result<()>

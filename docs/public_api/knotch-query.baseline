@@ -1,6 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
- Documenting knotch-query v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-query)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.85s
 pub mod knotch_query
 #[non_exhaustive] pub enum knotch_query::QueryError
 pub knotch_query::QueryError::Repository(knotch_kernel::error::RepositoryError)

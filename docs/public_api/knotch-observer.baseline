@@ -1,21 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
-    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
-    Checking knotch-vcs v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-vcs)
-    Checking knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
-    Checking knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
-    Checking knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
- Documenting knotch-observer v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-observer)
-warning: unresolved link to `subject_prefix_resolver`
-  --> crates/knotch-observer/src/git_log.rs:13:7
-   |
-13 | //! [`subject_prefix_resolver`] as a starter.
-   |       ^^^^^^^^^^^^^^^^^^^^^^^ no item named `subject_prefix_resolver` in scope
-   |
-   = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
-   = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
-
-warning: `knotch-observer` (lib doc) generated 1 warning
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.22s
 pub mod knotch_observer
 pub mod knotch_observer::artifact
 pub struct knotch_observer::artifact::ArtifactObserver<W: knotch_kernel::workflow::WorkflowKind>

@@ -1,6 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
- Documenting knotch-vcs v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-vcs)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.10s
 pub mod knotch_vcs
 pub use knotch_vcs::CommitStatus
 pub mod knotch_vcs::commit

@@ -1,7 +1,3 @@
-    Checking knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
-    Checking knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
- Documenting knotch-adr v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-adr)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.29s
 pub mod knotch_adr
 pub enum knotch_adr::AdrGate
 impl core::clone::Clone for knotch_adr::AdrGate

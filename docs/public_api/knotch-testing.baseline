@@ -1,13 +1,3 @@
-    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
-    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
-    Checking knotch-vcs v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-vcs)
-    Checking knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
-    Checking knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
-    Checking knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
-    Checking knotch-observer v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-observer)
-    Checking knotch-reconciler v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-reconciler)
- Documenting knotch-testing v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-testing)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.70s
 pub mod knotch_testing
 pub mod knotch_testing::repo
 pub struct knotch_testing::repo::InMemoryRepository<W: knotch_kernel::workflow::WorkflowKind>

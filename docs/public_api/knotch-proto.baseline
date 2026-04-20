@@ -1,5 +1,3 @@
- Documenting knotch-proto v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-proto)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.80s
 pub mod knotch_proto
 pub mod knotch_proto::canonical
 pub fn knotch_proto::canonical::canonicalize<T: serde_core::ser::Serialize + ?core::marker::Sized>(value: &T) -> core::result::Result<alloc::vec::Vec<u8>, serde_json::error::Error>
