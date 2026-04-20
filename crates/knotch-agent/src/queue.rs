@@ -19,20 +19,17 @@
 //! PostToolUse retry failure adds another entry. Two layers of
 //! defense:
 //!
-//! 1. **Warning signal** — `enqueue_raw` emits a `tracing::warn!`
-//!    when the queue size crosses [`QUEUE_WARN_THRESHOLD`], pointing
-//!    the operator at `knotch reconcile` before disk pressure builds.
-//! 2. **Hard cap** — `QueueConfig::max_entries` bounds the queue;
-//!    the [`OverflowPolicy`] decides what happens when a new entry
-//!    would exceed it. Operators choose between refusing the append
-//!    (`Reject`, the default) and dropping the oldest entry to make
+//! 1. **Warning signal** — `enqueue_raw` emits a `tracing::warn!` when the queue size
+//!    crosses [`QUEUE_WARN_THRESHOLD`], pointing the operator at `knotch reconcile`
+//!    before disk pressure builds.
+//! 2. **Hard cap** — `QueueConfig::max_entries` bounds the queue; the [`OverflowPolicy`]
+//!    decides what happens when a new entry would exceed it. Operators choose between
+//!    refusing the append (`Reject`, the default) and dropping the oldest entry to make
 //!    room (`SpillOldest`).
 
 use std::{path::Path, time::Duration};
 
-use knotch_kernel::{
-    AppendMode, Proposal, Repository, RepositoryError, UnitId, WorkflowKind,
-};
+use knotch_kernel::{AppendMode, Proposal, Repository, RepositoryError, UnitId, WorkflowKind};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use uuid::Uuid;
 
@@ -106,10 +103,9 @@ pub struct QueueEntry {
 ///
 /// # Errors
 ///
-/// - [`HookError::QueueFull`] when [`QueueConfig::max_entries`] would
-///   be exceeded under [`OverflowPolicy::Reject`].
-/// - [`HookError::Io`] / [`HookError::Json`] on filesystem or
-///   serialization failure.
+/// - [`HookError::QueueFull`] when [`QueueConfig::max_entries`] would be exceeded under
+///   [`OverflowPolicy::Reject`].
+/// - [`HookError::Io`] / [`HookError::Json`] on filesystem or serialization failure.
 pub fn enqueue_raw(
     queue_dir: &Path,
     unit: &UnitId,
@@ -353,16 +349,14 @@ pub struct PostToolContext<'a> {
 /// Append a proposal under the PostToolUse contract
 /// (`.claude/rules/hook-integration.md`):
 ///
-/// 1. Retry up to [`POST_TOOL_MAX_ATTEMPTS`] times on transient
-///    failures (`RepositoryError::Storage` / `Lock` / `Codec` /
-///    `Corrupted`, `HookError::Io`). `RepositoryError::Precondition`
-///    is **not** retried — preconditions are permanent policy
-///    rejections (e.g. "milestone already shipped"), not transient.
-/// 2. On retry exhaustion, enqueue via [`enqueue_raw`] so the
-///    reconciler can drain on the next `SessionStart` /
-///    `knotch reconcile`.
-/// 3. On [`HookError::QueueFull`], fall back to the orphan log at
-///    `~/.knotch/orphan.log` so the event is never silently dropped.
+/// 1. Retry up to [`POST_TOOL_MAX_ATTEMPTS`] times on transient failures
+///    (`RepositoryError::Storage` / `Lock` / `Codec` / `Corrupted`, `HookError::Io`).
+///    `RepositoryError::Precondition` is **not** retried — preconditions are permanent
+///    policy rejections (e.g. "milestone already shipped"), not transient.
+/// 2. On retry exhaustion, enqueue via [`enqueue_raw`] so the reconciler can drain on the
+///    next `SessionStart` / `knotch reconcile`.
+/// 3. On [`HookError::QueueFull`], fall back to the orphan log at `~/.knotch/orphan.log`
+///    so the event is never silently dropped.
 ///
 /// The helper returns [`HookOutput::Continue`] in every terminal path
 /// (success, queued, orphaned) so the PostToolUse exit code stays 0
@@ -433,7 +427,8 @@ where
             // Queue cap hit under `OverflowPolicy::Reject` — the event
             // would otherwise be lost. Orphan-log it so the operator
             // sees the drop and can recover by hand.
-            let orphan_reason = format!("queue-full size={size} max={max}; append reason: {reason}");
+            let orphan_reason =
+                format!("queue-full size={size} max={max}; append reason: {reason}");
             orphan::log_orphan(
                 ctx.home,
                 &format!("knotch hook {}", ctx.hook_name),
@@ -456,8 +451,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_json::json;
+
+    use super::*;
 
     fn unit() -> UnitId {
         UnitId::new("test-unit")
@@ -502,11 +498,8 @@ mod tests {
 
         // The surviving entries should be [seq=1, seq=2, seq=3] — the
         // oldest (seq=0) was spilled.
-        let mut remaining: Vec<_> = std::fs::read_dir(&dir)
-            .unwrap()
-            .filter_map(Result::ok)
-            .map(|e| e.path())
-            .collect();
+        let mut remaining: Vec<_> =
+            std::fs::read_dir(&dir).unwrap().filter_map(Result::ok).map(|e| e.path()).collect();
         remaining.sort();
         let mut seqs = Vec::new();
         for path in &remaining {

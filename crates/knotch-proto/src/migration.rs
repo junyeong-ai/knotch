@@ -56,8 +56,8 @@ impl Registry {
     /// # Errors
     ///
     /// - [`MigrationError::Downgrade`] if `to < from`.
-    /// - [`MigrationError::MissingLink`] if no registered migrator
-    ///   bridges some intermediate version.
+    /// - [`MigrationError::MissingLink`] if no registered migrator bridges some
+    ///   intermediate version.
     /// - [`MigrationError::Custom`] if a migrator itself fails.
     pub fn migrate(&self, value: Value, from: u32, to: u32) -> Result<Value, MigrationError> {
         if from == to {
@@ -116,8 +116,9 @@ pub enum MigrationError {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_json::json;
+
+    use super::*;
 
     /// Adds `added_field` to every object. Represents a typical
     /// "additive" schema step.

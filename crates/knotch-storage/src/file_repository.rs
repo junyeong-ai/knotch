@@ -17,7 +17,7 @@ use knotch_kernel::{
     event::{RejectedProposal, SubscribeEvent, SubscribeMode},
     fingerprint_event, fingerprint_proposal,
     repository::{CacheMutator, PinStream, Repository, ResumeCache},
-    time::{stamp_monotonic, SystemClock},
+    time::{SystemClock, stamp_monotonic},
 };
 use knotch_lock::{FileLock, Lock};
 use knotch_proto::header::Header;

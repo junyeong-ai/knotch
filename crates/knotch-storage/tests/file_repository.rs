@@ -322,9 +322,7 @@ async fn with_cache_survives_cache_write_failure() {
     // write we trigger below will surface Err.
     let cache_path = repo.storage().cache_path(&unit);
     tokio::fs::create_dir_all(&cache_path).await.expect("create cache dir");
-    tokio::fs::write(cache_path.join("blocker.txt"), b"obstacle")
-        .await
-        .expect("plant obstacle");
+    tokio::fs::write(cache_path.join("blocker.txt"), b"obstacle").await.expect("plant obstacle");
 
     // Trigger with_cache. The cache mutator runs, the log append
     // commits, then write_cache fails — `with_cache` must return Ok.
@@ -354,8 +352,5 @@ async fn with_cache_survives_cache_write_failure() {
     assert_eq!(shipped_milestones(&log), vec![Milestone::Alpha]);
 
     // Sabotage survived — cache path is still the directory we planted.
-    assert!(
-        cache_path.is_dir(),
-        "cache sabotage should survive: write failed as designed",
-    );
+    assert!(cache_path.is_dir(), "cache sabotage should survive: write failed as designed",);
 }

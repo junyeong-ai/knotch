@@ -239,12 +239,6 @@ async fn broadcast_overflow_surfaces_lagged_event() {
     // We sent 1024 + 500 in one batch; capacity is 1024. The first
     // Lagged reports at least `EXTRA` skipped frames — subscribers
     // that never poll see the oldest events evicted by newer ones.
-    assert!(
-        skipped as usize >= EXTRA,
-        "expected skipped >= {EXTRA}, got {skipped}",
-    );
-    assert!(
-        events_after_lag > 0,
-        "stream must continue delivering events after the Lagged signal",
-    );
+    assert!(skipped as usize >= EXTRA, "expected skipped >= {EXTRA}, got {skipped}",);
+    assert!(events_after_lag > 0, "stream must continue delivering events after the Lagged signal",);
 }

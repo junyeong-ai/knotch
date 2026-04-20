@@ -24,7 +24,7 @@ use knotch_kernel::{
     event::{RejectedProposal, SubscribeEvent, SubscribeMode},
     fingerprint_proposal,
     repository::{PinStream, Repository, ResumeCache},
-    time::{stamp_monotonic, SystemClock},
+    time::{SystemClock, stamp_monotonic},
 };
 use tokio::sync::{Mutex as AsyncMutex, broadcast};
 
