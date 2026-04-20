@@ -47,6 +47,14 @@ async fn append(
 6. **Commit to storage** — `storage.append(unit, expected_len, lines)`.
    Uses optimistic CAS — another writer extending the log between
    load and append yields `StorageError::LogMutated`.
+
+   Adapters **retry with exponential backoff** on `LogMutated`
+   (`CAS_MAX_RETRIES = 5`, base `25 ms`, doubles per attempt → total
+   wait ≤ 775 ms). Each retry re-loads, re-evaluates preconditions,
+   re-stamps timestamps, and re-commits so the adapter converges on
+   the current log state instead of forcing the caller to manage
+   retries. If all attempts miss, the final `LogMutated` surfaces to
+   the caller as-is.
 7. **Fanout to subscribers** — per-unit broadcast `Sender::send`.
    No-receivers ignored.
 
@@ -84,7 +92,9 @@ covers each with a regression test:
    rejection is possible.
 3. Refuse cross-process writes that observed a stale log via
    optimistic CAS on the line count — `StorageError::LogMutated`
-   signals retry.
+   signals retry. Adapters drive a bounded-backoff retry loop over
+   `load → precondition → commit` so transient contention does not
+   bubble up to callers as errors.
 4. Treat the resume-cache as non-authoritative — never error out
    when the cache write fails after the log append succeeded.
 

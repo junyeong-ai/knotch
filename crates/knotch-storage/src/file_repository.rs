@@ -33,6 +33,14 @@ const DEFAULT_LOCK_LEASE: Duration = Duration::from_secs(300);
 /// see `SubscribeEvent::Lagged` instead of silent drops.
 const BROADCAST_CAPACITY: usize = 1024;
 
+/// Maximum attempts for optimistic-CAS retry. With exponential
+/// backoff (`CAS_BASE_DELAY * 2^n`) the last attempt waits ~400 ms,
+/// giving the interfering writer time to settle before we give up.
+const CAS_MAX_RETRIES: u32 = 5;
+
+/// Base delay for the CAS retry backoff. Doubles each attempt.
+const CAS_BASE_DELAY: Duration = Duration::from_millis(25);
+
 /// File-backed Repository. Cheap to clone — clones share the
 /// underlying `FileSystemStorage`, `FileLock`, and per-unit
 /// broadcast channels.
@@ -58,6 +66,17 @@ impl<W: WorkflowKind> Clone for FileRepository<W> {
             broadcasters: self.broadcasters.clone(),
         }
     }
+}
+
+/// Outcome of one `commit_batch` attempt.
+enum CommitOutcome<W: WorkflowKind> {
+    /// Log append succeeded; fan-out / cache write still pending.
+    Committed { accepted: Vec<Event<W>>, rejected: Vec<RejectedProposal<W>> },
+    /// `AllOrNothing` mode saw at least one rejection; no events landed.
+    Rolled { report: AppendReport<W> },
+    /// Optimistic-CAS mismatch — another writer extended the log
+    /// between our load and commit. Caller retries.
+    CasMismatch { expected: u64, on_disk: u64 },
 }
 
 impl<W: WorkflowKind> FileRepository<W> {
@@ -163,6 +182,139 @@ impl<W: WorkflowKind> FileRepository<W> {
             Err(RepositoryError::SaltMismatch { stored: h.fingerprint_salt.to_string(), current })
         }
     }
+
+    /// One attempt at load → precondition → commit. Returns
+    /// [`CommitOutcome::CasMismatch`] on optimistic-CAS failure so the
+    /// outer loop can re-load and retry. All other failures propagate
+    /// as `RepositoryError`.
+    async fn commit_batch(
+        &self,
+        unit: &UnitId,
+        proposals: &[Proposal<W>],
+        mode: AppendMode,
+    ) -> Result<CommitOutcome<W>, RepositoryError> {
+        let (lines, report) = self.storage.load(unit).await.map_err(storage_err)?;
+        let (existing_header, events) = Self::parse_lines(&lines, &report)?;
+        self.check_header_salt(existing_header.as_ref())?;
+        let existing_fingerprints: Vec<Fingerprint> = events
+            .iter()
+            .map(|e| fingerprint_event(&self.workflow, e).map_err(RepositoryError::Codec))
+            .collect::<Result<_, _>>()?;
+
+        let mut out_lines: Vec<String> = Vec::with_capacity(proposals.len() + 1);
+        let mut accepted = Vec::new();
+        let mut rejected = Vec::new();
+        let mut used: Vec<Fingerprint> = existing_fingerprints;
+        let mut working_events: Vec<Event<W>> = events.clone();
+        let mut last_at: Option<Timestamp> = working_events.last().map(|e| e.at);
+
+        for proposal in proposals {
+            let proposal = proposal.clone();
+            // 1. Dedup — idempotent replay is silent.
+            let fp =
+                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
+            if used.contains(&fp) {
+                rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
+                continue;
+            }
+            // 2. Preconditions — body + extension — evaluated against the
+            // working log (i.e. including earlier accepts in this batch).
+            let working_log = Log::from_events(unit.clone(), working_events.clone());
+            let ctx =
+                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
+            if let Err(err) = proposal.body.check_precondition(&ctx) {
+                if matches!(mode, AppendMode::AllOrNothing) {
+                    return Err(RepositoryError::Precondition(err));
+                }
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                continue;
+            }
+            if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
+                if matches!(mode, AppendMode::AllOrNothing) {
+                    return Err(RepositoryError::Precondition(err));
+                }
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                continue;
+            }
+            // 3. Monotonic timestamp — self-healing against clock drift.
+            let at = stamp_monotonic(&SystemClock, last_at);
+            let event = Event {
+                id: EventId::new_v7(),
+                at,
+                causation: proposal.causation.clone(),
+                extension: proposal.extension.clone(),
+                body: proposal.body.clone(),
+                supersedes: proposal.supersedes,
+            };
+            used.push(fp);
+            last_at = Some(at);
+            working_events.push(event.clone());
+            let line = serde_json::to_string(&event).map_err(RepositoryError::Codec)?;
+            out_lines.push(line);
+            accepted.push(event);
+        }
+
+        if matches!(mode, AppendMode::AllOrNothing) && !rejected.is_empty() {
+            return Ok(CommitOutcome::Rolled {
+                report: AppendReport { accepted: Vec::new(), rejected },
+            });
+        }
+
+        let header_missing = existing_header.is_none() && lines.is_empty();
+        let expected_len = lines.len() as u64;
+        if header_missing {
+            out_lines.insert(0, self.header_line()?);
+        }
+        match self.storage.append(unit, expected_len, out_lines).await {
+            Ok(()) => Ok(CommitOutcome::Committed { accepted, rejected }),
+            Err(StorageError::LogMutated { expected, on_disk }) => {
+                Ok(CommitOutcome::CasMismatch { expected, on_disk })
+            }
+            Err(e) => Err(storage_err(e)),
+        }
+    }
+
+    /// Drive `commit_batch` with bounded exponential-backoff retry on
+    /// optimistic-CAS mismatch. On `CAS_MAX_RETRIES` consecutive
+    /// mismatches, surfaces the final `StorageError::LogMutated` to
+    /// the caller.
+    async fn commit_with_cas_retry(
+        &self,
+        unit: &UnitId,
+        proposals: &[Proposal<W>],
+        mode: AppendMode,
+    ) -> Result<CommitOutcome<W>, RepositoryError> {
+        for attempt in 0..CAS_MAX_RETRIES {
+            let outcome = self.commit_batch(unit, proposals, mode).await?;
+            match outcome {
+                CommitOutcome::CasMismatch { expected, on_disk }
+                    if attempt + 1 < CAS_MAX_RETRIES =>
+                {
+                    tokio::time::sleep(cas_backoff(attempt)).await;
+                    tracing::debug!(
+                        unit = unit.as_str(),
+                        attempt = attempt + 1,
+                        expected,
+                        on_disk,
+                        "knotch: CAS mismatch — retrying after backoff"
+                    );
+                }
+                CommitOutcome::CasMismatch { expected, on_disk } => {
+                    return Err(storage_err(StorageError::LogMutated { expected, on_disk }));
+                }
+                other => return Ok(other),
+            }
+        }
+        unreachable!("retry loop must terminate via return")
+    }
+}
+
+/// Exponential backoff schedule for CAS retries: 25ms, 50ms, 100ms,
+/// 200ms, 400ms. Total wait before final attempt: 775ms. Saturates
+/// at `u32::MAX` multiplier rather than panicking on shift overflow.
+fn cas_backoff(attempt: u32) -> Duration {
+    let factor = 1u32.checked_shl(attempt).unwrap_or(u32::MAX);
+    CAS_BASE_DELAY.saturating_mul(factor)
 }
 
 fn base64_of(bytes: &[u8]) -> String {
@@ -230,86 +382,19 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         let _guard =
             self.lock.acquire(unit, self.lock_timeout, self.lock_lease).await.map_err(lock_err)?;
 
-        let (lines, report) = self.storage.load(unit).await.map_err(storage_err)?;
-        let (existing_header, events) = Self::parse_lines(&lines, &report)?;
-        self.check_header_salt(existing_header.as_ref())?;
-        let existing_fingerprints: Vec<Fingerprint> = events
-            .iter()
-            .map(|e| fingerprint_event(&self.workflow, e).map_err(RepositoryError::Codec))
-            .collect::<Result<_, _>>()?;
-
-        let mut out_lines: Vec<String> = Vec::with_capacity(proposals.len() + 1);
-        let mut accepted = Vec::new();
-        let mut rejected = Vec::new();
-        let mut used: Vec<Fingerprint> = existing_fingerprints.clone();
-        let mut working_events: Vec<Event<W>> = events.clone();
-        let mut last_at: Option<Timestamp> = working_events.last().map(|e| e.at);
-
-        for proposal in proposals {
-            // 1. Dedup — idempotent replay is silent.
-            let fp =
-                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
-            if used.contains(&fp) {
-                rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
-                continue;
-            }
-            // 2. Precondition — body-per-variant invariant check against
-            // the working log (i.e. including earlier accepts in this
-            // same batch).
-            let working_log = knotch_kernel::Log::from_events(unit.clone(), working_events.clone());
-            let ctx =
-                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
-            if let Err(err) = proposal.body.check_precondition(&ctx) {
-                if matches!(mode, AppendMode::AllOrNothing) {
-                    return Err(RepositoryError::Precondition(err));
+        match self.commit_with_cas_retry(unit, &proposals, mode).await? {
+            CommitOutcome::Committed { accepted, rejected } => {
+                let tx = self.broadcaster_for(unit);
+                for event in &accepted {
+                    let _ = tx.send(event.clone());
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
-                continue;
+                Ok(AppendReport { accepted, rejected })
             }
-            if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
-                if matches!(mode, AppendMode::AllOrNothing) {
-                    return Err(RepositoryError::Precondition(err));
-                }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
-                continue;
+            CommitOutcome::Rolled { report } => Ok(report),
+            CommitOutcome::CasMismatch { .. } => {
+                unreachable!("commit_with_cas_retry surfaces the mismatch as an error")
             }
-            // 3. Monotonic timestamp — self-healing against clock drift.
-            let at = stamp_monotonic(&SystemClock, last_at);
-            let event = Event {
-                id: EventId::new_v7(),
-                at,
-                causation: proposal.causation.clone(),
-                extension: proposal.extension.clone(),
-                body: proposal.body.clone(),
-                supersedes: proposal.supersedes,
-            };
-            used.push(fp);
-            last_at = Some(at);
-            working_events.push(event.clone());
-            let line = serde_json::to_string(&event).map_err(RepositoryError::Codec)?;
-            out_lines.push(line);
-            accepted.push(event);
         }
-
-        if matches!(mode, AppendMode::AllOrNothing) && !rejected.is_empty() {
-            return Ok(AppendReport { accepted: Vec::new(), rejected });
-        }
-
-        let header_missing = existing_header.is_none() && lines.is_empty();
-        let expected_len = lines.len() as u64;
-        if header_missing {
-            out_lines.insert(0, self.header_line()?);
-        }
-        self.storage.append(unit, expected_len, out_lines).await.map_err(storage_err)?;
-
-        // Fanout to in-process subscribers. `send` returning Err means
-        // no receivers — fine.
-        let tx = self.broadcaster_for(unit);
-        for event in &accepted {
-            let _ = tx.send(event.clone());
-        }
-
-        Ok(AppendReport { accepted, rejected })
     }
 
     async fn load(&self, unit: &UnitId) -> Result<Arc<Log<W>>, RepositoryError> {
@@ -387,102 +472,66 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         let _guard =
             self.lock.acquire(unit, self.lock_timeout, self.lock_lease).await.map_err(lock_err)?;
 
-        // Load cache + lines under the lock so the mutation commits
-        // atomically with the event append.
+        // Read + mutate cache once, outside the retry loop. The mutator
+        // is `FnOnce` by contract and does not depend on event state —
+        // it projects cache-local intent, not log-derived state. Cache
+        // write happens after the log append commits.
         let cache_map = self.storage.read_cache(unit).await.map_err(storage_err)?;
         let mut cache = ResumeCache::from(cache_map);
         mutate_cache(&mut cache);
 
-        let (lines, report) = self.storage.load(unit).await.map_err(storage_err)?;
-        let (existing_header, events) = Self::parse_lines(&lines, &report)?;
-        self.check_header_salt(existing_header.as_ref())?;
-        let existing_fingerprints: Vec<Fingerprint> = events
-            .iter()
-            .map(|e| fingerprint_event(&self.workflow, e).map_err(RepositoryError::Codec))
-            .collect::<Result<_, _>>()?;
-
-        let mut out_lines: Vec<String> = Vec::with_capacity(proposals.len() + 1);
-        let mut accepted = Vec::new();
-        let mut rejected = Vec::new();
-        let mut used: Vec<Fingerprint> = existing_fingerprints;
-        let mut working_events: Vec<Event<W>> = events.clone();
-        let mut last_at: Option<Timestamp> = working_events.last().map(|e| e.at);
-
-        for proposal in proposals {
-            let fp =
-                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
-            if used.contains(&fp) {
-                rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
-                continue;
-            }
-            let working_log = knotch_kernel::Log::from_events(unit.clone(), working_events.clone());
-            let ctx =
-                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
-            if let Err(err) = proposal.body.check_precondition(&ctx) {
-                if matches!(mode, AppendMode::AllOrNothing) {
-                    return Err(RepositoryError::Precondition(err));
+        match self.commit_with_cas_retry(unit, &proposals, mode).await? {
+            CommitOutcome::Committed { accepted, rejected } => {
+                // The log is the sole source of truth (constitution §I);
+                // the resume-cache is a checkpoint that can safely lag
+                // or be missing. If the cache write fails after the log
+                // append succeeded, we keep the log and emit a warning
+                // rather than propagating an error that would suggest
+                // the append failed. On the next load, a missing-or-
+                // stale cache reads as empty and the observer re-
+                // processes the window it had already advanced past —
+                // safe because fingerprint dedup turns the repeat into
+                // idempotent no-ops.
+                if let Err(err) = self.storage.write_cache(unit, cache.as_map().clone()).await {
+                    tracing::warn!(
+                        unit = unit.as_str(),
+                        error = %err,
+                        "knotch: resume-cache write failed after successful log append — \
+                         cache will rebuild on next load (log is authoritative)"
+                    );
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
-                continue;
-            }
-            if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
-                if matches!(mode, AppendMode::AllOrNothing) {
-                    return Err(RepositoryError::Precondition(err));
+                let tx = self.broadcaster_for(unit);
+                for event in &accepted {
+                    let _ = tx.send(event.clone());
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
-                continue;
+                Ok(AppendReport { accepted, rejected })
             }
-            let at = stamp_monotonic(&SystemClock, last_at);
-            let event = Event {
-                id: EventId::new_v7(),
-                at,
-                causation: proposal.causation.clone(),
-                extension: proposal.extension.clone(),
-                body: proposal.body.clone(),
-                supersedes: proposal.supersedes,
-            };
-            used.push(fp);
-            last_at = Some(at);
-            working_events.push(event.clone());
-            let line = serde_json::to_string(&event).map_err(RepositoryError::Codec)?;
-            out_lines.push(line);
-            accepted.push(event);
+            CommitOutcome::Rolled { report } => Ok(report),
+            CommitOutcome::CasMismatch { .. } => {
+                unreachable!("commit_with_cas_retry surfaces the mismatch as an error")
+            }
         }
+    }
+}
 
-        if matches!(mode, AppendMode::AllOrNothing) && !rejected.is_empty() {
-            return Ok(AppendReport { accepted: Vec::new(), rejected });
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-        let header_missing = existing_header.is_none() && lines.is_empty();
-        let expected_len = lines.len() as u64;
-        if header_missing {
-            out_lines.insert(0, self.header_line()?);
-        }
-        self.storage.append(unit, expected_len, out_lines).await.map_err(storage_err)?;
+    #[test]
+    fn cas_backoff_doubles_each_attempt() {
+        assert_eq!(cas_backoff(0), Duration::from_millis(25));
+        assert_eq!(cas_backoff(1), Duration::from_millis(50));
+        assert_eq!(cas_backoff(2), Duration::from_millis(100));
+        assert_eq!(cas_backoff(3), Duration::from_millis(200));
+        assert_eq!(cas_backoff(4), Duration::from_millis(400));
+    }
 
-        // The log is the sole source of truth (constitution §I); the
-        // resume-cache is a checkpoint that can safely lag or be
-        // missing. If the cache write fails after the log append
-        // succeeded, we keep the log and emit a warning rather than
-        // propagating an error that would suggest the append failed.
-        // On the next load, a missing-or-stale cache reads as empty
-        // and the observer re-processes the window it had already
-        // advanced past — safe because fingerprint dedup turns the
-        // repeat into idempotent no-ops.
-        if let Err(err) = self.storage.write_cache(unit, cache.as_map().clone()).await {
-            tracing::warn!(
-                unit = unit.as_str(),
-                error = %err,
-                "knotch: resume-cache write failed after successful log append — \
-                 cache will rebuild on next load (log is authoritative)"
-            );
-        }
-
-        let tx = self.broadcaster_for(unit);
-        for event in &accepted {
-            let _ = tx.send(event.clone());
-        }
-
-        Ok(AppendReport { accepted, rejected })
+    #[test]
+    fn cas_backoff_saturates_at_u32_overflow() {
+        // Attempt = 31 would overflow `1 << attempt` as u32; saturating
+        // arithmetic keeps the delay bounded instead of panicking.
+        let _ = cas_backoff(31);
+        let _ = cas_backoff(50);
     }
 }
