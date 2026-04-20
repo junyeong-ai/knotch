@@ -15,12 +15,11 @@ that pin to these names survive knotch releases because the
 | `attrs` | `const KNOTCH_*` attribute-name constants. `knotch.unit`, `knotch.event.id`, `knotch.event.kind`, `knotch.causation.agent_id`, `knotch.cost.usd`, and so on. |
 | `spans` | Span builders that pre-populate the attribute keys from a `Causation` / `Event<W>` / `Cost`. Integrates with `tracing::info_span!` so downstream subscribers receive pre-tagged spans. |
 
-Feature gates:
-
-- `otel` — bridges knotch spans into OpenTelemetry via
-  `tracing-opentelemetry`.
-- `metrics` — exposes `metrics`-crate counters + histograms
-  keyed by the same attribute set.
+Downstream integrations (OpenTelemetry export, `metrics` counters,
+Prometheus scrape) stay out-of-process — subscribers of the
+`tracing` events we emit pick up the `knotch.*` attributes via
+their own layers. This crate stays dependency-light so adopters
+that only use `tracing` pay zero cost.
 
 ## Extension recipe — add a new attribute key
 
@@ -43,6 +42,6 @@ Feature gates:
 - Route sensitive fields (`Principal::Person`, `Principal::Agent`
   raw identifiers) through the un-hashed path — the subscriber
   must hash `Sensitive` markers before emission.
-- Pull the `otel` / `metrics` dep into the default feature — the
-  crate must stay light for adopters that only use `tracing`
-  itself.
+- Pull an OTel / metrics bridge into this crate directly —
+  adopters wire those into their own subscriber stack; this
+  crate stays a pure attribute-schema + span-helper surface.

@@ -4,18 +4,9 @@
 //! surface — `cargo-public-api` diffs would catch a drift. Consumers
 //! depending on these strings (dashboards, alert rules) can pin to
 //! a semver-tracked version.
-//!
-//! Feature gates:
-//!
-//! - `otel` — bridges knotch spans into OpenTelemetry via
-//!   `tracing-opentelemetry`.
-//! - `metrics` — exposes `metrics`-crate counters / histograms.
 
 pub mod attrs;
 pub mod spans;
-
-#[cfg(feature = "otel")]
-pub mod otel;
 
 pub use self::{attrs::Attrs, spans::emit_append, spans::emit_reconcile};
 
