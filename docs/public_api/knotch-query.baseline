@@ -21,7 +21,11 @@ pub fn knotch_query::QueryBuilder<W>::limit(self, n: usize) -> Self
 pub fn knotch_query::QueryBuilder<W>::new() -> Self
 pub fn knotch_query::QueryBuilder<W>::since(self, when: jiff::timestamp::Timestamp) -> Self
 pub fn knotch_query::QueryBuilder<W>::until(self, when: jiff::timestamp::Timestamp) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_agent_id(self, id: knotch_kernel::causation::AgentId) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_cost_gte(self, min_usd: rust_decimal::decimal::Decimal) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_harness(self, harness: knotch_kernel::causation::Harness) -> Self
 pub fn knotch_query::QueryBuilder<W>::where_milestone_shipped(self, milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_model(self, model: knotch_kernel::causation::ModelId) -> Self
 pub fn knotch_query::QueryBuilder<W>::where_phase(self, phase: <W as knotch_kernel::workflow::WorkflowKind>::Phase) -> Self
 pub fn knotch_query::QueryBuilder<W>::where_status(self, status: knotch_kernel::status::StatusId) -> Self
 impl<W: knotch_kernel::workflow::WorkflowKind> core::default::Default for knotch_query::QueryBuilder<W>

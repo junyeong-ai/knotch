@@ -5,6 +5,18 @@
 //! `list_units()`, loads each log, and filters in memory. This is
 //! intentionally simple — storage-native indexing (e.g. SQLite
 //! views) is a future optimization and lives in adapter crates.
+//!
+//! Predicates cover three axes:
+//!
+//! - **Unit state** — `where_phase`, `where_status`,
+//!   `where_milestone_shipped` — projection-derived.
+//! - **Time** — `since`, `until` — event-timestamp windowing.
+//! - **Causation** — `where_agent_id`, `where_model`,
+//!   `where_harness`, `where_cost_gte` — introspect who /
+//!   which model / which harness produced the events, and how
+//!   much the unit cost to run. Agents use these for retrospection
+//!   ("what have I worked on?"), cost attribution dashboards, and
+//!   model-migration audits.
 
 use std::borrow::Cow;
 
@@ -12,8 +24,10 @@ use futures::StreamExt as _;
 use jiff::Timestamp;
 use knotch_kernel::{
     Log, Repository, StatusId, UnitId, WorkflowKind,
-    project::{current_phase, current_status, effective_events, shipped_milestones},
+    causation::{AgentId, Harness, ModelId, Principal},
+    project::{current_phase, current_status, effective_events, shipped_milestones, total_cost},
 };
+use rust_decimal::Decimal;
 
 mod error;
 
@@ -75,6 +89,50 @@ impl<W: WorkflowKind> QueryBuilder<W> {
         self
     }
 
+    /// Match units that carry **at least one effective event** whose
+    /// `Principal::Agent { agent_id }` equals `id`. Primary use: an
+    /// agent asking "what have I worked on?".
+    ///
+    /// The match tests every effective event, not the latest one —
+    /// if the unit has been touched by the agent at any point in
+    /// its lifetime, it qualifies. Supersede-aware.
+    #[must_use]
+    pub fn where_agent_id(mut self, id: AgentId) -> Self {
+        self.filters.push(Filter::AgentId(id));
+        self
+    }
+
+    /// Match units that carry at least one effective event produced
+    /// under `Principal::Agent { model }`. Useful for "which units
+    /// did opus-4-7 touch" audits and model-migration rollouts.
+    #[must_use]
+    pub fn where_model(mut self, model: ModelId) -> Self {
+        self.filters.push(Filter::Model(model));
+        self
+    }
+
+    /// Match units that carry at least one effective event produced
+    /// under `Principal::Agent { harness }`. Useful when a knotch
+    /// workspace is shared across multiple harnesses (Claude Code,
+    /// Cursor, custom) and an operator wants the per-harness
+    /// cohort.
+    #[must_use]
+    pub fn where_harness(mut self, harness: Harness) -> Self {
+        self.filters.push(Filter::Harness(harness));
+        self
+    }
+
+    /// Match units whose aggregated `total_cost` is at least
+    /// `min_usd` dollars. Units with no recorded cost never match —
+    /// an absent value is **not** treated as zero, since
+    /// `Cost::usd: None` encodes "unknown", not "free" (see
+    /// `.claude/rules/causation.md`).
+    #[must_use]
+    pub fn where_cost_gte(mut self, min_usd: Decimal) -> Self {
+        self.filters.push(Filter::CostGteUsd(min_usd));
+        self
+    }
+
     /// Cap the number of returned units. Results are sorted by
     /// `UnitId` ascending before the limit is applied.
     #[must_use]
@@ -119,12 +177,20 @@ impl<W: WorkflowKind> QueryBuilder<W> {
     }
 }
 
+/// Predicate atom — AND-composed inside [`QueryBuilder`]. Marked
+/// `#[non_exhaustive]` at the public boundary by keeping it private:
+/// new predicates grow via new `where_*` builder methods without
+/// widening the pattern-match surface downstream consumers depend on.
 enum Filter<W: WorkflowKind> {
     Phase(W::Phase),
     MilestoneShipped(W::Milestone),
     Status(StatusId),
     Since(Timestamp),
     Until(Timestamp),
+    AgentId(AgentId),
+    Model(ModelId),
+    Harness(Harness),
+    CostGteUsd(Decimal),
 }
 
 impl<W: WorkflowKind> Filter<W> {
@@ -138,6 +204,30 @@ impl<W: WorkflowKind> Filter<W> {
             Filter::Status(s) => current_status(log).as_ref() == Some(s),
             Filter::Since(ts) => effective_events(log).iter().any(|e| e.at >= *ts),
             Filter::Until(ts) => effective_events(log).iter().any(|e| e.at <= *ts),
+            Filter::AgentId(want) => effective_events(log).iter().any(|evt| {
+                matches!(
+                    &evt.causation.principal,
+                    Principal::Agent { agent_id, .. } if agent_id == want,
+                )
+            }),
+            Filter::Model(want) => effective_events(log).iter().any(|evt| {
+                matches!(
+                    &evt.causation.principal,
+                    Principal::Agent { model, .. } if model == want,
+                )
+            }),
+            Filter::Harness(want) => effective_events(log).iter().any(|evt| {
+                matches!(
+                    &evt.causation.principal,
+                    Principal::Agent { harness, .. } if harness == want,
+                )
+            }),
+            Filter::CostGteUsd(min) => {
+                // `Cost::usd == None` means "unknown", not "zero" —
+                // see `.claude/rules/causation.md`. Treat unknown
+                // cost as non-matching under a lower bound query.
+                total_cost(log).usd.is_some_and(|usd| usd >= *min)
+            }
         }
     }
 }

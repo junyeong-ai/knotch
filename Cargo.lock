@@ -1841,12 +1841,14 @@ dependencies = [
 name = "knotch-query"
 version = "0.1.1"
 dependencies = [
+ "compact_str",
  "futures",
  "jiff",
  "knotch-derive",
  "knotch-kernel",
  "knotch-storage",
  "knotch-testing",
+ "rust_decimal",
  "serde",
  "tempfile",
  "thiserror",

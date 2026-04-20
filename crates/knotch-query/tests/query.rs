@@ -349,3 +349,171 @@ async fn group_units_by_current_phase() {
     assert_eq!(at_a, vec!["u1".to_owned()]);
     assert_eq!(at_b, vec!["u2".to_owned(), "u3".to_owned()]);
 }
+
+// ---- causation predicates ---------------------------------------------
+
+use compact_str::CompactString;
+use knotch_kernel::causation::{AgentId, Cost, Harness, ModelId};
+
+fn agent_causation(agent: &str, model: &str, harness: &str) -> Causation {
+    Causation::new(
+        Source::Agent,
+        Principal::Agent {
+            agent_id: AgentId(CompactString::from(agent)),
+            model: ModelId(CompactString::from(model)),
+            harness: Harness(CompactString::from(harness)),
+        },
+        Trigger::ToolInvocation {
+            tool: CompactString::from("test-tool"),
+            call_id: CompactString::from("call-1"),
+        },
+    )
+}
+
+fn agent_causation_with_cost(agent: &str, model: &str, harness: &str, usd_cents: i64) -> Causation {
+    let mut c = agent_causation(agent, model, harness);
+    c = c.with_cost(Cost::new(
+        Some(rust_decimal::Decimal::new(usd_cents, 2)),
+        100,
+        200,
+    ));
+    c
+}
+
+async fn seed_with_causation(
+    repo: &InMemoryRepository<Wf>,
+    id: &str,
+    causation: Causation,
+    body: EventBody<Wf>,
+) {
+    let unit = UnitId::try_new(id).unwrap();
+    let proposal = Proposal { causation, extension: (), body, supersedes: None };
+    repo.append(&unit, vec![proposal], AppendMode::BestEffort).await.expect("seed");
+}
+
+#[tokio::test]
+async fn where_agent_id_filters_to_matching_events() {
+    let repo = InMemoryRepository::<Wf>::new(Wf);
+    seed_with_causation(
+        &repo,
+        "by-alice",
+        agent_causation("alice", "opus", "claude-code"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+    seed_with_causation(
+        &repo,
+        "by-bob",
+        agent_causation("bob", "opus", "claude-code"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+
+    let units = QueryBuilder::<Wf>::new()
+        .where_agent_id(AgentId(CompactString::from("alice")))
+        .execute(&Wf, &repo)
+        .await
+        .expect("execute");
+    assert_eq!(
+        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        vec!["by-alice".to_owned()]
+    );
+}
+
+#[tokio::test]
+async fn where_model_partitions_by_llm() {
+    let repo = InMemoryRepository::<Wf>::new(Wf);
+    seed_with_causation(
+        &repo,
+        "opus-unit",
+        agent_causation("a", "claude-opus-4-7", "claude-code"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+    seed_with_causation(
+        &repo,
+        "haiku-unit",
+        agent_causation("a", "claude-haiku-4-5", "claude-code"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+
+    let units = QueryBuilder::<Wf>::new()
+        .where_model(ModelId(CompactString::from("claude-opus-4-7")))
+        .execute(&Wf, &repo)
+        .await
+        .expect("execute");
+    assert_eq!(
+        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        vec!["opus-unit".to_owned()]
+    );
+}
+
+#[tokio::test]
+async fn where_harness_separates_cohorts() {
+    let repo = InMemoryRepository::<Wf>::new(Wf);
+    seed_with_causation(
+        &repo,
+        "cc-unit",
+        agent_causation("a", "opus", "claude-code"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+    seed_with_causation(
+        &repo,
+        "cursor-unit",
+        agent_causation("a", "opus", "cursor"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+
+    let units = QueryBuilder::<Wf>::new()
+        .where_harness(Harness(CompactString::from("cursor")))
+        .execute(&Wf, &repo)
+        .await
+        .expect("execute");
+    assert_eq!(
+        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        vec!["cursor-unit".to_owned()]
+    );
+}
+
+#[tokio::test]
+async fn where_cost_gte_includes_only_units_above_bound() {
+    let repo = InMemoryRepository::<Wf>::new(Wf);
+    // unit-cheap: $0.10 (10 cents). unit-spendy: $5.00. unit-unknown: no cost.
+    seed_with_causation(
+        &repo,
+        "unit-cheap",
+        agent_causation_with_cost("a", "m", "h", 10),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+    seed_with_causation(
+        &repo,
+        "unit-spendy",
+        agent_causation_with_cost("a", "m", "h", 500),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+    seed_with_causation(
+        &repo,
+        "unit-unknown",
+        agent_causation("a", "m", "h"),
+        EventBody::UnitCreated { scope: Scope::Standard },
+    )
+    .await;
+
+    let units = QueryBuilder::<Wf>::new()
+        .where_cost_gte(rust_decimal::Decimal::new(100, 2)) // $1.00
+        .execute(&Wf, &repo)
+        .await
+        .expect("execute");
+    // Only unit-spendy clears the $1 bar. unit-cheap under. unit-unknown
+    // opts out — None != 0 per constitution §VIII comment in
+    // `.claude/rules/causation.md`.
+    assert_eq!(
+        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        vec!["unit-spendy".to_owned()]
+    );
+}
