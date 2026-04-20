@@ -17,7 +17,7 @@ use std::{marker::PhantomData, sync::Arc};
 use compact_str::CompactString;
 use knotch_kernel::{
     Causation, Proposal, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{CommitKind, CommitRef, EventBody},
 };
 use knotch_vcs::{CommitFilter, Vcs, parse::parse_commit_message};
@@ -116,8 +116,7 @@ where
                 _ => continue,
             };
             let causation = Causation::new(
-                Source::Hook,
-                Principal::System { service: CompactString::from("observer") },
+                Source::Observer,
                 Trigger::Observer { name: CompactString::from("git-log") },
             );
             out.push(Proposal {

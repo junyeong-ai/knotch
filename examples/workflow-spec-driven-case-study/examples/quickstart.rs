@@ -14,7 +14,7 @@ use std::sync::Arc;
 use compact_str::CompactString;
 use knotch_kernel::{
     AppendMode, Causation, Repository, Scope, StatusId, UnitId,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{ArtifactList, CommitKind, CommitRef},
     project::{current_phase, current_status, shipped_milestones},
 };
@@ -27,13 +27,7 @@ async fn main() -> anyhow::Result<()> {
     let repo = Arc::new(build_repository(&root));
     let unit = UnitId::try_new("quickstart-1").unwrap();
 
-    let causation = || {
-        Causation::new(
-            Source::Cli,
-            Principal::System { service: "quickstart".into() },
-            Trigger::Command { name: "test".into() },
-        )
-    };
+    let causation = || Causation::new(Source::Cli, Trigger::Command { name: "test".into() });
 
     let proposals = vec![
         events::unit_created(causation(), Scope::Standard),

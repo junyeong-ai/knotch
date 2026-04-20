@@ -8,7 +8,7 @@
 
 use knotch_kernel::{
     Causation, UnitId,
-    causation::Principal,
+    causation::Source,
     event::{Event, EventBody},
     workflow::WorkflowKind,
 };
@@ -53,38 +53,28 @@ pub fn emit_event<W: WorkflowKind>(unit: &UnitId, event: &Event<W>) {
         unit_id = unit.as_str(),
         event_id = %event.id,
         event_kind = event_kind_tag(&event.body),
-        principal_kind = principal_kind(&event.causation),
+        source = source_tag(&event.causation),
     );
-    emit_principal(&event.causation);
+    emit_attribution(&event.causation);
 }
 
-fn emit_principal(c: &Causation) {
-    match &c.principal {
-        Principal::Agent { agent_id, model } => {
-            info!(
-                target: "knotch.principal",
-                principal_kind = "agent",
-                agent_id = agent_id.as_str(),
-                agent_model = model.0.as_str(),
-            );
-        }
-        Principal::System { service } => {
-            info!(
-                target: "knotch.principal",
-                principal_kind = "system",
-                service = service.as_str(),
-            );
-        }
-        _ => {
-            info!(target: "knotch.principal", principal_kind = "unknown");
-        }
+fn emit_attribution(c: &Causation) {
+    if let Some(agent_id) = &c.agent_id {
+        info!(
+            target: "knotch.principal",
+            source = source_tag(c),
+            agent_id = agent_id.as_str(),
+        );
+    } else {
+        info!(target: "knotch.principal", source = source_tag(c));
     }
 }
 
-fn principal_kind(c: &Causation) -> &'static str {
-    match c.principal {
-        Principal::Agent { .. } => "agent",
-        Principal::System { .. } => "system",
+fn source_tag(c: &Causation) -> &'static str {
+    match c.source {
+        Source::Cli => "cli",
+        Source::Hook => "hook",
+        Source::Observer => "observer",
         _ => "unknown",
     }
 }
@@ -96,7 +86,7 @@ fn event_kind_tag<W: WorkflowKind>(body: &EventBody<W>) -> &'static str {
 #[cfg(test)]
 mod tests {
     use compact_str::CompactString;
-    use knotch_kernel::causation::{AgentId, ModelId, Principal, Source, Trigger};
+    use knotch_kernel::causation::{AgentId, Source, Trigger};
 
     use super::*;
 
@@ -104,14 +94,8 @@ mod tests {
     fn emit_helpers_run_without_panic() {
         let unit = UnitId::try_new("trace-unit").unwrap();
         emit_reconcile(&unit, 1, 0);
-        let causation = Causation::new(
-            Source::Agent,
-            Principal::Agent {
-                agent_id: AgentId(CompactString::from("alice")),
-                model: ModelId(CompactString::from("claude-opus-4-7")),
-            },
-            Trigger::Command { name: "test".into() },
-        );
-        emit_principal(&causation);
+        let causation = Causation::new(Source::Hook, Trigger::Command { name: "test".into() })
+            .with_agent_id(AgentId(CompactString::from("alice")));
+        emit_attribution(&causation);
     }
 }

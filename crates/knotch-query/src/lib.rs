@@ -21,8 +21,8 @@ use futures::StreamExt as _;
 use jiff::Timestamp;
 use knotch_kernel::{
     Log, Repository, StatusId, UnitId, WorkflowKind,
-    causation::{AgentId, ModelId, Principal},
-    project::{current_phase, current_status, effective_events, shipped_milestones},
+    causation::{AgentId, ModelId},
+    project::{current_phase, current_status, effective_events, model_timeline, shipped_milestones},
 };
 
 mod error;
@@ -86,8 +86,8 @@ impl<W: WorkflowKind> QueryBuilder<W> {
     }
 
     /// Match units that carry **at least one effective event** whose
-    /// `Principal::Agent { agent_id }` equals `id`. Primary use: an
-    /// agent asking "what have I worked on?".
+    /// `Causation::agent_id` equals `id`. Primary use: a subagent
+    /// asking "what have I worked on?".
     ///
     /// The match tests every effective event, not the latest one —
     /// if the unit has been touched by the agent at any point in
@@ -98,9 +98,9 @@ impl<W: WorkflowKind> QueryBuilder<W> {
         self
     }
 
-    /// Match units that carry at least one effective event produced
-    /// under `Principal::Agent { model }`. Useful for "which units
-    /// did opus-4-7 touch" audits and model-migration rollouts.
+    /// Match units whose effective `model_timeline` ever included
+    /// `model`. Useful for "which units did opus-4-7 touch" audits
+    /// and model-migration rollouts.
     #[must_use]
     pub fn where_model(mut self, model: ModelId) -> Self {
         self.filters.push(Filter::Model(model));
@@ -176,18 +176,10 @@ impl<W: WorkflowKind> Filter<W> {
             Filter::Status(s) => current_status(log).as_ref() == Some(s),
             Filter::Since(ts) => effective_events(log).iter().any(|e| e.at >= *ts),
             Filter::Until(ts) => effective_events(log).iter().any(|e| e.at <= *ts),
-            Filter::AgentId(want) => effective_events(log).iter().any(|evt| {
-                matches!(
-                    &evt.causation.principal,
-                    Principal::Agent { agent_id, .. } if agent_id == want,
-                )
-            }),
-            Filter::Model(want) => effective_events(log).iter().any(|evt| {
-                matches!(
-                    &evt.causation.principal,
-                    Principal::Agent { model, .. } if model == want,
-                )
-            }),
+            Filter::AgentId(want) => {
+                effective_events(log).iter().any(|evt| evt.causation.agent_id.as_ref() == Some(want))
+            }
+            Filter::Model(want) => model_timeline(log).iter().any(|entry| &entry.model == want),
         }
     }
 }

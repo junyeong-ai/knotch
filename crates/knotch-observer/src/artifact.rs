@@ -10,7 +10,7 @@ use std::{path::PathBuf, sync::Arc};
 use compact_str::CompactString;
 use knotch_kernel::{
     Causation, Proposal, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{ArtifactList, EventBody},
     project::effective_events,
 };
@@ -88,8 +88,7 @@ impl<W: WorkflowKind> Observer<W> for ArtifactObserver<W> {
                 continue;
             }
             let causation = Causation::new(
-                Source::Hook,
-                Principal::System { service: CompactString::from("observer") },
+                Source::Observer,
                 Trigger::Observer { name: CompactString::from("artifact") },
             );
             out.push(Proposal {

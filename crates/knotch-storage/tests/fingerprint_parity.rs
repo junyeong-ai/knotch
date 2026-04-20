@@ -9,7 +9,7 @@ use knotch_derive::MilestoneKind;
 use knotch_kernel::{
     AppendMode, Causation, Fingerprint, PhaseKind, Proposal, Repository, Scope, UnitId,
     WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{CommitKind, CommitRef, CommitStatus, EventBody, SkipKind},
     fingerprint_event, fingerprint_proposal,
 };
@@ -67,11 +67,7 @@ impl WorkflowKind for Wf {
 
 fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
     Proposal {
-        causation: Causation::new(
-            Source::Cli,
-            Principal::System { service: "parity".into() },
-            Trigger::Command { name: "test".into() },
-        ),
+        causation: Causation::new(Source::Cli, Trigger::Command { name: "test".into() }),
         extension: (),
         body,
         supersedes: None,
@@ -111,9 +107,8 @@ fn fingerprint_proposal_is_pure_over_body_shape() {
         let base = proposal(body.clone());
         let mut variant = proposal(body.clone());
         variant.causation = Causation::new(
-            Source::Test,
-            Principal::System { service: "other".into() },
-            Trigger::Command { name: "test".into() },
+            Source::Observer,
+            Trigger::Observer { name: "other".into() },
         );
         assert_eq!(
             fingerprint_proposal(&Wf, &base).unwrap(),

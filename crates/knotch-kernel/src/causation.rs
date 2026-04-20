@@ -2,9 +2,22 @@
 //!
 //! Every [`Event`](crate::Event) carries a [`Causation`] that records
 //! *who* acted, *how* they acted, and *why*. This is the pivot that
-//! makes knotch safe for AI-assisted development (principle 8, RFC
-//! 0001): session id and typed agent/model identities are the
-//! durable attribution surface.
+//! makes knotch safe for AI-assisted development: session, agent id,
+//! and the triggering command/hook/tool call are durable attribution
+//! fields on every event.
+//!
+//! Three axes answer "who":
+//!
+//! - [`Source`] — the channel (`Cli` / `Hook` / `Observer`).
+//! - `agent_id` — the subagent id, when the action was driven by an
+//!   LLM agent (`None` for CLI operators, observers, and the main
+//!   session where Claude Code doesn't surface a distinct id).
+//! - [`SessionId`] — the conversation / run scope.
+//!
+//! Model attribution lives on [`EventBody::ModelSwitched`](crate::event::EventBody)
+//! events — not on every event's causation — because the model can change within a
+//! session. Callers who need "which model produced event X" read the effective
+//! [`model_timeline`](crate::project::model_timeline) up to that event.
 
 use compact_str::CompactString;
 use serde::{Deserialize, Serialize};
@@ -15,32 +28,30 @@ use serde::{Deserialize, Serialize};
 pub struct Causation {
     /// Channel the action arrived through.
     pub source: Source,
-    /// Identity of the actor.
-    pub principal: Principal,
-    /// Conversation / run scope; `None` for ad-hoc one-off actions.
+    /// Conversation / run scope; `None` for one-off CLI invocations
+    /// that aren't threaded into a session.
     pub session: Option<SessionId>,
+    /// Subagent id; `None` for CLI operators, observer-driven events,
+    /// and the main session (where Claude Code doesn't expose a
+    /// distinct agent id beyond the session).
+    pub agent_id: Option<AgentId>,
     /// Specific trigger within the `source`.
     pub trigger: Trigger,
 }
 
 impl Causation {
-    /// Convenience constructor for the common "CLI / human / manual" case.
+    /// Convenience constructor for the common "CLI subcommand" case.
     #[must_use]
     pub fn cli(command: impl Into<CompactString>) -> Self {
-        Self {
-            source: Source::Cli,
-            principal: Principal::System { service: CompactString::from("cli") },
-            session: None,
-            trigger: Trigger::Command { name: command.into() },
-        }
+        Self::new(Source::Cli, Trigger::Command { name: command.into() })
     }
 
     /// Full-fat constructor — exposed to peer crates because `Causation`
     /// is `#[non_exhaustive]` and therefore cannot be built with a
     /// struct literal outside this crate.
     #[must_use]
-    pub fn new(source: Source, principal: Principal, trigger: Trigger) -> Self {
-        Self { source, principal, session: None, trigger }
+    pub fn new(source: Source, trigger: Trigger) -> Self {
+        Self { source, session: None, agent_id: None, trigger }
     }
 
     /// Attach a session id.
@@ -49,44 +60,33 @@ impl Causation {
         self.session = Some(session);
         self
     }
+
+    /// Attach an agent id. Use when the event is driven by a
+    /// named subagent (e.g. Claude Code's `SubagentStop` payload).
+    #[must_use]
+    pub fn with_agent_id(mut self, agent_id: AgentId) -> Self {
+        self.agent_id = Some(agent_id);
+        self
+    }
 }
 
 /// Channel an action arrived through.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// Three variants cover every legitimate knotch write path. All
+/// other nuance (who / what / why) lives in [`Causation::agent_id`]
+/// and [`Trigger`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Source {
-    /// Interactive CLI invocation.
+    /// Interactive CLI invocation (human operator or agent-driven
+    /// subprocess — the author distinction lives on `agent_id`).
     Cli,
-    /// Git hook (pre-commit, post-commit, etc.).
+    /// Claude Code hook dispatch (every variant of `HookEvent`).
     Hook,
-    /// Human operator via any UI.
-    User,
-    /// Automated test.
-    Test,
-    /// AI agent.
-    Agent,
-    /// Anything else, named by the embedder.
-    External(CompactString),
-}
-
-/// Who performed the action.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
-#[non_exhaustive]
-pub enum Principal {
-    /// An AI agent.
-    Agent {
-        /// Agent instance id.
-        agent_id: AgentId,
-        /// Model identifier (e.g. `claude-opus-4-7`).
-        model: ModelId,
-    },
-    /// A background service or automated system.
-    System {
-        /// Named service (e.g. `reconciler`, `cli`, `ci`).
-        service: CompactString,
-    },
+    /// Reconciler observer pass — the observer name lives in
+    /// [`Trigger::Observer`].
+    Observer,
 }
 
 /// Specific trigger within a `Source`.
@@ -224,6 +224,10 @@ impl core::fmt::Display for AgentId {
 }
 
 /// Model identifier (e.g. `claude-opus-4-7`).
+///
+/// Populated on [`EventBody::ModelSwitched`](crate::event::EventBody) events; the
+/// current model at time `t` is derived from the effective
+/// [`model_timeline`](crate::project::model_timeline).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct ModelId(pub CompactString);

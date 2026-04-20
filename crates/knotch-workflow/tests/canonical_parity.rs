@@ -7,7 +7,7 @@
 
 use knotch_kernel::{
     Causation, Proposal, Rationale, Scope, StatusId, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{ArtifactList, EventBody},
     fingerprint_proposal,
 };
@@ -114,11 +114,7 @@ fn fingerprint_salts_are_disjoint_between_canonical_and_named_config() {
 #[test]
 fn fingerprint_bit_identical_between_typed_and_config_canonical() {
     fn causation() -> Causation {
-        Causation::new(
-            Source::Cli,
-            Principal::System { service: "parity".into() },
-            Trigger::Command { name: "test".into() },
-        )
+        Causation::new(Source::Cli, Trigger::Command { name: "test".into() })
     }
 
     // --- UnitCreated ---

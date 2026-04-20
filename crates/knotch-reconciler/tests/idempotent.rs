@@ -9,7 +9,7 @@ use jiff::Timestamp;
 use knotch_derive::MilestoneKind;
 use knotch_kernel::{
     AppendMode, Causation, PhaseKind, Proposal, Repository, Scope, UnitId, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{CommitKind, EventBody, SkipKind},
     project::effective_events,
 };
@@ -96,11 +96,7 @@ fn build_vcs() -> Arc<InMemoryVcs> {
 
 fn unit_created_proposal() -> Proposal<TestWorkflow> {
     Proposal {
-        causation: Causation::new(
-            Source::Cli,
-            Principal::System { service: "test".into() },
-            Trigger::Command { name: "test".into() },
-        ),
+        causation: Causation::new(Source::Cli, Trigger::Command { name: "test".into() }),
         extension: (),
         body: EventBody::UnitCreated { scope: Scope::Standard },
         supersedes: None,

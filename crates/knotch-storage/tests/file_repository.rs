@@ -7,7 +7,7 @@ use std::{borrow::Cow, sync::Arc};
 use knotch_derive::MilestoneKind;
 use knotch_kernel::{
     AppendMode, Causation, PhaseKind, Proposal, Repository, Scope, UnitId, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{CommitKind, CommitRef, EventBody, SkipKind},
     project::shipped_milestones,
 };
@@ -65,11 +65,7 @@ impl WorkflowKind for Wf {
 
 fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
     Proposal {
-        causation: Causation::new(
-            Source::Cli,
-            Principal::System { service: "test".into() },
-            Trigger::Command { name: "test".into() },
-        ),
+        causation: Causation::new(Source::Cli, Trigger::Command { name: "test".into() }),
         extension: (),
         body,
         supersedes: None,
@@ -196,11 +192,7 @@ where
     W: WorkflowKind<Extension = ()>,
 {
     Proposal {
-        causation: Causation::new(
-            Source::Cli,
-            Principal::System { service: "test".into() },
-            Trigger::Command { name: "test".into() },
-        ),
+        causation: Causation::new(Source::Cli, Trigger::Command { name: "test".into() }),
         extension: (),
         body,
         supersedes: None,

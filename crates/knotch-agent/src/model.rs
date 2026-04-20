@@ -72,8 +72,8 @@ where
 ///
 /// - the active-unit resolver returns `NoProject` / `Uninitialized` (no log to compare
 ///   against);
-/// - the log carries no prior model (first agent event will seed the `model_timeline` on
-///   its own — emitting `ModelSwitched` without a `from` value would be dishonest);
+/// - the log carries no prior `ModelSwitched` event (the first session records nothing
+///   because there is no `from` value to honor the precondition against);
 /// - the prior model matches `current` (no change to record).
 ///
 /// # Errors
@@ -100,9 +100,8 @@ where
 
     let log = repo.load(&unit).await?;
     let Some(prior) = model_timeline(&log).into_iter().next_back().map(|e| e.model) else {
-        // First model event for the unit — let the next
-        // Principal::Agent event seed the timeline instead of
-        // fabricating a ModelSwitched with no real `from`.
+        // First model event for the unit — no prior `from` to
+        // anchor a `ModelSwitched` against.
         return Ok(HookOutput::Continue);
     };
 

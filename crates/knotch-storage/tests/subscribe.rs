@@ -10,7 +10,7 @@ use knotch_derive::MilestoneKind;
 use knotch_kernel::{
     AppendMode, Causation, CommitStatus, PhaseKind, Proposal, Repository, Scope, UnitId,
     WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{CommitKind, CommitRef, EventBody, SkipKind, SubscribeEvent, SubscribeMode},
 };
 use knotch_storage::FileRepository;
@@ -63,11 +63,7 @@ impl WorkflowKind for Wf {
 }
 
 fn cause() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "t".into() },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "test".into() })
 }
 
 fn p(body: EventBody<Wf>) -> Proposal<Wf> {

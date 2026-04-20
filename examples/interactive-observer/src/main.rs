@@ -22,7 +22,7 @@ use std::{sync::Arc, time::Duration};
 
 use knotch_kernel::{
     Causation, Proposal,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{ArtifactList, EventBody},
 };
 use knotch_observer::{Observer, context::ObserveContext, error::ObserverError};
@@ -54,8 +54,7 @@ impl Observer<Knotch> for AwaitInput {
             if let Some(_rationale) = rx.borrow().clone() {
                 return Ok(vec![Proposal {
                     causation: Causation::new(
-                        Source::Hook,
-                        Principal::System { service: "interactive-observer".into() },
+                        Source::Observer,
                         Trigger::Observer { name: self.name().into() },
                     ),
                     extension: (),

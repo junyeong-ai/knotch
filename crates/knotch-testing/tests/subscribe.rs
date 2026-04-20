@@ -7,7 +7,7 @@ use std::{borrow::Cow, sync::Arc};
 use futures::StreamExt as _;
 use knotch_kernel::{
     AppendMode, Causation, PhaseKind, Proposal, Repository, Scope, UnitId, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{EventBody, SkipKind, SubscribeEvent, SubscribeMode},
 };
 use knotch_testing::InMemoryRepository;
@@ -63,11 +63,7 @@ impl WorkflowKind for W {
 
 fn seed() -> Proposal<W> {
     Proposal {
-        causation: Causation::new(
-            Source::Cli,
-            Principal::System { service: "test".into() },
-            Trigger::Command { name: "test".into() },
-        ),
+        causation: Causation::new(Source::Cli, Trigger::Command { name: "test".into() }),
         extension: (),
         body: EventBody::UnitCreated { scope: Scope::Standard },
         supersedes: None,
@@ -76,11 +72,7 @@ fn seed() -> Proposal<W> {
 
 fn phase_done() -> Proposal<W> {
     Proposal {
-        causation: Causation::new(
-            Source::Cli,
-            Principal::System { service: "test".into() },
-            Trigger::Command { name: "test".into() },
-        ),
+        causation: Causation::new(Source::Cli, Trigger::Command { name: "test".into() }),
         extension: (),
         body: EventBody::PhaseCompleted {
             phase: P::Only,

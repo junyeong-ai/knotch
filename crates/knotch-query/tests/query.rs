@@ -7,7 +7,7 @@ use std::{borrow::Cow, sync::Arc};
 use knotch_derive::MilestoneKind;
 use knotch_kernel::{
     AppendMode, Causation, PhaseKind, Proposal, Repository, Scope, StatusId, UnitId, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{CommitKind, CommitRef, EventBody, SkipKind},
 };
 use knotch_query::QueryBuilder;
@@ -66,11 +66,7 @@ impl WorkflowKind for Wf {
 }
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "test".into() },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "test".into() })
 }
 
 fn p(body: EventBody<Wf>) -> Proposal<Wf> {
@@ -359,18 +355,15 @@ async fn group_units_by_current_phase() {
 use compact_str::CompactString;
 use knotch_kernel::causation::{AgentId, ModelId};
 
-fn agent_causation(agent: &str, model: &str) -> Causation {
+fn agent_causation(agent: &str) -> Causation {
     Causation::new(
-        Source::Agent,
-        Principal::Agent {
-            agent_id: AgentId(CompactString::from(agent)),
-            model: ModelId(CompactString::from(model)),
-        },
+        Source::Hook,
         Trigger::ToolInvocation {
             tool: CompactString::from("test-tool"),
             call_id: CompactString::from("call-1"),
         },
     )
+    .with_agent_id(AgentId(CompactString::from(agent)))
 }
 
 async fn seed_with_causation(
@@ -390,14 +383,14 @@ async fn where_agent_id_filters_to_matching_events() {
     seed_with_causation(
         &repo,
         "by-alice",
-        agent_causation("alice", "opus"),
+        agent_causation("alice"),
         EventBody::UnitCreated { scope: Scope::Standard },
     )
     .await;
     seed_with_causation(
         &repo,
         "by-bob",
-        agent_causation("bob", "opus"),
+        agent_causation("bob"),
         EventBody::UnitCreated { scope: Scope::Standard },
     )
     .await;
@@ -416,20 +409,37 @@ async fn where_agent_id_filters_to_matching_events() {
 #[tokio::test]
 async fn where_model_partitions_by_llm() {
     let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_with_causation(
-        &repo,
-        "opus-unit",
-        agent_causation("a", "claude-opus-4-7"),
-        EventBody::UnitCreated { scope: Scope::Standard },
+    let opus_switch = EventBody::ModelSwitched {
+        from: ModelId(CompactString::from("sonnet-4-6")),
+        to: ModelId(CompactString::from("claude-opus-4-7")),
+    };
+    let haiku_switch = EventBody::ModelSwitched {
+        from: ModelId(CompactString::from("sonnet-4-6")),
+        to: ModelId(CompactString::from("claude-haiku-4-5")),
+    };
+    let unit_created = EventBody::UnitCreated { scope: Scope::Standard };
+    let unit = UnitId::try_new("opus-unit").unwrap();
+    repo.append(
+        &unit,
+        vec![
+            Proposal { causation: causation(), extension: (), body: unit_created.clone(), supersedes: None },
+            Proposal { causation: agent_causation("a"), extension: (), body: opus_switch, supersedes: None },
+        ],
+        AppendMode::BestEffort,
     )
-    .await;
-    seed_with_causation(
-        &repo,
-        "haiku-unit",
-        agent_causation("a", "claude-haiku-4-5"),
-        EventBody::UnitCreated { scope: Scope::Standard },
+    .await
+    .expect("seed opus");
+    let unit = UnitId::try_new("haiku-unit").unwrap();
+    repo.append(
+        &unit,
+        vec![
+            Proposal { causation: causation(), extension: (), body: unit_created, supersedes: None },
+            Proposal { causation: agent_causation("a"), extension: (), body: haiku_switch, supersedes: None },
+        ],
+        AppendMode::BestEffort,
     )
-    .await;
+    .await
+    .expect("seed haiku");
 
     let units = QueryBuilder::<Wf>::new()
         .where_model(ModelId(CompactString::from("claude-opus-4-7")))

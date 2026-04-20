@@ -3,38 +3,40 @@
 //! Canonical attribution for every hook-emitted event:
 //!
 //! - `source = Source::Hook`
-//! - `principal = Principal::Agent { agent_id, model }` — `agent_id` comes from the
-//!   hook's `session_id`, `model` comes from `KNOTCH_MODEL` env var (falls back to
-//!   `"unknown"`).
 //! - `trigger = Trigger::GitHook(<subcommand>)` — the `knotch hook <name>` wrapper.
 //! - `session` — set when `session_id` parses as a UUID; otherwise omitted.
+//! - `agent_id` — populated when the hook payload carries one (subagent events); `None`
+//!   for main-session hook invocations.
+//!
+//! Model attribution lives on dedicated `ModelSwitched` events,
+//! not on every causation. Consumers read the effective
+//! `model_timeline` to correlate events with the model active at
+//! their timestamp.
 
 use compact_str::CompactString;
 use knotch_kernel::{
     Causation,
-    causation::{AgentId, ModelId, Principal, SessionId, Source, Trigger},
+    causation::{AgentId, SessionId, Source, Trigger},
 };
 
 use crate::input::HookInput;
 
 /// Build a `Causation` for a hook-emitted event.
 ///
-/// `agent_id` resolution prefers the event-supplied value
-/// ([`HookEvent::agent_id`], currently `SubagentStop` only) and
-/// falls back to `session_id` as best-effort attribution.
+/// `agent_id` is populated from the hook's event-level `agent_id`
+/// when the payload exposes one (`SubagentStart`, `SubagentStop`,
+/// and any event fired inside a delegated subagent). Main-session
+/// hooks leave it `None`; the session id alone identifies the
+/// conversation.
 #[must_use]
 pub fn hook_causation(input: &HookInput, subcommand: &str) -> Causation {
-    let model = std::env::var("KNOTCH_MODEL").unwrap_or_else(|_| "unknown".to_owned());
-    let agent_id =
-        input.event.agent_id().map(CompactString::from).unwrap_or_else(|| input.session_id.clone());
-    let principal = Principal::Agent {
-        agent_id: AgentId(agent_id),
-        model: ModelId(CompactString::from(model)),
-    };
-    Causation::new(
+    let mut causation = Causation::new(
         Source::Hook,
-        principal,
         Trigger::GitHook { name: CompactString::from(subcommand) },
     )
-    .with_session(SessionId::parse(input.session_id.as_str()))
+    .with_session(SessionId::parse(input.session_id.as_str()));
+    if let Some(agent_id) = input.event.agent_id() {
+        causation = causation.with_agent_id(AgentId::from(agent_id));
+    }
+    causation
 }

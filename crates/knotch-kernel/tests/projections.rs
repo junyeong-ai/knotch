@@ -1,5 +1,5 @@
-//! Built-in projection semantics — attribution, ordering, and
-//! supersede-awareness for the model-timeline projection.
+//! Built-in projection semantics — model-timeline attribution,
+//! ordering, and supersede-awareness.
 
 #![allow(missing_docs)]
 
@@ -8,7 +8,7 @@ use std::borrow::Cow;
 use jiff::Timestamp;
 use knotch_kernel::{
     Causation, Log, PhaseKind, Scope, UnitId, WorkflowKind,
-    causation::{AgentId, ModelId, Principal, Source, Trigger},
+    causation::{ModelId, Source, Trigger},
     event::{Event, EventBody},
     id::EventId,
     project::model_timeline,
@@ -69,19 +69,7 @@ impl WorkflowKind for Wf {
 // --- Helpers ----------------------------------------------------------
 
 fn plain_causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "t".into() },
-        Trigger::Command { name: "test".into() },
-    )
-}
-
-fn agent_causation(model: &str) -> Causation {
-    Causation::new(
-        Source::Hook,
-        Principal::Agent { agent_id: AgentId("agent-a".into()), model: ModelId(model.into()) },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "test".into() })
 }
 
 fn event(at_ms: i64, causation: Causation, body: EventBody<Wf>) -> Event<Wf> {
@@ -103,73 +91,45 @@ fn created() -> EventBody<Wf> {
     EventBody::UnitCreated { scope: Scope::Standard }
 }
 
-/// Body used to stand in for "work that neither resolves a phase nor
-/// ships a milestone". `Log::from_events` skips precondition dispatch,
-/// so sprinkling extra `UnitCreated` envelopes is legal at this layer
-/// and keeps the fixture minimal.
-fn work_body() -> EventBody<Wf> {
-    created()
+fn model_switched(from: &str, to: &str) -> EventBody<Wf> {
+    EventBody::ModelSwitched { from: ModelId(from.into()), to: ModelId(to.into()) }
 }
 
 // --- model_timeline --------------------------------------------------
 
 #[test]
-fn model_timeline_seeds_from_first_agent_principal_then_appends_switches() {
+fn model_timeline_records_one_entry_per_model_switched_event() {
     let events = vec![
         event(1_000, plain_causation(), created()),
-        event(2_000, agent_causation("sonnet-4-6"), work_body()),
-        event(
-            3_000,
-            agent_causation("sonnet-4-6"),
-            EventBody::ModelSwitched {
-                from: ModelId("sonnet-4-6".into()),
-                to: ModelId("opus-4-7".into()),
-            },
-        ),
+        event(2_000, plain_causation(), model_switched("sonnet-4-6", "opus-4-7")),
+        event(3_000, plain_causation(), model_switched("opus-4-7", "haiku-4-5")),
     ];
     let log = log_from(events);
     let tl = model_timeline(&log);
 
     assert_eq!(tl.len(), 2);
-    assert_eq!(tl[0].model, ModelId("sonnet-4-6".into()));
+    assert_eq!(tl[0].model, ModelId("opus-4-7".into()));
     assert_eq!(tl[0].at.as_millisecond(), 2_000);
-    assert_eq!(tl[1].model, ModelId("opus-4-7".into()));
+    assert_eq!(tl[1].model, ModelId("haiku-4-5".into()));
     assert_eq!(tl[1].at.as_millisecond(), 3_000);
 }
 
 #[test]
-fn model_timeline_preserves_chronological_order_when_switch_precedes_agent_principal() {
-    // Regression for a two-pass bug: if the first Agent-principal
-    // event came *after* a `ModelSwitched` event, the old
-    // seed-then-append algorithm emitted
-    //     [(t_agent, model_agent), (t_switch, model_switch)]
-    // which is out of chronological order when t_switch < t_agent.
-    // The single-pass rewrite seeds from whichever comes first —
-    // here, the ModelSwitched — so the timeline is monotonic by
-    // construction.
+fn model_timeline_preserves_chronological_order() {
     let events = vec![
         event(1_000, plain_causation(), created()),
-        event(
-            2_000,
-            plain_causation(),
-            EventBody::ModelSwitched {
-                from: ModelId("sonnet-4-6".into()),
-                to: ModelId("opus-4-7".into()),
-            },
-        ),
-        event(3_000, agent_causation("opus-4-7"), work_body()),
+        event(2_000, plain_causation(), model_switched("sonnet-4-6", "opus-4-7")),
+        event(3_000, plain_causation(), model_switched("opus-4-7", "sonnet-4-6")),
     ];
     let log = log_from(events);
     let tl = model_timeline(&log);
 
     assert!(tl.windows(2).all(|w| w[0].at <= w[1].at), "timeline must be chronological: {tl:?}");
-    assert_eq!(tl.len(), 1, "post-seed Agent events with matching model add nothing");
-    assert_eq!(tl[0].at.as_millisecond(), 2_000);
-    assert_eq!(tl[0].model, ModelId("opus-4-7".into()));
+    assert_eq!(tl.len(), 2);
 }
 
 #[test]
-fn model_timeline_is_empty_when_no_event_exposes_a_model() {
+fn model_timeline_is_empty_when_no_event_records_a_switch() {
     let events = vec![event(1_000, plain_causation(), created())];
     let log = log_from(events);
     assert!(model_timeline(&log).is_empty());

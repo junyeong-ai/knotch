@@ -9,7 +9,7 @@ use compact_str::CompactString;
 use rustc_hash::FxHashSet;
 
 use crate::{
-    causation::{AgentId, ModelId, Principal},
+    causation::{AgentId, ModelId},
     event::{Event, EventBody, ToolCallFailureReason},
     id::EventId,
     log::Log,
@@ -156,9 +156,8 @@ pub fn subagents<W: WorkflowKind>(log: &Log<W>) -> Vec<SubagentEntry> {
 
 /// One `(timestamp, model)` pair on the per-unit model timeline.
 ///
-/// Produced by [`model_timeline`]: the model active at the unit's
-/// first event (inferred from `Principal::Agent.model`) plus one
-/// entry per `ModelSwitched` event.
+/// Produced by [`model_timeline`]: one entry per effective
+/// [`EventBody::ModelSwitched`] event.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct ModelTimelineEntry {
@@ -168,42 +167,34 @@ pub struct ModelTimelineEntry {
     pub model: ModelId,
 }
 
-/// Chronological model timeline for the unit.
+/// Chronological model timeline for the unit — one entry per
+/// effective [`EventBody::ModelSwitched`] event. The `SessionStart`
+/// hook records the first `ModelSwitched` when it observes a
+/// payload model differing from the last recorded one, so the
+/// timeline reflects the model switches Claude Code exposes.
 ///
-/// Seeded from the **first event that reveals a model** — either
-/// an `EventBody::ModelSwitched` (whose `to` field is the model
-/// active from that point on) or an event whose
-/// `Principal::Agent { model, .. }` carries one. Every subsequent
-/// `ModelSwitched` appends in log order.
+/// Supersede-aware via [`effective_events`]: a superseded
+/// `ModelSwitched` drops out of the timeline.
 ///
 /// Order is chronological by construction: the projection walks
 /// `effective_events` in log order (= monotonic timestamp order)
-/// and never re-orders. An earlier two-pass seed-then-append
-/// implementation could emit a `ModelSwitched` before its "seed"
-/// entry whenever the first `Principal::Agent` event came later
-/// than some `ModelSwitched` event — this single-pass form makes
-/// that reordering structurally impossible.
+/// and never re-orders.
 ///
-/// Supersede-aware via `effective_events`: a superseded
-/// `ModelSwitched` drops out of the timeline.
-///
-/// Empty when no effective event exposes a model.
+/// Empty when no effective `ModelSwitched` event has been
+/// recorded.
 ///
 /// Complexity: `O(n)` in log length.
 #[must_use]
 pub fn model_timeline<W: WorkflowKind>(log: &Log<W>) -> Vec<ModelTimelineEntry> {
-    let mut timeline = Vec::new();
-    let mut seeded = false;
-    for evt in effective_events(log) {
-        if let EventBody::ModelSwitched { to, .. } = &evt.body {
-            timeline.push(ModelTimelineEntry { at: evt.at, model: to.clone() });
-            seeded = true;
-        } else if !seeded && let Principal::Agent { model, .. } = &evt.causation.principal {
-            timeline.push(ModelTimelineEntry { at: evt.at, model: model.clone() });
-            seeded = true;
-        }
-    }
-    timeline
+    effective_events(log)
+        .iter()
+        .filter_map(|evt| match &evt.body {
+            EventBody::ModelSwitched { to, .. } => {
+                Some(ModelTimelineEntry { at: evt.at, model: to.clone() })
+            }
+            _ => None,
+        })
+        .collect()
 }
 
 /// One `ToolCallFailed` entry on the per-(tool, call_id) retry

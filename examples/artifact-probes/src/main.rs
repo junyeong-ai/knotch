@@ -19,7 +19,7 @@ use std::path::Path;
 
 use knotch_kernel::{
     AppendMode, Causation, Proposal, Repository, Scope, UnitId,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{ArtifactList, EventBody},
     precondition::{AppendContext, ArtifactCheck},
 };
@@ -37,11 +37,7 @@ impl<'a> ArtifactCheck for PresentInDir<'a> {
 }
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "artifact-probe-example".into() },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "artifact-probe-example".into() })
 }
 
 #[tokio::main]

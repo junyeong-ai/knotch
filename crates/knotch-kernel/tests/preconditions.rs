@@ -8,7 +8,7 @@ use jiff::Timestamp;
 use knotch_kernel::{
     Causation, CommitStatus, Decision, EventId, Log, PhaseKind, Proposal, Rationale,
     RepositoryError, Scope, StatusId, UnitId, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     error::PreconditionError,
     event::{
         ArtifactList, CommitKind, CommitRef, EventBody, ReconcileFailureKind, RetryAnchor, SkipKind,
@@ -75,11 +75,7 @@ impl WorkflowKind for Wf {
 // --- Helpers ----------------------------------------------------------
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "t".into() },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "test".into() })
 }
 
 fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {

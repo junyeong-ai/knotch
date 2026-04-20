@@ -152,7 +152,6 @@ async fn observer_receives_events_filtered_by_subscription() {
     let unit = UnitId::try_new("u").unwrap();
     let causation = knotch_kernel::Causation::new(
         knotch_kernel::causation::Source::Cli,
-        knotch_kernel::causation::Principal::System { service: "test".into() },
         knotch_kernel::causation::Trigger::Command { name: "test".into() },
     );
     let specify = ConfigWorkflow::canonical().parse_phase("specify").expect("specify phase");

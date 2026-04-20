@@ -12,17 +12,13 @@
 
 use knotch_kernel::{
     AppendMode, Causation, Decision, Proposal, Rationale, Repository, Scope, StatusId, UnitId,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::EventBody,
 };
 use knotch_workflow::KnotchGate;
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "batch-append-example".into() },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "batch-append-example".into() })
 }
 
 #[tokio::main]

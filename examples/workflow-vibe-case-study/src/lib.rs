@@ -17,7 +17,7 @@ use compact_str::CompactString;
 use knotch_derive::{GateKind, MilestoneKind, PhaseKind};
 use knotch_kernel::{
     Causation, Log, PhaseKind as _, Scope, WorkflowKind,
-    causation::{AgentId, ModelId, Principal, SessionId, Source, Trigger},
+    causation::{AgentId, ModelId, SessionId, Source, Trigger},
     event::EventBody,
     project::{current_phase, current_status, effective_events},
 };
@@ -102,9 +102,11 @@ impl WorkflowKind for Vibe {
 /// Session — the factory every agent-initiated event flows through.
 ///
 /// A `Session` is cheap to clone; it carries the session id plus the
-/// agent / model identifiers. Consumers build a new session once
-/// per conversation and call [`Session::causation`] at each
-/// proposal site.
+/// agent id. Consumers build a new session once per conversation
+/// and call [`Session::causation`] at each proposal site. Model
+/// attribution lives on dedicated `ModelSwitched` events appended
+/// at session boundaries — not on every causation — so model
+/// changes are faithfully recorded as they happen.
 #[derive(Debug, Clone)]
 pub struct Session {
     id: SessionId,
@@ -128,15 +130,21 @@ impl Session {
         self.id.clone()
     }
 
-    /// Build a `Causation` for the current session.
+    /// Session model identifier — used when writing the first
+    /// `ModelSwitched` event of a new session.
+    #[must_use]
+    pub fn model(&self) -> ModelId {
+        self.model.clone()
+    }
+
+    /// Build a `Causation` for the current session. The returned
+    /// causation carries `Source::Hook`, the session id, and the
+    /// agent id from this session.
     #[must_use]
     pub fn causation(&self, trigger: Trigger) -> Causation {
-        Causation::new(
-            Source::Agent,
-            Principal::Agent { agent_id: self.agent_id.clone(), model: self.model.clone() },
-            trigger,
-        )
-        .with_session(self.id.clone())
+        Causation::new(Source::Hook, trigger)
+            .with_session(self.id.clone())
+            .with_agent_id(self.agent_id.clone())
     }
 
     /// Convenience — `Trigger::ToolInvocation` causation.
@@ -249,10 +257,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn session_emits_agent_principal() {
+    fn session_tags_causation_with_agent_id_and_session() {
         let session = Session::new("alice", "claude-opus-4-7");
         let causation = session.tool("edit_file", "inv-1");
-        assert!(matches!(causation.principal, Principal::Agent { .. }));
+        assert!(causation.agent_id.is_some());
         assert_eq!(causation.session, Some(session.id()));
     }
 

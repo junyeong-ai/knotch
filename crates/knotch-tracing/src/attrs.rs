@@ -1,7 +1,7 @@
 //! Canonical attribute keys emitted on knotch tracing spans.
 //!
 //! Keys are grouped by subsystem (`repo`, `observer`, `unit`,
-//! `event`, `principal`, `agent`, `session`, `status`). Changing
+//! `event`, `source`, `agent`, `session`, `status`). Changing
 //! any constant is a breaking change — guarded by
 //! `cargo-public-api` and `cargo-semver-checks`.
 
@@ -37,15 +37,13 @@ impl Attrs {
     /// `knotch.reconcile.rejected` — number of rejected proposals.
     pub const RECONCILE_REJECTED: &'static str = "knotch.reconcile.rejected";
 
-    // --- principal ---
-    /// `knotch.principal.kind` — `human` / `agent` / `system`.
-    pub const PRINCIPAL_KIND: &'static str = "knotch.principal.kind";
+    // --- source ---
+    /// `knotch.source` — `cli` / `hook` / `observer`.
+    pub const SOURCE: &'static str = "knotch.source";
 
-    // --- agent (when principal is agent) ---
+    // --- agent (when payload carries a subagent id) ---
     /// `knotch.agent.id` — `AgentId` (Claude Code assigned UUID).
     pub const AGENT_ID: &'static str = "knotch.agent.id";
-    /// `knotch.agent.model` — `ModelId`.
-    pub const AGENT_MODEL: &'static str = "knotch.agent.model";
 
     // --- session ---
     /// `knotch.session.id` — conversation / run scope.

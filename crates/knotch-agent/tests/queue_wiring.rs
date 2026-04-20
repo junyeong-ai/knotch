@@ -23,7 +23,7 @@ use knotch_agent::{
 use knotch_kernel::{
     AppendMode, AppendReport, Causation, CommitKind, CommitRef, CommitStatus, EventBody, Log,
     Proposal, Repository, RepositoryError, Scope, UnitId,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{SubscribeEvent, SubscribeMode},
     repository::{CacheMutator, PinStream},
     time::Timestamp,
@@ -114,11 +114,7 @@ impl Repository<Knotch> for FaultyRepo {
 }
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Hook,
-        Principal::System { service: "test".into() },
-        Trigger::GitHook { name: "post-tool".into() },
-    )
+    Causation::new(Source::Hook, Trigger::GitHook { name: "post-tool".into() })
 }
 
 fn milestone_proposal(id: &str, sha: &str) -> Proposal<Knotch> {

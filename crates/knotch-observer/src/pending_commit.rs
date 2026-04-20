@@ -11,7 +11,7 @@ use std::{marker::PhantomData, sync::Arc};
 use compact_str::CompactString;
 use knotch_kernel::{
     Causation, CommitStatus, MilestoneKind, Proposal, WorkflowKind,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::EventBody,
     project::effective_events,
 };
@@ -93,8 +93,7 @@ where
                 continue;
             }
             let causation = Causation::new(
-                Source::Hook,
-                Principal::System { service: CompactString::from("observer") },
+                Source::Observer,
                 Trigger::Observer { name: CompactString::from("pending-commit") },
             );
             out.push(Proposal {

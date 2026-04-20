@@ -7,7 +7,7 @@ use std::sync::Arc;
 use compact_str::CompactString;
 use knotch_kernel::{
     AppendMode, Causation, Decision, Rationale, Repository, Scope, StatusId, UnitId,
-    causation::{Principal, Source, Trigger},
+    causation::{Source, Trigger},
     event::{ArtifactList, CommitKind, CommitRef, EventBody},
     project::{current_phase, current_status, shipped_milestones},
 };
@@ -16,11 +16,7 @@ use workflow_spec_driven_case_study::{
 };
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "e2e".into() },
-        Trigger::Command { name: "test".into() },
-    )
+    Causation::new(Source::Cli, Trigger::Command { name: "test".into() })
 }
 
 #[tokio::test]
