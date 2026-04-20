@@ -60,6 +60,7 @@ pub(crate) async fn run(config: &Config, out: OutputMode, _args: Args) -> anyhow
     checks.push(check_workflow(config));
     checks.push(check_observers(config));
     checks.push(check_units(config).await?);
+    checks.push(check_unit_created_anchors(config).await?);
     checks.push(check_gitignore(&config.root).await);
     checks.push(check_queue_stale(&config.root).await);
     checks.push(check_secret_scanner(&config.root).await);
@@ -261,6 +262,55 @@ async fn probe_unit(log_path: &Path) -> anyhow::Result<()> {
             .with_context(|| format!("parse line {} of {}", idx + 1, log_path.display()))?;
     }
     Ok(())
+}
+
+/// Warn when a unit's log lacks a `UnitCreated` anchor. Without the
+/// anchor the kernel's scope-driven preconditions (notably
+/// `TerminalTransitionRequiresRequiredPhases`) silently skip because
+/// they read scope from the anchor's body. `knotch unit init <slug>`
+/// is the repair path — re-running it on a dir that exists but has
+/// no anchor emits the anchor in place.
+async fn check_unit_created_anchors(config: &Config) -> anyhow::Result<Check> {
+    let state = &config.state_dir;
+    let Ok(mut entries) = tokio::fs::read_dir(state).await else {
+        return Ok(Check { name: "anchors", status: Status::Ok, detail: "no state dir".into() });
+    };
+    let mut missing: Vec<String> = Vec::new();
+    while let Some(entry) = entries.next_entry().await.context("read state dir")? {
+        if !entry.file_type().await.context("stat entry")?.is_dir() {
+            continue;
+        }
+        let log_path = entry.path().join("log.jsonl");
+        let Ok(body) = tokio::fs::read_to_string(&log_path).await else { continue };
+        let has_anchor = body.lines().filter(|l| !l.trim().is_empty()).any(|line| {
+            serde_json::from_str::<serde_json::Value>(line)
+                .ok()
+                .and_then(|v| v.get("body").and_then(|b| b.get("type")).cloned())
+                .is_some_and(|t| t.as_str() == Some("unit_created"))
+        });
+        if !has_anchor {
+            missing.push(entry.file_name().to_string_lossy().into_owned());
+        }
+    }
+    if missing.is_empty() {
+        Ok(Check {
+            name: "anchors",
+            status: Status::Ok,
+            detail: "every unit has a UnitCreated anchor".into(),
+        })
+    } else {
+        missing.sort();
+        Ok(Check {
+            name: "anchors",
+            status: Status::Warn,
+            detail: format!(
+                "{} unit(s) missing UnitCreated — scope-driven checks dormant; \
+                 repair with `knotch unit init <slug>`: {}",
+                missing.len(),
+                missing.join(", "),
+            ),
+        })
+    }
 }
 
 /// Warn when `.knotch/` is not in `.gitignore`. Committing runtime

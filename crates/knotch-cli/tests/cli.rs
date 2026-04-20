@@ -182,6 +182,28 @@ fn doctor_reports_clean_after_init() {
 }
 
 #[test]
+fn doctor_warns_on_unit_missing_unit_created_anchor() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    bin().current_dir(dir.path()).args(["init"]).assert().success();
+
+    // Seed a legacy-shaped unit whose log has events but no
+    // `UnitCreated` anchor — the exact shape a pre-C5 `unit init`
+    // or Rust-API-direct caller would produce.
+    let unit_dir = dir.path().join("state").join("legacy-unit");
+    fs::create_dir_all(&unit_dir).expect("unit dir");
+    write_fixture_log(&unit_dir.join("log.jsonl"));
+
+    bin()
+        .current_dir(dir.path())
+        .args(["doctor"])
+        .assert()
+        .success()
+        .stdout(str::contains("[WARN] anchors"))
+        .stdout(str::contains("legacy-unit"))
+        .stdout(str::contains("missing UnitCreated"));
+}
+
+#[test]
 fn reconcile_drains_empty_queue_cleanly() {
     // Empty queue = no-op drain, zero pruned, exit 0.
     let dir = tempfile::tempdir().expect("tempdir");
