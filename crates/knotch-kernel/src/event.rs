@@ -161,7 +161,7 @@ pub enum EventBody<W: WorkflowKind> {
         /// What is being retried.
         anchor: RetryAnchor,
         /// Failure classification.
-        kind: FailureKind,
+        kind: ReconcileFailureKind,
         /// Monotonic attempt counter.
         attempt: NonZeroU32,
     },
@@ -231,7 +231,7 @@ pub enum EventBody<W: WorkflowKind> {
         /// Structured failure classification. Drives automated retry
         /// decisions downstream (observers can branch on
         /// `RateLimited { retry_after }` vs `Timeout { ... }`).
-        reason: FailureReason,
+        reason: ToolCallFailureReason,
     },
     /// The active model for subsequent events has switched. Fires
     /// from the agent harness when it transitions between LLMs
@@ -848,18 +848,24 @@ pub enum RetryAnchor {
 }
 
 /// Failure classification for `ReconcileFailed`.
+///
+/// `#[non_exhaustive]` — new reconciler failure modes (network
+/// timeout, quota exhausted on cloud VCS, adapter-specific errors)
+/// land as additive variants. There is no `Unknown` catch-all on
+/// purpose: forcing every emitter to classify keeps the retry
+/// policy table meaningful. If a caller genuinely cannot classify
+/// an error, the correct move is to propose a new named variant
+/// rather than emit an opaque bucket.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[non_exhaustive]
-pub enum FailureKind {
+pub enum ReconcileFailureKind {
     /// The commit referenced by a proposal is not yet visible.
     CommitPending,
     /// An observer returned an error.
     ObserverFailed,
     /// A stale lock was reclaimed.
     StaleLockReclaimed,
-    /// Unknown / uncategorized.
-    Unknown,
 }
 
 /// Classification for `ToolCallFailed`. Structured rather than
@@ -869,7 +875,7 @@ pub enum FailureKind {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 #[non_exhaustive]
-pub enum FailureReason {
+pub enum ToolCallFailureReason {
     /// Rate limit or quota exhausted. `retry_after_secs` is the
     /// server-recommended wait in seconds when provided, `None` when
     /// the harness had no hint.

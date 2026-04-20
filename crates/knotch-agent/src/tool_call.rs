@@ -7,7 +7,7 @@
 //! differently from Cursor or Aider). Per
 //! `.claude/rules/harness-decoupling.md` the kernel ships the
 //! shared taxonomy (`EventBody::ToolCallFailed` +
-//! `FailureReason`), and adopters wire their own failure detector
+//! `ToolCallFailureReason`), and adopters wire their own failure detector
 //! that invokes this helper.
 //!
 //! Third-party harnesses therefore import `knotch-agent` as a
@@ -19,7 +19,7 @@
 use compact_str::CompactString;
 use knotch_kernel::{
     AppendMode, Causation, Proposal, Repository, UnitId, WorkflowKind,
-    event::{EventBody, FailureReason},
+    event::{EventBody, ToolCallFailureReason},
 };
 use serde::Serialize;
 
@@ -52,7 +52,7 @@ pub async fn record_failure<W, R>(
     tool: impl Into<CompactString>,
     call_id: impl Into<CompactString>,
     attempt: core::num::NonZeroU32,
-    reason: FailureReason,
+    reason: ToolCallFailureReason,
     causation: Causation,
 ) -> Result<HookOutput, HookError>
 where

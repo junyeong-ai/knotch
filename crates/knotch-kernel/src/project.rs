@@ -10,7 +10,7 @@ use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::{
     causation::{AgentId, Cost, ModelId, Principal},
-    event::{Event, EventBody, FailureReason},
+    event::{Event, EventBody, ToolCallFailureReason},
     id::EventId,
     log::Log,
     status::StatusId,
@@ -226,7 +226,7 @@ pub struct ToolCallFailureEntry {
     /// Retry attempt counter (1-indexed, monotonic).
     pub attempt: u32,
     /// Classification carried on the failed event.
-    pub reason: FailureReason,
+    pub reason: ToolCallFailureReason,
     /// Instant the failure was recorded.
     pub at: Timestamp,
 }

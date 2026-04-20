@@ -36,7 +36,7 @@ pub use self::{
     error::{PreconditionError, RepositoryError},
     event::{
         AppendMode, AppendReport, ArtifactList, CommitKind, CommitRef, CommitStatus, Event,
-        EventBody, FailureKind, FailureReason, Proposal, RetryAnchor, SkipKind, SubscribeEvent,
+        EventBody, ReconcileFailureKind, ToolCallFailureReason, Proposal, RetryAnchor, SkipKind, SubscribeEvent,
         SubscribeMode,
     },
     fingerprint::{Fingerprint, fingerprint_event, fingerprint_proposal},

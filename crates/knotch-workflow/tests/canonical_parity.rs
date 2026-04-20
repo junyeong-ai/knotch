@@ -314,14 +314,14 @@ fn fingerprint_bit_identical_between_typed_and_config_canonical() {
     // --- ReconcileFailed ---
     use std::num::NonZeroU32;
 
-    use knotch_kernel::event::{FailureKind, RetryAnchor};
+    use knotch_kernel::event::{ReconcileFailureKind, RetryAnchor};
     let anchor = RetryAnchor::Observer { name: "git-log".into() };
     let typed_rf = Proposal::<Knotch> {
         causation: causation(),
         extension: (),
         body: EventBody::ReconcileFailed {
             anchor: anchor.clone(),
-            kind: FailureKind::ObserverFailed,
+            kind: ReconcileFailureKind::ObserverFailed,
             attempt: NonZeroU32::new(1).unwrap(),
         },
         supersedes: None,
@@ -331,7 +331,7 @@ fn fingerprint_bit_identical_between_typed_and_config_canonical() {
         extension: Default::default(),
         body: EventBody::ReconcileFailed {
             anchor: anchor.clone(),
-            kind: FailureKind::ObserverFailed,
+            kind: ReconcileFailureKind::ObserverFailed,
             attempt: NonZeroU32::new(1).unwrap(),
         },
         supersedes: None,

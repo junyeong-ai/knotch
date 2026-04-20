@@ -10,7 +10,7 @@ use knotch_kernel::{
     RepositoryError, Scope, StatusId, UnitId, WorkflowKind,
     causation::{Principal, Source, Trigger},
     error::PreconditionError,
-    event::{ArtifactList, CommitKind, CommitRef, EventBody, FailureKind, RetryAnchor, SkipKind},
+    event::{ArtifactList, CommitKind, CommitRef, EventBody, ReconcileFailureKind, RetryAnchor, SkipKind},
     precondition::{AppendContext, ArtifactCheck, VerifyCommit},
 };
 use serde::{Deserialize, Serialize};
@@ -578,13 +578,13 @@ fn reconcile_failed_requires_strict_monotonic_attempt() {
         EventBody::UnitCreated { scope: Scope::Standard },
         EventBody::ReconcileFailed {
             anchor: anchor.clone(),
-            kind: FailureKind::Unknown,
+            kind: ReconcileFailureKind::ObserverFailed,
             attempt: NonZeroU32::new(2).unwrap(),
         },
     ]);
     let body: EventBody<Wf> = EventBody::ReconcileFailed {
         anchor: anchor.clone(),
-        kind: FailureKind::Unknown,
+        kind: ReconcileFailureKind::ObserverFailed,
         attempt: NonZeroU32::new(2).unwrap(),
     };
     let err = body.check_precondition(&ctx(&l)).unwrap_err();
@@ -592,7 +592,7 @@ fn reconcile_failed_requires_strict_monotonic_attempt() {
 
     let body: EventBody<Wf> = EventBody::ReconcileFailed {
         anchor,
-        kind: FailureKind::Unknown,
+        kind: ReconcileFailureKind::ObserverFailed,
         attempt: NonZeroU32::new(3).unwrap(),
     };
     assert!(body.check_precondition(&ctx(&l)).is_ok());
@@ -1022,7 +1022,7 @@ fn tool_call_failed(tool: &str, call_id: &str, attempt: u32) -> EventBody<Wf> {
         tool: tool.into(),
         call_id: call_id.into(),
         attempt: NonZeroU32::new(attempt).expect("attempt is non-zero"),
-        reason: knotch_kernel::event::FailureReason::Timeout { after_secs: 5 },
+        reason: knotch_kernel::event::ToolCallFailureReason::Timeout { after_secs: 5 },
     }
 }
 
@@ -1119,7 +1119,7 @@ fn reconcile_recovered_rejected_when_prior_failure_was_superseded() {
             body: EventBody::ReconcileFailed {
                 anchor: anchor.clone(),
                 attempt: NonZeroU32::new(1).unwrap(),
-                kind: FailureKind::ObserverFailed,
+                kind: ReconcileFailureKind::ObserverFailed,
             },
             supersedes: None,
         },

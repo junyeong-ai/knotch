@@ -28,7 +28,7 @@ A lock whose metadata satisfies either
 is treated as stale. The next acquirer takes it and the returned
 `LockGuard::was_reclaimed()` is `true` — the Repository surfaces
 that as `ReconcileFailed { anchor: RetryAnchor::Lock(pid),
-kind: FailureKind::StaleLockReclaimed }`.
+kind: ReconcileFailureKind::StaleLockReclaimed }`.
 
 ## Do not
 

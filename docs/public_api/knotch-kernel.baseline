@@ -518,7 +518,7 @@ pub knotch_kernel::event::EventBody::PhaseSkipped::reason: knotch_kernel::event:
 pub knotch_kernel::event::EventBody::ReconcileFailed
 pub knotch_kernel::event::EventBody::ReconcileFailed::anchor: knotch_kernel::event::RetryAnchor
 pub knotch_kernel::event::EventBody::ReconcileFailed::attempt: core::num::nonzero::NonZeroU32
-pub knotch_kernel::event::EventBody::ReconcileFailed::kind: knotch_kernel::event::FailureKind
+pub knotch_kernel::event::EventBody::ReconcileFailed::kind: knotch_kernel::event::ReconcileFailureKind
 pub knotch_kernel::event::EventBody::ReconcileRecovered
 pub knotch_kernel::event::EventBody::ReconcileRecovered::anchor: knotch_kernel::event::RetryAnchor
 pub knotch_kernel::event::EventBody::ReconcileRecovered::attempts_total: core::num::nonzero::NonZeroU32
@@ -534,7 +534,7 @@ pub knotch_kernel::event::EventBody::SubagentCompleted::transcript_path: core::o
 pub knotch_kernel::event::EventBody::ToolCallFailed
 pub knotch_kernel::event::EventBody::ToolCallFailed::attempt: core::num::nonzero::NonZeroU32
 pub knotch_kernel::event::EventBody::ToolCallFailed::call_id: compact_str::CompactString
-pub knotch_kernel::event::EventBody::ToolCallFailed::reason: knotch_kernel::event::FailureReason
+pub knotch_kernel::event::EventBody::ToolCallFailed::reason: knotch_kernel::event::ToolCallFailureReason
 pub knotch_kernel::event::EventBody::ToolCallFailed::tool: compact_str::CompactString
 pub knotch_kernel::event::EventBody::UnitCreated
 pub knotch_kernel::event::EventBody::UnitCreated::scope: knotch_kernel::scope::Scope
@@ -557,61 +557,31 @@ impl<W> core::marker::Unpin for knotch_kernel::event::EventBody<W> where <W as k
 impl<W> core::marker::UnsafeUnpin for knotch_kernel::event::EventBody<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::marker::UnsafeUnpin
 impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::EventBody<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
 impl<W> core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::EventBody<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::UnwindSafe
-#[non_exhaustive] pub enum knotch_kernel::event::FailureKind
-pub knotch_kernel::event::FailureKind::CommitPending
-pub knotch_kernel::event::FailureKind::ObserverFailed
-pub knotch_kernel::event::FailureKind::StaleLockReclaimed
-pub knotch_kernel::event::FailureKind::Unknown
-impl core::clone::Clone for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::clone(&self) -> knotch_kernel::event::FailureKind
-impl core::cmp::Eq for knotch_kernel::event::FailureKind
-impl core::cmp::PartialEq for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::eq(&self, other: &knotch_kernel::event::FailureKind) -> bool
-impl core::fmt::Debug for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::event::FailureKind
-impl serde_core::ser::Serialize for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::event::FailureKind
-impl core::marker::Send for knotch_kernel::event::FailureKind
-impl core::marker::Sync for knotch_kernel::event::FailureKind
-impl core::marker::Unpin for knotch_kernel::event::FailureKind
-impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureKind
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureKind
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureKind
-#[non_exhaustive] pub enum knotch_kernel::event::FailureReason
-pub knotch_kernel::event::FailureReason::Backend
-pub knotch_kernel::event::FailureReason::Backend::message: compact_str::CompactString
-pub knotch_kernel::event::FailureReason::RateLimited
-pub knotch_kernel::event::FailureReason::RateLimited::retry_after_secs: core::option::Option<u64>
-pub knotch_kernel::event::FailureReason::Timeout
-pub knotch_kernel::event::FailureReason::Timeout::after_secs: u64
-pub knotch_kernel::event::FailureReason::UserCancelled
-impl core::clone::Clone for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::clone(&self) -> knotch_kernel::event::FailureReason
-impl core::cmp::Eq for knotch_kernel::event::FailureReason
-impl core::cmp::PartialEq for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::eq(&self, other: &knotch_kernel::event::FailureReason) -> bool
-impl core::fmt::Debug for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::event::FailureReason
-impl serde_core::ser::Serialize for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::event::FailureReason
-impl core::marker::Send for knotch_kernel::event::FailureReason
-impl core::marker::Sync for knotch_kernel::event::FailureReason
-impl core::marker::Unpin for knotch_kernel::event::FailureReason
-impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureReason
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureReason
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureReason
+#[non_exhaustive] pub enum knotch_kernel::event::ReconcileFailureKind
+pub knotch_kernel::event::ReconcileFailureKind::CommitPending
+pub knotch_kernel::event::ReconcileFailureKind::ObserverFailed
+pub knotch_kernel::event::ReconcileFailureKind::StaleLockReclaimed
+impl core::clone::Clone for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::clone(&self) -> knotch_kernel::event::ReconcileFailureKind
+impl core::cmp::Eq for knotch_kernel::event::ReconcileFailureKind
+impl core::cmp::PartialEq for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::eq(&self, other: &knotch_kernel::event::ReconcileFailureKind) -> bool
+impl core::fmt::Debug for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_kernel::event::ReconcileFailureKind
+impl serde_core::ser::Serialize for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::Send for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::Sync for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::Unpin for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::UnsafeUnpin for knotch_kernel::event::ReconcileFailureKind
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::ReconcileFailureKind
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::ReconcileFailureKind
 #[non_exhaustive] pub enum knotch_kernel::event::RetryAnchor
 pub knotch_kernel::event::RetryAnchor::Commit
 pub knotch_kernel::event::RetryAnchor::Commit::sha: knotch_kernel::event::CommitRef
@@ -710,6 +680,35 @@ impl core::marker::Unpin for knotch_kernel::event::SubscribeMode
 impl core::marker::UnsafeUnpin for knotch_kernel::event::SubscribeMode
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::SubscribeMode
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::SubscribeMode
+#[non_exhaustive] pub enum knotch_kernel::event::ToolCallFailureReason
+pub knotch_kernel::event::ToolCallFailureReason::Backend
+pub knotch_kernel::event::ToolCallFailureReason::Backend::message: compact_str::CompactString
+pub knotch_kernel::event::ToolCallFailureReason::RateLimited
+pub knotch_kernel::event::ToolCallFailureReason::RateLimited::retry_after_secs: core::option::Option<u64>
+pub knotch_kernel::event::ToolCallFailureReason::Timeout
+pub knotch_kernel::event::ToolCallFailureReason::Timeout::after_secs: u64
+pub knotch_kernel::event::ToolCallFailureReason::UserCancelled
+impl core::clone::Clone for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::clone(&self) -> knotch_kernel::event::ToolCallFailureReason
+impl core::cmp::Eq for knotch_kernel::event::ToolCallFailureReason
+impl core::cmp::PartialEq for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::eq(&self, other: &knotch_kernel::event::ToolCallFailureReason) -> bool
+impl core::fmt::Debug for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_kernel::event::ToolCallFailureReason
+impl serde_core::ser::Serialize for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::Send for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::Sync for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::Unpin for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::UnsafeUnpin for knotch_kernel::event::ToolCallFailureReason
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::ToolCallFailureReason
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::ToolCallFailureReason
 #[non_exhaustive] pub struct knotch_kernel::event::AppendReport<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::event::AppendReport::accepted: alloc::vec::Vec<knotch_kernel::event::Event<W>>
 pub knotch_kernel::event::AppendReport::rejected: alloc::vec::Vec<knotch_kernel::event::RejectedProposal<W>>
@@ -1094,7 +1093,7 @@ impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::SubagentEn
 #[non_exhaustive] pub struct knotch_kernel::project::ToolCallFailureEntry
 pub knotch_kernel::project::ToolCallFailureEntry::at: jiff::timestamp::Timestamp
 pub knotch_kernel::project::ToolCallFailureEntry::attempt: u32
-pub knotch_kernel::project::ToolCallFailureEntry::reason: knotch_kernel::event::FailureReason
+pub knotch_kernel::project::ToolCallFailureEntry::reason: knotch_kernel::event::ToolCallFailureReason
 impl core::clone::Clone for knotch_kernel::project::ToolCallFailureEntry
 pub fn knotch_kernel::project::ToolCallFailureEntry::clone(&self) -> knotch_kernel::project::ToolCallFailureEntry
 impl core::cmp::Eq for knotch_kernel::project::ToolCallFailureEntry
@@ -1539,7 +1538,7 @@ pub knotch_kernel::EventBody::PhaseSkipped::reason: knotch_kernel::event::SkipKi
 pub knotch_kernel::EventBody::ReconcileFailed
 pub knotch_kernel::EventBody::ReconcileFailed::anchor: knotch_kernel::event::RetryAnchor
 pub knotch_kernel::EventBody::ReconcileFailed::attempt: core::num::nonzero::NonZeroU32
-pub knotch_kernel::EventBody::ReconcileFailed::kind: knotch_kernel::event::FailureKind
+pub knotch_kernel::EventBody::ReconcileFailed::kind: knotch_kernel::event::ReconcileFailureKind
 pub knotch_kernel::EventBody::ReconcileRecovered
 pub knotch_kernel::EventBody::ReconcileRecovered::anchor: knotch_kernel::event::RetryAnchor
 pub knotch_kernel::EventBody::ReconcileRecovered::attempts_total: core::num::nonzero::NonZeroU32
@@ -1555,7 +1554,7 @@ pub knotch_kernel::EventBody::SubagentCompleted::transcript_path: core::option::
 pub knotch_kernel::EventBody::ToolCallFailed
 pub knotch_kernel::EventBody::ToolCallFailed::attempt: core::num::nonzero::NonZeroU32
 pub knotch_kernel::EventBody::ToolCallFailed::call_id: compact_str::CompactString
-pub knotch_kernel::EventBody::ToolCallFailed::reason: knotch_kernel::event::FailureReason
+pub knotch_kernel::EventBody::ToolCallFailed::reason: knotch_kernel::event::ToolCallFailureReason
 pub knotch_kernel::EventBody::ToolCallFailed::tool: compact_str::CompactString
 pub knotch_kernel::EventBody::UnitCreated
 pub knotch_kernel::EventBody::UnitCreated::scope: knotch_kernel::scope::Scope
@@ -1578,61 +1577,6 @@ impl<W> core::marker::Unpin for knotch_kernel::event::EventBody<W> where <W as k
 impl<W> core::marker::UnsafeUnpin for knotch_kernel::event::EventBody<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::marker::UnsafeUnpin
 impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::EventBody<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
 impl<W> core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::EventBody<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::UnwindSafe
-#[non_exhaustive] pub enum knotch_kernel::FailureKind
-pub knotch_kernel::FailureKind::CommitPending
-pub knotch_kernel::FailureKind::ObserverFailed
-pub knotch_kernel::FailureKind::StaleLockReclaimed
-pub knotch_kernel::FailureKind::Unknown
-impl core::clone::Clone for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::clone(&self) -> knotch_kernel::event::FailureKind
-impl core::cmp::Eq for knotch_kernel::event::FailureKind
-impl core::cmp::PartialEq for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::eq(&self, other: &knotch_kernel::event::FailureKind) -> bool
-impl core::fmt::Debug for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::event::FailureKind
-impl serde_core::ser::Serialize for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::FailureKind
-pub fn knotch_kernel::event::FailureKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::event::FailureKind
-impl core::marker::Send for knotch_kernel::event::FailureKind
-impl core::marker::Sync for knotch_kernel::event::FailureKind
-impl core::marker::Unpin for knotch_kernel::event::FailureKind
-impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureKind
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureKind
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureKind
-#[non_exhaustive] pub enum knotch_kernel::FailureReason
-pub knotch_kernel::FailureReason::Backend
-pub knotch_kernel::FailureReason::Backend::message: compact_str::CompactString
-pub knotch_kernel::FailureReason::RateLimited
-pub knotch_kernel::FailureReason::RateLimited::retry_after_secs: core::option::Option<u64>
-pub knotch_kernel::FailureReason::Timeout
-pub knotch_kernel::FailureReason::Timeout::after_secs: u64
-pub knotch_kernel::FailureReason::UserCancelled
-impl core::clone::Clone for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::clone(&self) -> knotch_kernel::event::FailureReason
-impl core::cmp::Eq for knotch_kernel::event::FailureReason
-impl core::cmp::PartialEq for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::eq(&self, other: &knotch_kernel::event::FailureReason) -> bool
-impl core::fmt::Debug for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::event::FailureReason
-impl serde_core::ser::Serialize for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::FailureReason
-pub fn knotch_kernel::event::FailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::event::FailureReason
-impl core::marker::Send for knotch_kernel::event::FailureReason
-impl core::marker::Sync for knotch_kernel::event::FailureReason
-impl core::marker::Unpin for knotch_kernel::event::FailureReason
-impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureReason
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureReason
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureReason
 #[non_exhaustive] pub enum knotch_kernel::PreconditionError
 pub knotch_kernel::PreconditionError::AlreadyCreated
 pub knotch_kernel::PreconditionError::AlreadySuperseded(knotch_kernel::id::EventId)
@@ -1721,6 +1665,31 @@ impl core::marker::Unpin for knotch_kernel::causation::Principal
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::Principal
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Principal
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Principal
+#[non_exhaustive] pub enum knotch_kernel::ReconcileFailureKind
+pub knotch_kernel::ReconcileFailureKind::CommitPending
+pub knotch_kernel::ReconcileFailureKind::ObserverFailed
+pub knotch_kernel::ReconcileFailureKind::StaleLockReclaimed
+impl core::clone::Clone for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::clone(&self) -> knotch_kernel::event::ReconcileFailureKind
+impl core::cmp::Eq for knotch_kernel::event::ReconcileFailureKind
+impl core::cmp::PartialEq for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::eq(&self, other: &knotch_kernel::event::ReconcileFailureKind) -> bool
+impl core::fmt::Debug for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_kernel::event::ReconcileFailureKind
+impl serde_core::ser::Serialize for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::ReconcileFailureKind
+pub fn knotch_kernel::event::ReconcileFailureKind::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::Send for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::Sync for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::Unpin for knotch_kernel::event::ReconcileFailureKind
+impl core::marker::UnsafeUnpin for knotch_kernel::event::ReconcileFailureKind
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::ReconcileFailureKind
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::ReconcileFailureKind
 #[non_exhaustive] pub enum knotch_kernel::RepositoryError
 pub knotch_kernel::RepositoryError::Codec(serde_json::error::Error)
 pub knotch_kernel::RepositoryError::Corrupted
@@ -1932,6 +1901,35 @@ impl core::marker::Unpin for knotch_kernel::event::SubscribeMode
 impl core::marker::UnsafeUnpin for knotch_kernel::event::SubscribeMode
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::SubscribeMode
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::SubscribeMode
+#[non_exhaustive] pub enum knotch_kernel::ToolCallFailureReason
+pub knotch_kernel::ToolCallFailureReason::Backend
+pub knotch_kernel::ToolCallFailureReason::Backend::message: compact_str::CompactString
+pub knotch_kernel::ToolCallFailureReason::RateLimited
+pub knotch_kernel::ToolCallFailureReason::RateLimited::retry_after_secs: core::option::Option<u64>
+pub knotch_kernel::ToolCallFailureReason::Timeout
+pub knotch_kernel::ToolCallFailureReason::Timeout::after_secs: u64
+pub knotch_kernel::ToolCallFailureReason::UserCancelled
+impl core::clone::Clone for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::clone(&self) -> knotch_kernel::event::ToolCallFailureReason
+impl core::cmp::Eq for knotch_kernel::event::ToolCallFailureReason
+impl core::cmp::PartialEq for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::eq(&self, other: &knotch_kernel::event::ToolCallFailureReason) -> bool
+impl core::fmt::Debug for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_kernel::event::ToolCallFailureReason
+impl serde_core::ser::Serialize for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::ToolCallFailureReason
+pub fn knotch_kernel::event::ToolCallFailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::Send for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::Sync for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::Unpin for knotch_kernel::event::ToolCallFailureReason
+impl core::marker::UnsafeUnpin for knotch_kernel::event::ToolCallFailureReason
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::ToolCallFailureReason
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::ToolCallFailureReason
 #[non_exhaustive] pub enum knotch_kernel::Trigger
 pub knotch_kernel::Trigger::Command
 pub knotch_kernel::Trigger::Command::name: compact_str::CompactString
