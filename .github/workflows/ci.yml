@@ -114,13 +114,21 @@ jobs:
       - uses: bnjbvr/cargo-machete@main
 
   semver:
+    # Crates are unreleased (no crates.io baseline yet). Diff the PR
+    # against its base branch instead. Once the first release lands,
+    # drop `baseline-rev` to fall back to the published baseline.
     name: cargo-semver-checks
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          baseline-rev: ${{ github.event.pull_request.base.sha }}
 
   public-api:
     name: cargo-public-api (baseline diff)
