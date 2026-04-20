@@ -6,7 +6,7 @@ use compact_str::CompactString;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    causation::{AgentId, Causation},
+    causation::{AgentId, Causation, ModelId},
     id::EventId,
     rationale::Rationale,
     scope::Scope,
@@ -210,6 +210,44 @@ pub enum EventBody<W: WorkflowKind> {
         /// the harness; `None` when nothing was reported.
         last_message: Option<CompactString>,
     },
+    /// A tool invocation has failed. Separate from `ReconcileFailed`
+    /// (which covers reconciler-owned retries under a
+    /// `RetryAnchor::Observer`) — this variant attributes failures to
+    /// a concrete `(tool, call_id)` pair the agent is driving, so
+    /// retry topology is inspectable by projections and by
+    /// `knotch-query` (future: filter by failure reason).
+    ///
+    /// Precondition: `attempt` must be strictly greater than every
+    /// prior `ToolCallFailed` with the same `(tool, call_id)` — the
+    /// log encodes retry order monotonically.
+    ToolCallFailed {
+        /// Tool name (e.g. `"Bash"`, `"Edit"`, `"WebFetch"`).
+        tool: CompactString,
+        /// Harness-assigned tool-call correlation id. Stable across
+        /// retries of the same logical call.
+        call_id: CompactString,
+        /// 1-indexed attempt counter. Monotonic per `(tool, call_id)`.
+        attempt: NonZeroU32,
+        /// Structured failure classification. Drives automated retry
+        /// decisions downstream (observers can branch on
+        /// `RateLimited { retry_after }` vs `Timeout { ... }`).
+        reason: FailureReason,
+    },
+    /// The active model for subsequent events has switched. Fires
+    /// from the agent harness when it transitions between LLMs
+    /// mid-unit (e.g. `opus → haiku` after context compaction, or
+    /// `haiku → sonnet` on a cost-budget trigger). Enables the
+    /// per-model cost/attribution roll-up in `project::model_timeline`
+    /// without forcing every consumer to walk causation by hand.
+    ///
+    /// Precondition: `to != from`. A no-op switch would inflate
+    /// the log and defeat the timeline projection.
+    ModelSwitched {
+        /// The model that was active immediately before this event.
+        from: ModelId,
+        /// The model that becomes active from this event onward.
+        to: ModelId,
+    },
 }
 
 impl<W: WorkflowKind> EventBody<W> {
@@ -236,6 +274,8 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::ReconcileRecovered { .. } => "reconcile_recovered",
             EventBody::EventSuperseded { .. } => "event_superseded",
             EventBody::SubagentCompleted { .. } => "subagent_completed",
+            EventBody::ToolCallFailed { .. } => "tool_call_failed",
+            EventBody::ModelSwitched { .. } => "model_switched",
         }
     }
 
@@ -258,6 +298,8 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::ReconcileRecovered { .. } => 10,
             EventBody::EventSuperseded { .. } => 11,
             EventBody::SubagentCompleted { .. } => 12,
+            EventBody::ToolCallFailed { .. } => 13,
+            EventBody::ModelSwitched { .. } => 14,
         }
     }
 
@@ -504,6 +546,42 @@ impl<W: WorkflowKind> EventBody<W> {
                     return Err(E::SubagentAlreadyCompleted(agent_id.0.to_string()));
                 }
             }
+            EventBody::ToolCallFailed { tool, call_id, attempt, .. } => {
+                // Attempt counter must be strictly greater than every
+                // prior `ToolCallFailed` for the same (tool, call_id).
+                // Otherwise the retry timeline is non-monotonic and
+                // projections can't reconstruct attempt order.
+                let prior_max = effective_events(ctx.log)
+                    .iter()
+                    .filter_map(|evt| match &evt.body {
+                        EventBody::ToolCallFailed { tool: t, call_id: c, attempt: a, .. }
+                            if t == tool && c == call_id =>
+                        {
+                            Some(a.get())
+                        }
+                        _ => None,
+                    })
+                    .max()
+                    .unwrap_or(0);
+                if attempt.get() <= prior_max {
+                    return Err(E::NonMonotonicAttempt {
+                        attempt: attempt.get(),
+                        prior: prior_max,
+                    });
+                }
+            }
+            EventBody::ModelSwitched { from, to } => {
+                // A no-op switch would inflate the log and defeat the
+                // `model_timeline` projection — refuse identical
+                // `from == to`. The adopter stamps `from` based on
+                // whatever tracking it already maintains; knotch
+                // doesn't re-validate it against a "current model"
+                // projection because that projection is precisely
+                // what this event builds.
+                if from == to {
+                    return Err(E::NoOpModelSwitch { model: from.0.to_string() });
+                }
+            }
         }
         Ok(())
     }
@@ -721,6 +799,38 @@ pub enum FailureKind {
     StaleLockReclaimed,
     /// Unknown / uncategorized.
     Unknown,
+}
+
+/// Classification for `ToolCallFailed`. Structured rather than
+/// free-form so observers can branch on the failure shape without
+/// string matching. `#[non_exhaustive]` — new tool-failure modes
+/// land as additive variants.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+#[non_exhaustive]
+pub enum FailureReason {
+    /// Rate limit or quota exhausted. `retry_after_secs` is the
+    /// server-recommended wait in seconds when provided, `None` when
+    /// the harness had no hint.
+    RateLimited {
+        /// Server-recommended retry delay in seconds, if known.
+        retry_after_secs: Option<u64>,
+    },
+    /// The tool exceeded the caller's deadline.
+    Timeout {
+        /// Observed elapsed time in seconds at cancellation.
+        after_secs: u64,
+    },
+    /// Backend or network failure — opaque string from the tool /
+    /// adapter, not interpretable by knotch.
+    Backend {
+        /// Short operator-facing error detail.
+        message: CompactString,
+    },
+    /// The user (or a parent agent) cancelled the tool call mid-
+    /// flight — not a failure attributable to the tool itself, but
+    /// worth logging so cost and retry math is correct.
+    UserCancelled,
 }
 
 /// Batching policy for `Repository::append`.

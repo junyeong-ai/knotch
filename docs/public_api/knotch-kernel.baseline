@@ -321,6 +321,8 @@ pub knotch_kernel::error::PreconditionError::GateOutOfOrder::gate: alloc::string
 pub knotch_kernel::error::PreconditionError::GateOutOfOrder::missing: alloc::string::String
 pub knotch_kernel::error::PreconditionError::MilestoneAlreadyShipped(alloc::string::String)
 pub knotch_kernel::error::PreconditionError::MilestoneNotShipped(alloc::string::String)
+pub knotch_kernel::error::PreconditionError::NoOpModelSwitch
+pub knotch_kernel::error::PreconditionError::NoOpModelSwitch::model: alloc::string::String
 pub knotch_kernel::error::PreconditionError::NoOpStatusTransition(alloc::string::String)
 pub knotch_kernel::error::PreconditionError::NoPendingShip
 pub knotch_kernel::error::PreconditionError::NoPendingShip::commit: alloc::string::String
@@ -488,6 +490,9 @@ pub knotch_kernel::event::EventBody::MilestoneShipped::status: knotch_kernel::ev
 pub knotch_kernel::event::EventBody::MilestoneVerified
 pub knotch_kernel::event::EventBody::MilestoneVerified::commit: knotch_kernel::event::CommitRef
 pub knotch_kernel::event::EventBody::MilestoneVerified::milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone
+pub knotch_kernel::event::EventBody::ModelSwitched
+pub knotch_kernel::event::EventBody::ModelSwitched::from: knotch_kernel::causation::ModelId
+pub knotch_kernel::event::EventBody::ModelSwitched::to: knotch_kernel::causation::ModelId
 pub knotch_kernel::event::EventBody::PhaseCompleted
 pub knotch_kernel::event::EventBody::PhaseCompleted::artifacts: knotch_kernel::event::ArtifactList
 pub knotch_kernel::event::EventBody::PhaseCompleted::phase: <W as knotch_kernel::workflow::WorkflowKind>::Phase
@@ -510,6 +515,11 @@ pub knotch_kernel::event::EventBody::SubagentCompleted::agent_id: knotch_kernel:
 pub knotch_kernel::event::EventBody::SubagentCompleted::agent_type: core::option::Option<compact_str::CompactString>
 pub knotch_kernel::event::EventBody::SubagentCompleted::last_message: core::option::Option<compact_str::CompactString>
 pub knotch_kernel::event::EventBody::SubagentCompleted::transcript_path: core::option::Option<compact_str::CompactString>
+pub knotch_kernel::event::EventBody::ToolCallFailed
+pub knotch_kernel::event::EventBody::ToolCallFailed::attempt: core::num::nonzero::NonZeroU32
+pub knotch_kernel::event::EventBody::ToolCallFailed::call_id: compact_str::CompactString
+pub knotch_kernel::event::EventBody::ToolCallFailed::reason: knotch_kernel::event::FailureReason
+pub knotch_kernel::event::EventBody::ToolCallFailed::tool: compact_str::CompactString
 pub knotch_kernel::event::EventBody::UnitCreated
 pub knotch_kernel::event::EventBody::UnitCreated::scope: knotch_kernel::scope::Scope
 impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::event::EventBody<W>
@@ -557,6 +567,35 @@ impl core::marker::Unpin for knotch_kernel::event::FailureKind
 impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureKind
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureKind
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureKind
+#[non_exhaustive] pub enum knotch_kernel::event::FailureReason
+pub knotch_kernel::event::FailureReason::Backend
+pub knotch_kernel::event::FailureReason::Backend::message: compact_str::CompactString
+pub knotch_kernel::event::FailureReason::RateLimited
+pub knotch_kernel::event::FailureReason::RateLimited::retry_after_secs: core::option::Option<u64>
+pub knotch_kernel::event::FailureReason::Timeout
+pub knotch_kernel::event::FailureReason::Timeout::after_secs: u64
+pub knotch_kernel::event::FailureReason::UserCancelled
+impl core::clone::Clone for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::clone(&self) -> knotch_kernel::event::FailureReason
+impl core::cmp::Eq for knotch_kernel::event::FailureReason
+impl core::cmp::PartialEq for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::eq(&self, other: &knotch_kernel::event::FailureReason) -> bool
+impl core::fmt::Debug for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_kernel::event::FailureReason
+impl serde_core::ser::Serialize for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_kernel::event::FailureReason
+impl core::marker::Send for knotch_kernel::event::FailureReason
+impl core::marker::Sync for knotch_kernel::event::FailureReason
+impl core::marker::Unpin for knotch_kernel::event::FailureReason
+impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureReason
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureReason
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureReason
 #[non_exhaustive] pub enum knotch_kernel::event::RetryAnchor
 pub knotch_kernel::event::RetryAnchor::Commit
 pub knotch_kernel::event::RetryAnchor::Commit::sha: knotch_kernel::event::CommitRef
@@ -974,6 +1013,24 @@ pub fn knotch_kernel::precondition::ArtifactCheck::exists(&self, path: &std::pat
 pub trait knotch_kernel::precondition::VerifyCommit: core::marker::Send + core::marker::Sync
 pub fn knotch_kernel::precondition::VerifyCommit::verify(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_kernel::error::PreconditionError>
 pub mod knotch_kernel::project
+pub struct knotch_kernel::project::ModelTimelineEntry
+pub knotch_kernel::project::ModelTimelineEntry::at: jiff::timestamp::Timestamp
+pub knotch_kernel::project::ModelTimelineEntry::model: knotch_kernel::causation::ModelId
+impl core::clone::Clone for knotch_kernel::project::ModelTimelineEntry
+pub fn knotch_kernel::project::ModelTimelineEntry::clone(&self) -> knotch_kernel::project::ModelTimelineEntry
+impl core::cmp::Eq for knotch_kernel::project::ModelTimelineEntry
+impl core::cmp::PartialEq for knotch_kernel::project::ModelTimelineEntry
+pub fn knotch_kernel::project::ModelTimelineEntry::eq(&self, other: &knotch_kernel::project::ModelTimelineEntry) -> bool
+impl core::fmt::Debug for knotch_kernel::project::ModelTimelineEntry
+pub fn knotch_kernel::project::ModelTimelineEntry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_kernel::project::ModelTimelineEntry
+impl core::marker::Freeze for knotch_kernel::project::ModelTimelineEntry
+impl core::marker::Send for knotch_kernel::project::ModelTimelineEntry
+impl core::marker::Sync for knotch_kernel::project::ModelTimelineEntry
+impl core::marker::Unpin for knotch_kernel::project::ModelTimelineEntry
+impl core::marker::UnsafeUnpin for knotch_kernel::project::ModelTimelineEntry
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::ModelTimelineEntry
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::ModelTimelineEntry
 pub struct knotch_kernel::project::SubagentEntry
 pub knotch_kernel::project::SubagentEntry::agent_id: knotch_kernel::causation::AgentId
 pub knotch_kernel::project::SubagentEntry::agent_type: core::option::Option<compact_str::CompactString>
@@ -995,12 +1052,33 @@ impl core::marker::Unpin for knotch_kernel::project::SubagentEntry
 impl core::marker::UnsafeUnpin for knotch_kernel::project::SubagentEntry
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::SubagentEntry
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::SubagentEntry
+pub struct knotch_kernel::project::ToolCallFailureEntry
+pub knotch_kernel::project::ToolCallFailureEntry::at: jiff::timestamp::Timestamp
+pub knotch_kernel::project::ToolCallFailureEntry::attempt: u32
+pub knotch_kernel::project::ToolCallFailureEntry::reason: knotch_kernel::event::FailureReason
+impl core::clone::Clone for knotch_kernel::project::ToolCallFailureEntry
+pub fn knotch_kernel::project::ToolCallFailureEntry::clone(&self) -> knotch_kernel::project::ToolCallFailureEntry
+impl core::cmp::Eq for knotch_kernel::project::ToolCallFailureEntry
+impl core::cmp::PartialEq for knotch_kernel::project::ToolCallFailureEntry
+pub fn knotch_kernel::project::ToolCallFailureEntry::eq(&self, other: &knotch_kernel::project::ToolCallFailureEntry) -> bool
+impl core::fmt::Debug for knotch_kernel::project::ToolCallFailureEntry
+pub fn knotch_kernel::project::ToolCallFailureEntry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_kernel::project::ToolCallFailureEntry
+impl core::marker::Freeze for knotch_kernel::project::ToolCallFailureEntry
+impl core::marker::Send for knotch_kernel::project::ToolCallFailureEntry
+impl core::marker::Sync for knotch_kernel::project::ToolCallFailureEntry
+impl core::marker::Unpin for knotch_kernel::project::ToolCallFailureEntry
+impl core::marker::UnsafeUnpin for knotch_kernel::project::ToolCallFailureEntry
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::ToolCallFailureEntry
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::ToolCallFailureEntry
 pub fn knotch_kernel::project::current_phase<W: knotch_kernel::workflow::WorkflowKind>(workflow: &W, log: &knotch_kernel::log::Log<W>) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Phase>
 pub fn knotch_kernel::project::current_status<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> core::option::Option<knotch_kernel::status::StatusId>
 pub fn knotch_kernel::project::effective_events<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::event::Event<W>>
 pub fn knotch_kernel::project::last_completed_phase<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Phase>
+pub fn knotch_kernel::project::model_timeline<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::project::ModelTimelineEntry>
 pub fn knotch_kernel::project::shipped_milestones<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<<W as knotch_kernel::workflow::WorkflowKind>::Milestone>
 pub fn knotch_kernel::project::subagents<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::project::SubagentEntry>
+pub fn knotch_kernel::project::tool_call_timeline<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>, tool: &str, call_id: &str) -> alloc::vec::Vec<knotch_kernel::project::ToolCallFailureEntry>
 pub fn knotch_kernel::project::total_cost<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> knotch_kernel::causation::Cost
 pub mod knotch_kernel::rationale
 #[non_exhaustive] pub enum knotch_kernel::rationale::RationaleError
@@ -1403,6 +1481,9 @@ pub knotch_kernel::EventBody::MilestoneShipped::status: knotch_kernel::event::Co
 pub knotch_kernel::EventBody::MilestoneVerified
 pub knotch_kernel::EventBody::MilestoneVerified::commit: knotch_kernel::event::CommitRef
 pub knotch_kernel::EventBody::MilestoneVerified::milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone
+pub knotch_kernel::EventBody::ModelSwitched
+pub knotch_kernel::EventBody::ModelSwitched::from: knotch_kernel::causation::ModelId
+pub knotch_kernel::EventBody::ModelSwitched::to: knotch_kernel::causation::ModelId
 pub knotch_kernel::EventBody::PhaseCompleted
 pub knotch_kernel::EventBody::PhaseCompleted::artifacts: knotch_kernel::event::ArtifactList
 pub knotch_kernel::EventBody::PhaseCompleted::phase: <W as knotch_kernel::workflow::WorkflowKind>::Phase
@@ -1425,6 +1506,11 @@ pub knotch_kernel::EventBody::SubagentCompleted::agent_id: knotch_kernel::causat
 pub knotch_kernel::EventBody::SubagentCompleted::agent_type: core::option::Option<compact_str::CompactString>
 pub knotch_kernel::EventBody::SubagentCompleted::last_message: core::option::Option<compact_str::CompactString>
 pub knotch_kernel::EventBody::SubagentCompleted::transcript_path: core::option::Option<compact_str::CompactString>
+pub knotch_kernel::EventBody::ToolCallFailed
+pub knotch_kernel::EventBody::ToolCallFailed::attempt: core::num::nonzero::NonZeroU32
+pub knotch_kernel::EventBody::ToolCallFailed::call_id: compact_str::CompactString
+pub knotch_kernel::EventBody::ToolCallFailed::reason: knotch_kernel::event::FailureReason
+pub knotch_kernel::EventBody::ToolCallFailed::tool: compact_str::CompactString
 pub knotch_kernel::EventBody::UnitCreated
 pub knotch_kernel::EventBody::UnitCreated::scope: knotch_kernel::scope::Scope
 impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::event::EventBody<W>
@@ -1472,6 +1558,35 @@ impl core::marker::Unpin for knotch_kernel::event::FailureKind
 impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureKind
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureKind
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureKind
+#[non_exhaustive] pub enum knotch_kernel::FailureReason
+pub knotch_kernel::FailureReason::Backend
+pub knotch_kernel::FailureReason::Backend::message: compact_str::CompactString
+pub knotch_kernel::FailureReason::RateLimited
+pub knotch_kernel::FailureReason::RateLimited::retry_after_secs: core::option::Option<u64>
+pub knotch_kernel::FailureReason::Timeout
+pub knotch_kernel::FailureReason::Timeout::after_secs: u64
+pub knotch_kernel::FailureReason::UserCancelled
+impl core::clone::Clone for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::clone(&self) -> knotch_kernel::event::FailureReason
+impl core::cmp::Eq for knotch_kernel::event::FailureReason
+impl core::cmp::PartialEq for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::eq(&self, other: &knotch_kernel::event::FailureReason) -> bool
+impl core::fmt::Debug for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_kernel::event::FailureReason
+impl serde_core::ser::Serialize for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::event::FailureReason
+pub fn knotch_kernel::event::FailureReason::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_kernel::event::FailureReason
+impl core::marker::Send for knotch_kernel::event::FailureReason
+impl core::marker::Sync for knotch_kernel::event::FailureReason
+impl core::marker::Unpin for knotch_kernel::event::FailureReason
+impl core::marker::UnsafeUnpin for knotch_kernel::event::FailureReason
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureReason
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureReason
 #[non_exhaustive] pub enum knotch_kernel::PreconditionError
 pub knotch_kernel::PreconditionError::AlreadyCreated
 pub knotch_kernel::PreconditionError::AlreadySuperseded(alloc::string::String)
@@ -1489,6 +1604,8 @@ pub knotch_kernel::PreconditionError::GateOutOfOrder::gate: alloc::string::Strin
 pub knotch_kernel::PreconditionError::GateOutOfOrder::missing: alloc::string::String
 pub knotch_kernel::PreconditionError::MilestoneAlreadyShipped(alloc::string::String)
 pub knotch_kernel::PreconditionError::MilestoneNotShipped(alloc::string::String)
+pub knotch_kernel::PreconditionError::NoOpModelSwitch
+pub knotch_kernel::PreconditionError::NoOpModelSwitch::model: alloc::string::String
 pub knotch_kernel::PreconditionError::NoOpStatusTransition(alloc::string::String)
 pub knotch_kernel::PreconditionError::NoPendingShip
 pub knotch_kernel::PreconditionError::NoPendingShip::commit: alloc::string::String

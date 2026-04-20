@@ -160,6 +160,14 @@ pub enum PreconditionError {
     /// / `last_message` records under the same agent.
     #[error("subagent {0} already has a completion event")]
     SubagentAlreadyCompleted(String),
+    /// A `ModelSwitched { from, to }` event has `from == to`. A
+    /// no-op switch would inflate the log without advancing the
+    /// `model_timeline` projection.
+    #[error("model switch is a no-op: {model:?}")]
+    NoOpModelSwitch {
+        /// The model repeated on both sides of the switch.
+        model: String,
+    },
     /// Forced status transition without a supplied rationale.
     #[error("forced status transition requires a rationale")]
     ForcedWithoutRationale,

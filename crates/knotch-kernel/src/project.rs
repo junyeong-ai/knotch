@@ -9,11 +9,12 @@ use compact_str::CompactString;
 use rustc_hash::FxHashSet;
 
 use crate::{
-    causation::{AgentId, Cost},
-    event::{Event, EventBody},
+    causation::{AgentId, Cost, ModelId, Principal},
+    event::{Event, EventBody, FailureReason},
     id::EventId,
     log::Log,
     status::StatusId,
+    time::Timestamp,
     workflow::{MilestoneKind as _, WorkflowKind},
 };
 
@@ -162,6 +163,90 @@ pub fn subagents<W: WorkflowKind>(log: &Log<W>) -> Vec<SubagentEntry> {
             _ => None,
         })
         .collect()
+}
+
+/// One `(timestamp, model)` pair on the per-unit model timeline.
+///
+/// Produced by [`model_timeline`]: the model active at the unit's
+/// first event (inferred from `Principal::Agent.model`) plus one
+/// entry per `ModelSwitched` event.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ModelTimelineEntry {
+    /// Instant at which the model became the active one.
+    pub at: Timestamp,
+    /// The model active from `at` onward.
+    pub model: ModelId,
+}
+
+/// Chronological model timeline for the unit: the first known model
+/// (from the earliest `Principal::Agent` event) followed by every
+/// effective `ModelSwitched` event. Empty when no event carries
+/// agent attribution and no model switch has been recorded.
+///
+/// Supersede-aware: a superseded `ModelSwitched` drops out of the
+/// timeline.
+#[must_use]
+pub fn model_timeline<W: WorkflowKind>(log: &Log<W>) -> Vec<ModelTimelineEntry> {
+    let effective = effective_events(log);
+    let mut timeline = Vec::new();
+    // Seed with the first agent-principal event's model, if any.
+    if let Some(first_agent) = effective.iter().find_map(|evt| match &evt.causation.principal {
+        Principal::Agent { model, .. } => Some((evt.at, model.clone())),
+        _ => None,
+    }) {
+        timeline.push(ModelTimelineEntry { at: first_agent.0, model: first_agent.1 });
+    }
+    // Append every effective ModelSwitched in log order.
+    for evt in &effective {
+        if let EventBody::ModelSwitched { to, .. } = &evt.body {
+            timeline.push(ModelTimelineEntry { at: evt.at, model: to.clone() });
+        }
+    }
+    timeline
+}
+
+/// One `ToolCallFailed` entry on the per-(tool, call_id) retry
+/// timeline surfaced by [`tool_call_timeline`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ToolCallFailureEntry {
+    /// Retry attempt counter (1-indexed, monotonic).
+    pub attempt: u32,
+    /// Classification carried on the failed event.
+    pub reason: FailureReason,
+    /// Instant the failure was recorded.
+    pub at: Timestamp,
+}
+
+/// Retry timeline for a specific `(tool, call_id)` pair — one entry
+/// per effective `ToolCallFailed` event, sorted by attempt ascending.
+/// Empty when the pair has no recorded failures.
+///
+/// Precondition dispatch already enforces monotonic attempt per
+/// pair, so this projection is a simple filter + sort.
+#[must_use]
+pub fn tool_call_timeline<W: WorkflowKind>(
+    log: &Log<W>,
+    tool: &str,
+    call_id: &str,
+) -> Vec<ToolCallFailureEntry> {
+    let mut entries: Vec<ToolCallFailureEntry> = effective_events(log)
+        .into_iter()
+        .filter_map(|evt| match evt.body {
+            EventBody::ToolCallFailed {
+                tool: ref t,
+                call_id: ref c,
+                attempt,
+                reason,
+            } if t.as_str() == tool && c.as_str() == call_id => Some(ToolCallFailureEntry {
+                attempt: attempt.get(),
+                reason,
+                at: evt.at,
+            }),
+            _ => None,
+        })
+        .collect();
+    entries.sort_by_key(|e| e.attempt);
+    entries
 }
 
 /// Milestones that have shipped and not been reverted, in first-ship
