@@ -34,8 +34,8 @@ pub mod model;
 pub mod orphan;
 pub mod output;
 pub mod queue;
-pub mod session;
 pub mod session_end;
+pub mod session_start;
 pub mod subagent;
 pub mod tool_call;
 

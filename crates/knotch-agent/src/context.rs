@@ -1,6 +1,6 @@
 //! `UserPromptSubmit` refresh — re-emits the active unit context.
 //!
-//! Reuses [`session::load_context`](crate::session::load_context) so
+//! Reuses [`session_start::load_context`](crate::session_start::load_context) so
 //! the output format stays identical across hooks. Opt-in by default;
 //! remove the hook block from `settings.json` to disable.
 
@@ -23,5 +23,5 @@ where
     R: Repository<W>,
     Proposal<W>: DeserializeOwned,
 {
-    crate::session::load_context::<W, R>(project_root_override, cwd, session_id, repo).await
+    crate::session_start::load_context::<W, R>(project_root_override, cwd, session_id, repo).await
 }

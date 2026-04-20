@@ -22,7 +22,7 @@ plug in their own CLI and call the same functions.
 | `active`      | `.knotch/active.toml` read/write, `project_root` discovery    |
 | `queue`       | `.knotch/queue/*.json` per-entry reconciler queue             |
 | `orphan`      | `~/.knotch/orphan.log` advisory logging                       |
-| `session`     | `SessionStart` → inject active-unit context                   |
+| `session_start` | `SessionStart` → inject active-unit context                 |
 | `commit`      | `check` / `verify` / `record_revert` — git-driven events      |
 | `guard`       | `rewrite` — block destructive history-rewriting git ops       |
 | `subagent`    | `SubagentStop` → `EventBody::SubagentCompleted` append        |
