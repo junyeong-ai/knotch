@@ -214,6 +214,7 @@ async fn check_config_file(path: &Path) -> Check {
 
 async fn check_units(config: &Config) -> anyhow::Result<Check> {
     let state = &config.state_dir;
+    let storage = knotch_storage::FileSystemStorage::new(state);
     let Ok(mut entries) = tokio::fs::read_dir(state).await else {
         return Ok(Check {
             name: "units",
@@ -227,7 +228,7 @@ async fn check_units(config: &Config) -> anyhow::Result<Check> {
     while let Some(entry) = entries.next_entry().await.context("read state dir")? {
         if entry.file_type().await.context("stat entry")?.is_dir() {
             let unit = entry.file_name().to_string_lossy().into_owned();
-            let log_path = entry.path().join("log.jsonl");
+            let log_path = storage.log_path(&knotch_kernel::UnitId::new(unit.as_str()));
             if tokio::fs::metadata(&log_path).await.is_err() {
                 continue;
             }
@@ -272,6 +273,7 @@ async fn probe_unit(log_path: &Path) -> anyhow::Result<()> {
 /// no anchor emits the anchor in place.
 async fn check_unit_created_anchors(config: &Config) -> anyhow::Result<Check> {
     let state = &config.state_dir;
+    let storage = knotch_storage::FileSystemStorage::new(state);
     let Ok(mut entries) = tokio::fs::read_dir(state).await else {
         return Ok(Check { name: "anchors", status: Status::Ok, detail: "no state dir".into() });
     };
@@ -280,7 +282,8 @@ async fn check_unit_created_anchors(config: &Config) -> anyhow::Result<Check> {
         if !entry.file_type().await.context("stat entry")?.is_dir() {
             continue;
         }
-        let log_path = entry.path().join("log.jsonl");
+        let unit_name = entry.file_name().to_string_lossy().into_owned();
+        let log_path = storage.log_path(&knotch_kernel::UnitId::new(unit_name.as_str()));
         let Ok(body) = tokio::fs::read_to_string(&log_path).await else { continue };
         let has_anchor = body.lines().filter(|l| !l.trim().is_empty()).any(|line| {
             serde_json::from_str::<serde_json::Value>(line)

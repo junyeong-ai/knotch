@@ -28,8 +28,11 @@ impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_storage::file_repositor
 pub mod knotch_storage::fs_storage
 pub struct knotch_storage::fs_storage::FileSystemStorage
 impl knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::cache_path(&self, unit: &knotch_kernel::id::UnitId) -> std::path::PathBuf
+pub fn knotch_storage::fs_storage::FileSystemStorage::log_path(&self, unit: &knotch_kernel::id::UnitId) -> std::path::PathBuf
 pub fn knotch_storage::fs_storage::FileSystemStorage::new(root: impl core::convert::Into<std::path::PathBuf>) -> Self
 pub fn knotch_storage::fs_storage::FileSystemStorage::root(&self) -> &std::path::Path
+pub fn knotch_storage::fs_storage::FileSystemStorage::unit_dir(&self, unit: &knotch_kernel::id::UnitId) -> std::path::PathBuf
 impl core::clone::Clone for knotch_storage::fs_storage::FileSystemStorage
 pub fn knotch_storage::fs_storage::FileSystemStorage::clone(&self) -> knotch_storage::fs_storage::FileSystemStorage
 impl core::fmt::Debug for knotch_storage::fs_storage::FileSystemStorage
@@ -118,8 +121,11 @@ impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_storage::file_reposi
 impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_storage::file_repository::FileRepository<W>
 pub struct knotch_storage::FileSystemStorage
 impl knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::cache_path(&self, unit: &knotch_kernel::id::UnitId) -> std::path::PathBuf
+pub fn knotch_storage::fs_storage::FileSystemStorage::log_path(&self, unit: &knotch_kernel::id::UnitId) -> std::path::PathBuf
 pub fn knotch_storage::fs_storage::FileSystemStorage::new(root: impl core::convert::Into<std::path::PathBuf>) -> Self
 pub fn knotch_storage::fs_storage::FileSystemStorage::root(&self) -> &std::path::Path
+pub fn knotch_storage::fs_storage::FileSystemStorage::unit_dir(&self, unit: &knotch_kernel::id::UnitId) -> std::path::PathBuf
 impl core::clone::Clone for knotch_storage::fs_storage::FileSystemStorage
 pub fn knotch_storage::fs_storage::FileSystemStorage::clone(&self) -> knotch_storage::fs_storage::FileSystemStorage
 impl core::fmt::Debug for knotch_storage::fs_storage::FileSystemStorage

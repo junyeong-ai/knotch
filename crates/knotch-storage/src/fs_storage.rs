@@ -50,15 +50,28 @@ impl FileSystemStorage {
         &self.root
     }
 
-    fn unit_dir(&self, unit: &UnitId) -> PathBuf {
+    /// Directory that holds a unit's on-disk artefacts (`log.jsonl`,
+    /// `.resume-cache.json`, `.lock`, `.lock.meta`).
+    #[must_use]
+    pub fn unit_dir(&self, unit: &UnitId) -> PathBuf {
         self.root.join(unit.as_str())
     }
 
-    fn log_path(&self, unit: &UnitId) -> PathBuf {
+    /// Absolute path to a unit's event log. This is the single
+    /// authority for the `log.jsonl` file location — callers outside
+    /// this crate (CLI, doctor, migrate, tests) go through this
+    /// method rather than constructing the path themselves, so the
+    /// filesystem layout stays a storage-adapter concern and
+    /// `knotch-linter` R1 has nothing to flag in those crates.
+    #[must_use]
+    pub fn log_path(&self, unit: &UnitId) -> PathBuf {
         self.unit_dir(unit).join("log.jsonl")
     }
 
-    fn cache_path(&self, unit: &UnitId) -> PathBuf {
+    /// Absolute path to a unit's resume-cache file. Non-authoritative
+    /// projection over the log, gitignored by convention.
+    #[must_use]
+    pub fn cache_path(&self, unit: &UnitId) -> PathBuf {
         self.unit_dir(unit).join(".resume-cache.json")
     }
 }

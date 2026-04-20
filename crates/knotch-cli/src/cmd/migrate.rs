@@ -103,6 +103,7 @@ struct Finding {
 }
 
 async fn enumerate_units(state_dir: &std::path::Path) -> anyhow::Result<Vec<String>> {
+    let storage = knotch_storage::FileSystemStorage::new(state_dir);
     let mut out = Vec::new();
     let Ok(mut entries) = tokio::fs::read_dir(state_dir).await else {
         return Ok(out);
@@ -110,9 +111,10 @@ async fn enumerate_units(state_dir: &std::path::Path) -> anyhow::Result<Vec<Stri
     while let Some(entry) = entries.next_entry().await.context("read state dir")? {
         let ty = entry.file_type().await.context("stat entry")?;
         if ty.is_dir() {
-            let log_path = entry.path().join("log.jsonl");
+            let slug = entry.file_name().to_string_lossy().into_owned();
+            let log_path = storage.log_path(&knotch_kernel::UnitId::new(slug.as_str()));
             if tokio::fs::metadata(&log_path).await.is_ok() {
-                out.push(entry.file_name().to_string_lossy().into_owned());
+                out.push(slug);
             }
         }
     }

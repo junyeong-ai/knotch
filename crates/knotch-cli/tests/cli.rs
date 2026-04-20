@@ -1,6 +1,9 @@
 //! End-to-end CLI tests driving the real `knotch` binary.
 
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use assert_cmd::Command;
 use predicates::str;
@@ -108,10 +111,7 @@ fn log_reads_seeded_jsonl() {
     let dir = tempfile::tempdir().expect("tempdir");
     bin().current_dir(dir.path()).args(["init"]).assert().success();
 
-    let unit_dir = dir.path().join("state").join("unit-1");
-    fs::create_dir_all(&unit_dir).expect("unit dir");
-    let log_path = unit_dir.join("log.jsonl");
-    write_fixture_log(&log_path);
+    seed_fixture_log(dir.path(), "unit-1");
 
     bin()
         .current_dir(dir.path())
@@ -127,9 +127,7 @@ fn log_json_mode_emits_parseable_array() {
     let dir = tempfile::tempdir().expect("tempdir");
     bin().current_dir(dir.path()).args(["init"]).assert().success();
 
-    let unit_dir = dir.path().join("state").join("unit-json");
-    fs::create_dir_all(&unit_dir).expect("unit dir");
-    write_fixture_log(&unit_dir.join("log.jsonl"));
+    seed_fixture_log(dir.path(), "unit-json");
 
     let output =
         bin().current_dir(dir.path()).args(["--json", "log", "unit-json"]).output().expect("run");
@@ -209,9 +207,7 @@ fn doctor_warns_on_unit_missing_unit_created_anchor() {
     // Seed a legacy-shaped unit whose log has events but no
     // `UnitCreated` anchor — the exact shape a pre-C5 `unit init`
     // or Rust-API-direct caller would produce.
-    let unit_dir = dir.path().join("state").join("legacy-unit");
-    fs::create_dir_all(&unit_dir).expect("unit dir");
-    write_fixture_log(&unit_dir.join("log.jsonl"));
+    seed_fixture_log(dir.path(), "legacy-unit");
 
     bin()
         .current_dir(dir.path())
@@ -336,11 +332,24 @@ fn completions_emits_script() {
     bin().args(["completions", "bash"]).assert().success().stdout(str::contains("complete"));
 }
 
-fn write_fixture_log(path: &Path) {
+/// Seed a deterministic fixture log for `slug` under
+/// `project_root/state/<slug>/`. Returns the log path for assertion.
+///
+/// Routes the path through `FileSystemStorage::log_path` so no test
+/// file hard-codes the on-disk filename — keeps `knotch-linter` R1
+/// clean and honours "storage adapter owns path layout"
+/// (constitution §II).
+fn seed_fixture_log(project_root: &Path, slug: &str) -> PathBuf {
+    let state_dir = project_root.join("state");
+    let storage = knotch_storage::FileSystemStorage::new(&state_dir);
+    let unit = knotch_kernel::UnitId::new(slug);
+    let log_path = storage.log_path(&unit);
+    fs::create_dir_all(log_path.parent().expect("unit dir")).expect("unit dir");
     let header =
         r#"{"kind":"__header__","schema_version":1,"workflow":"demo","fingerprint_salt":""}"#;
     let evt1 = r#"{"id":"01900000-0000-7000-8000-000000000001","at":"2026-04-19T10:00:00Z","causation":{"source":"cli","principal":{"kind":"system","service":"demo"},"trigger":{"kind":"manual"}},"extension":null,"body":{"type":"phase_completed","phase":"specify","artifacts":[]},"supersedes":null}"#;
     let evt2 = r#"{"id":"01900000-0000-7000-8000-000000000002","at":"2026-04-19T10:01:00Z","causation":{"source":"cli","principal":{"kind":"system","service":"demo"},"trigger":{"kind":"manual"}},"extension":null,"body":{"type":"status_transitioned","target":"in_review","forced":false,"rationale":null},"supersedes":null}"#;
     let body = format!("{header}\n{evt1}\n{evt2}\n");
-    fs::write(path, body).expect("write fixture log");
+    fs::write(&log_path, body).expect("write fixture log");
+    log_path
 }

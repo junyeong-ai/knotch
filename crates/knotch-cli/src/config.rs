@@ -14,8 +14,9 @@ use figment::{
     Figment,
     providers::{Env, Format, Serialized, Toml},
 };
+use knotch_kernel::UnitId;
 use knotch_observer::ObserverManifest;
-use knotch_storage::FileRepository;
+use knotch_storage::{FileRepository, FileSystemStorage};
 use knotch_workflow::ConfigWorkflow;
 use serde::{Deserialize, Serialize};
 
@@ -100,10 +101,12 @@ impl Config {
         self.state_dir.join(unit)
     }
 
-    /// Absolute path to a unit's log file.
+    /// Absolute path to a unit's log file. Delegates to
+    /// [`FileSystemStorage::log_path`] so the filesystem layout
+    /// stays a storage-adapter concern (constitution §II).
     #[must_use]
     pub(crate) fn unit_log(&self, unit: &str) -> PathBuf {
-        self.unit_dir(unit).join("log.jsonl")
+        FileSystemStorage::new(&self.state_dir).log_path(&UnitId::new(unit))
     }
 
     /// Path to the root `knotch.toml` (may not exist on disk yet).

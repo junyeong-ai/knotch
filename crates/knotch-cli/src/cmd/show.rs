@@ -95,7 +95,7 @@ where
             );
         }
         Format::Raw => {
-            let path = state_dir.join(unit.as_str()).join("log.jsonl");
+            let path = knotch_storage::FileSystemStorage::new(state_dir).log_path(&unit);
             let lines = super::read_log_lines(&path).await?;
             for line in lines {
                 println!("{line}");
