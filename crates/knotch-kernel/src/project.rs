@@ -19,6 +19,9 @@ use crate::{
 /// Current phase: the first required phase that has neither completed
 /// nor been skipped. Returns `None` if all required phases have been
 /// resolved.
+///
+/// Forward-looking — answers "what's next?". For the backward-
+/// looking view use [`last_completed_phase`].
 pub fn current_phase<W: WorkflowKind>(workflow: &W, log: &Log<W>) -> Option<W::Phase> {
     let effective = effective_events(log);
     let resolved: FxHashSet<_> = effective
@@ -37,6 +40,23 @@ pub fn current_phase<W: WorkflowKind>(workflow: &W, log: &Log<W>) -> Option<W::P
     })?;
 
     workflow.required_phases(&scope).iter().find(|p| !resolved.contains(*p)).cloned()
+}
+
+/// Most recently completed phase on the effective log, or `None` if
+/// no `PhaseCompleted` has been recorded (or every such event has
+/// been superseded).
+///
+/// Backward-looking counterpart to [`current_phase`] — answers
+/// "what was done most recently?". `PhaseSkipped` does NOT count as
+/// "completed" here; only real `PhaseCompleted` events qualify.
+///
+/// Use cases: progress bars (last-resolved vs next-pending), resume
+/// semantics ("pick up where we left off"), audit reports.
+pub fn last_completed_phase<W: WorkflowKind>(log: &Log<W>) -> Option<W::Phase> {
+    effective_events(log).into_iter().rev().find_map(|evt| match evt.body {
+        EventBody::PhaseCompleted { phase, .. } => Some(phase),
+        _ => None,
+    })
 }
 
 /// Effective events — replay order minus every event that any later

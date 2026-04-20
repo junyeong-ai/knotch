@@ -59,19 +59,19 @@ where
 {
     let log = repo.load(&unit).await?;
     let phase = knotch_kernel::project::current_phase(repo.workflow(), &log);
+    let last_completed = knotch_kernel::project::last_completed_phase(&log);
     let status = knotch_kernel::project::current_status(&log);
     let shipped = knotch_kernel::project::shipped_milestones(&log);
+
+    let render_phase = |p: Option<&W::Phase>| -> String {
+        p.map(|p| PhaseKind::id(p).into_owned()).unwrap_or_else(|| "(none)".to_owned())
+    };
 
     match format {
         Format::Summary => {
             println!("unit:               {}", unit.as_str());
-            println!(
-                "current phase:      {}",
-                phase
-                    .as_ref()
-                    .map(|p| PhaseKind::id(p).into_owned())
-                    .unwrap_or_else(|| "(none)".to_owned())
-            );
+            println!("current phase:      {}", render_phase(phase.as_ref()));
+            println!("last completed:     {}", render_phase(last_completed.as_ref()));
             println!(
                 "current status:     {}",
                 status.as_ref().map(knotch_kernel::StatusId::as_str).unwrap_or("(none)")
@@ -83,14 +83,12 @@ where
             println!("events recorded:    {}", log.events().len());
         }
         Format::Brief => {
-            let phase_str = phase
-                .as_ref()
-                .map(|p| PhaseKind::id(p).into_owned())
-                .unwrap_or_else(|| "(none)".to_owned());
+            let phase_str = render_phase(phase.as_ref());
+            let last_str = render_phase(last_completed.as_ref());
             let status_str =
                 status.as_ref().map(knotch_kernel::StatusId::as_str).unwrap_or("(none)");
             println!(
-                "{}\tphase={phase_str}\tstatus={status_str}\tshipped={}\tevents={}",
+                "{}\tphase={phase_str}\tlast={last_str}\tstatus={status_str}\tshipped={}\tevents={}",
                 unit.as_str(),
                 shipped.len(),
                 log.events().len()
@@ -108,6 +106,7 @@ where
                 "event": "show",
                 "unit": unit.as_str(),
                 "current_phase": phase.as_ref().map(|p| p.id().to_string()),
+                "last_completed_phase": last_completed.as_ref().map(|p| p.id().to_string()),
                 "current_status": status.as_ref().map(|s| s.as_str().to_string()),
                 "shipped_milestones": shipped.iter().map(|m| m.id().to_string()).collect::<Vec<_>>(),
                 "events_recorded": log.events().len(),

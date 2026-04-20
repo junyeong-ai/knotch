@@ -939,6 +939,7 @@ pub mod knotch_kernel::project
 pub fn knotch_kernel::project::current_phase<W: knotch_kernel::workflow::WorkflowKind>(workflow: &W, log: &knotch_kernel::log::Log<W>) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Phase>
 pub fn knotch_kernel::project::current_status<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> core::option::Option<knotch_kernel::status::StatusId>
 pub fn knotch_kernel::project::effective_events<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::event::Event<W>>
+pub fn knotch_kernel::project::last_completed_phase<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Phase>
 pub fn knotch_kernel::project::shipped_milestones<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<<W as knotch_kernel::workflow::WorkflowKind>::Milestone>
 pub fn knotch_kernel::project::total_cost<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> knotch_kernel::causation::Cost
 pub mod knotch_kernel::rationale
