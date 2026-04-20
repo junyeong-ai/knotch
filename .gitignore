@@ -1,0 +1,20 @@
+/target
+**/*.rs.bk
+Cargo.lock.bak
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+/coverage
+/lcov.info
+*.profraw
+*.profdata
+/fuzz/corpus
+/fuzz/artifacts
+/docs/book/book
+.knotch/
+*.resume-cache.json
+
+# macOS metadata
+.DS_Store
