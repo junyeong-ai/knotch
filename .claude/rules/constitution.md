@@ -68,9 +68,12 @@ alone.** Active gates:
 
 ## VIII. Agent-first observability
 
-Every event and every span carries sufficient attribution for
-AI-driven workflows: `Principal`, `SessionId`, `TraceId`, `Cost`,
-`Trigger::ToolInvocation`.
+Every event carries sufficient attribution for AI-driven
+workflows: `Source`, `SessionId`, `agent_id`, and a typed
+`Trigger` (CLI command / git hook / tool invocation / reconciler
+observer). Model attribution lives on dedicated
+`EventBody::ModelSwitched` events so mid-stream model changes
+are faithfully recorded.
 
 See @.claude/rules/causation.md.
 

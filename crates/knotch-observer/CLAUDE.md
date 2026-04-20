@@ -35,8 +35,7 @@ reconciler composes them into one `Repository::append` call.
 **Write a new observer:**
 1. Implement `Observer<W>`. Declare `name() -> &'static str` — this
    is the sort key.
-2. Build proposals with `Causation::new(Source::Hook,
-   Principal::System { service: "observer".into() },
+2. Build proposals with `Causation::new(Source::Observer,
    Trigger::Observer { name: name.into() })`.
 3. Do not store `UnitId` on the observer — read it from
    `ctx.unit`. Observers are workflow-wide.

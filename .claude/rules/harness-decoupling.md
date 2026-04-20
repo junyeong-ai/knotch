@@ -26,7 +26,7 @@ Hook envelope fields hold **domain-opaque values as open strings**
 
 Neither condition holds today for:
 
-- `SessionStart::source` (`crates/knotch-agent/src/input.rs:53`) —
+- `SessionStart::source` (`crates/knotch-agent/src/input.rs:73`) —
   matcher values `startup / resume / clear / compact / …`, zero
   knotch-side branches.
 - `SessionEnd::reason` — surfaced at
@@ -34,16 +34,24 @@ Neither condition holds today for:
   opaque string passed to the agent helper; no kernel dispatch on
   the value.
 - `PreToolUse::tool_name` — compared against `"Bash"` at
-  `crates/knotch-agent/src/input.rs:139`; a single literal does
+  `crates/knotch-agent/src/input.rs:191`; a single literal does
   not justify a closed `ToolName` enum.
 - `SubagentStop::agent_type` — informational only.
 
 All four remain `Option<CompactString>` (or `CompactString`).
 
+`SessionStart::model` IS promoted to a typed path — the
+`load-context` hook dispatches on it to decide whether to append
+a `ModelSwitched` event (`knotch_agent::model::record_switch_if_changed`).
+The value set (`claude-opus-4-7`, `claude-sonnet-4-6`, custom
+harness models) is open-universe, so the field is kept as
+`Option<CompactString>`; a typed `ModelId` wrapper lands only
+when it crosses the kernel boundary.
+
 ## Active structural guarantee
 
 `HookEvent` is `#[non_exhaustive]`
-(`crates/knotch-agent/src/input.rs:52`) so Claude Code adding a
+(`crates/knotch-agent/src/input.rs:67`) so Claude Code adding a
 **new hook event** — `PostCompact`, `Notification`, future
 variants — is **additive**: minor bump, no downstream breakage.
 Open-string fields on existing variants absorb Claude Code's

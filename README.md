@@ -183,7 +183,7 @@ All read APIs are pure functions over the log:
 - `knotch_kernel::project::current_phase(&W, &log) -> Option<W::Phase>`
 - `knotch_kernel::project::current_status(&log) -> Option<StatusId>`
 - `knotch_kernel::project::shipped_milestones(&log) -> BTreeSet<W::Milestone>`
-- `knotch_kernel::project::total_cost(&log) -> Cost`
+- `knotch_kernel::project::model_timeline(&log) -> Vec<ModelTimelineEntry>`
 
 The `knotch-query` crate exposes a cross-unit `QueryBuilder<W>`;
 `knotch-tracing` emits structured spans per append. Agents
@@ -205,7 +205,7 @@ graph TB
     end
 
     subgraph kernel["knotch-kernel · knotch-proto (pure, no I/O)"]
-        EV["Event&lt;W&gt; envelope<br/>+ Causation + Cost"]
+        EV["Event&lt;W&gt; envelope<br/>+ Causation"]
         PR["check_precondition"]
         FP["fingerprint_proposal<br/>BLAKE3(salt ‖ JCS)"]
         PJ["project::*"]

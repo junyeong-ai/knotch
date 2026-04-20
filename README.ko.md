@@ -187,7 +187,7 @@ skill 은 `knotch-agent` 헬퍼를 경유하고, CLI 는 동일 헬퍼에
 - `knotch_kernel::project::current_phase(&W, &log) -> Option<W::Phase>`
 - `knotch_kernel::project::current_status(&log) -> Option<StatusId>`
 - `knotch_kernel::project::shipped_milestones(&log) -> BTreeSet<W::Milestone>`
-- `knotch_kernel::project::total_cost(&log) -> Cost`
+- `knotch_kernel::project::model_timeline(&log) -> Vec<ModelTimelineEntry>`
 
 `knotch-query` crate 는 cross-unit `QueryBuilder<W>` 를 노출하며,
 `knotch-tracing` 은 append 당 구조화된 span 을 방출합니다. 지속 업데이트를
@@ -209,7 +209,7 @@ graph TB
     end
 
     subgraph kernel["knotch-kernel · knotch-proto (pure, no I/O)"]
-        EV["Event&lt;W&gt; envelope<br/>+ Causation + Cost"]
+        EV["Event&lt;W&gt; envelope<br/>+ Causation"]
         PR["check_precondition"]
         FP["fingerprint_proposal<br/>BLAKE3(salt ‖ JCS)"]
         PJ["project::*"]

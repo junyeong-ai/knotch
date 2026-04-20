@@ -15,31 +15,43 @@ constructors, never struct literals.
 ## Shape (kernel-owned)
 
 ```rust
-Causation { source, principal, session, trace, trigger, parent_event, cost }
+Causation { source, session, agent_id, trigger }
 ```
 
 `#[non_exhaustive]` — peer crates cannot use `Causation { ... }`
-syntax; call `Causation::new(source, principal, trigger)` then chain
-`with_session / with_trace / with_parent_event / with_cost`.
+syntax; call `Causation::new(source, trigger)` then chain
+`with_session` / `with_agent_id`.
 
-## Principal
+## Source
 
 | Variant | When |
 |---|---|
-| `Human { person: Person }` | CLI operator or reviewer (rare in agent-only flow) |
-| `Agent { agent_id, model, harness }` | LLM turn — this is the common case |
-| `System { service }` | CI, observer, reconciler, knotch CLI |
+| `Cli` | `knotch` CLI subcommand (operator-driven or scripted) |
+| `Hook` | Claude Code hook dispatch (`knotch hook <name>`) |
+| `Observer` | Reconciler observer pass |
 
-`Person` and `AgentId` implement `Sensitive` — `knotch-tracing`
-subscribers hash them to BLAKE3-16 prefix. Plain public info
-(`ModelId`, `Harness`) is emitted verbatim.
+Three unit variants. Authorship detail (which specific subagent,
+which observer, which CLI subcommand) lives in `agent_id` +
+`Trigger`, not in additional `Source` variants.
+
+## agent_id
+
+`Option<AgentId>`. Populated when Claude Code surfaces a subagent
+id in the hook payload (envelope-level `agent_id` on every
+event fired inside a subagent scope, plus `SubagentStop`'s
+duplicate in-variant field). Main-session hooks, CLI operators,
+and observer-driven events leave it `None`.
+
+Never synthesise an `agent_id` from the session id — the two
+identify different things and conflating them breaks downstream
+"what has this subagent done?" queries.
 
 ## Trigger
 
 | Variant | When |
 |---|---|
 | `Command { name }` | CLI subcommand or shell invocation (including test fixtures — use `name: "test"` or a more specific tag) |
-| `GitHook { name }` | pre-commit / post-commit |
+| `GitHook { name }` | pre-commit / post-commit hook dispatch |
 | `ToolInvocation { tool, call_id }` | agent tool call — use this for every event an agent emits |
 | `Observer { name }` | reconciler-driven; observer name only |
 
@@ -47,58 +59,43 @@ All variants are **struct-form** — tuple variants serialize
 positionally under RFC 8785 JCS, which would break fingerprint
 stability the first time a field were added.
 
-## Cost
+## Model attribution lives on events, not on causation
 
-`Cost::new(usd: Option<Decimal>, tokens_in: u32, tokens_out: u32)`
-— `#[non_exhaustive]`, so never struct-literal. Aggregated by
-`knotch_kernel::project::total_cost`. Adopter workflows may add
-per-workflow roll-ups (e.g. `total_usd`) in their own
-`WorkflowKind` crate — see
-`examples/workflow-vibe-case-study/src/lib.rs` for a reference
-implementation.
+Model identifiers (`claude-opus-4-7`, `claude-sonnet-4-6`, …) are
+recorded by `EventBody::ModelSwitched` events, not by a
+`Causation.model` field. Reason: the model can change within a
+session (`/model` in Claude Code, cross-harness migrations), and
+stamping the current model on every causation would require
+stale-copy bookkeeping at every emit site.
 
-### How agents populate `Cost`
+Consumers that want "which model produced event X" read the
+effective [`model_timeline`](../../crates/knotch-kernel/src/project.rs)
+up to event X — one `ModelSwitched` event anchors every
+subsequent event in the timeline.
 
-The canonical pattern is **stamp cost at the same place you build
-`Causation`**. Three concrete approaches:
-
-1. **Hook surface (Claude Code)** — `knotch-agent`'s
-   `hook_causation(&input, subcommand)` constructs the envelope
-   without cost; hooks that know their LLM spend chain
-   `.with_cost(Cost::new(usd, tokens_in, tokens_out))` on the
-   returned value before passing it to the agent helper.
-2. **Agent-driven CLI** — build a `Session` in the harness
-   (see `examples/workflow-vibe-case-study/src/lib.rs::Session`),
-   then `session.tool(name, call_id).with_cost(cost)`. The
-   `Session` carries agent / model / harness identity so cost
-   attribution follows the agent automatically.
-3. **Skill / CLI path** — when a human operator runs a command,
-   there's no LLM cost to attribute; leave `Causation::cost ==
-   None`. `total_cost` skips `None` entries cleanly.
-
-**Never** pass zero-cost placeholders (`Cost::new(None, 0, 0)`)
-when the real cost is unknown — the projection can't distinguish
-"truly zero-cost human action" from "we forgot to stamp". Use
-`None` whenever cost is unavailable.
-
-`knotch-tracing` writes the same `Cost` fields as structured
-span attributes so external observability (OTel, Prometheus) can
-join agent spans to the ledger on the same identifiers.
+The `knotch hook load-context` subcommand reads
+`SessionStart.model` from every hook payload and appends a
+`ModelSwitched` event when it differs from the last one
+recorded. This covers startup, resume, `/clear`, and `/compact`
+transitions — every lifecycle point where Claude Code re-fires
+`SessionStart`.
 
 ## Session helper
 
-Adopter workflows typically expose a `Session::new(agent, model,
-harness) → .tool(tool, call_id) → Causation` builder rather than
-constructing `Principal::Agent` by hand. The canonical
-`Knotch` workflow does not ship one — agents either call
-`hook_causation` (from `knotch-agent`, used by every shipped
+Adopter workflows typically expose a
+`Session::new(agent, model) → .tool(tool, call_id) → Causation`
+builder rather than constructing `Causation` by hand. The
+canonical `Knotch` workflow does not ship one — agents either
+call `hook_causation` (from `knotch-agent`, used by every shipped
 hook) or construct `Causation::new(...)` directly. See
 `examples/workflow-vibe-case-study/` for a `Session` reference.
 
 ## Reasons this is a rule
 
 - Agent audit trail must survive a reboot + replay.
-- Cost must be attributable at event level — not at span level —
-  because spans are transient and logs are the sole truth (§I).
-- Sensitive fields must not leak to stdout or tracing sinks; the
-  marker trait is the only enforcement.
+- Source / Trigger splits remain orthogonal so new subagent
+  vocabularies, harnesses, or observer names never require
+  kernel enum changes.
+- `agent_id` at the top level (not nested inside Principal or
+  Trigger) keeps query predicates cheap — filtering by subagent
+  is a single `causation.agent_id == Some(want)` check.

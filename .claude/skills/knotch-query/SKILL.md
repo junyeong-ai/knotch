@@ -1,6 +1,6 @@
 ---
 name: knotch-query
-description: Read the current state of a unit — current phase, status, shipped milestones, cost — or find units that match a predicate. Works for active, archived, abandoned, and handed-off units alike (projections are pure historical reads). Use when the agent needs a fact before planning its next action.
+description: Read the current state of a unit — current phase, status, shipped milestones, model timeline — or find units that match a predicate. Works for active, archived, abandoned, and handed-off units alike (projections are pure historical reads). Use when the agent needs a fact before planning its next action.
 paths:
   - "crates/**"
   - ".knotch/**"
@@ -21,7 +21,9 @@ from raw events.
 | `current_status(log)` | `Option<StatusId>` | "Has this been archived / abandoned?" |
 | `shipped_milestones(log)` | `Vec<W::Milestone>` | "Which user stories are done?" |
 | `effective_events(log)` | `Vec<Event<W>>` | Supersede-aware view of the log |
-| `total_cost(log)` | `Cost` | Aggregate LLM spend for this unit |
+| `model_timeline(log)` | `Vec<ModelTimelineEntry>` | "Which model was active for each event window?" |
+| `tool_call_timeline(log, tool, call_id)` | `Vec<ToolCallFailureEntry>` | Per-`(tool, call_id)` retry history |
+| `subagents(log)` | `Vec<SubagentEntry>` | Completed subagent roster |
 
 All are pure fns. They take `&Log<W>`; obtain the log with
 `repo.load(&unit).await?`.
@@ -46,12 +48,11 @@ early — they short-circuit per-unit.
 
 ## Workflow-specific projections
 
-Cost / summary helpers are workflow-specific — the canonical
-`Knotch` workflow ships only the core projections above. Adopter
-workflows that want LLM-summary or USD-rollup projections add
-them on their own `WorkflowKind` impl; see
-`examples/workflow-vibe-case-study/src/lib.rs` for a reference
-implementation (`total_usd`, `total_tokens`, `summary_for_llm`).
+Summary helpers are workflow-specific — the canonical `Knotch`
+workflow ships only the core projections above. Adopter workflows
+that want LLM-facing summaries add them on their own
+`WorkflowKind` impl; see `examples/workflow-vibe-case-study/src/lib.rs`
+for a reference implementation (`summary_for_llm`).
 
 ## Custom projections
 

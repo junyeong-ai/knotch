@@ -31,8 +31,8 @@ additions here before shipping.
 | `ReconcileRecovered`  | Reconciler | Reconciler itself on recovery                |
 | `EventSuperseded`     | CLI        | `knotch supersede <event-id> <rationale>`    |
 | `SubagentCompleted`   | Hook       | `knotch hook record-subagent` (SubagentStop) |
-| `ToolCallFailed`      | Hook       | `knotch hook record-tool-failure` (PostToolUse)         |
-| `ModelSwitched`       | Hook       | `knotch hook load-context` (SessionStart — detects env vs log) |
+| `ToolCallFailed`      | Hook       | `knotch hook record-tool-failure` (PostToolUseFailure)  |
+| `ModelSwitched`       | Hook       | `knotch hook load-context` (SessionStart — compares payload.model to log) |
 | `ApprovalRecorded`    | CLI        | `knotch approve <unit> <event-id> <decision> <rationale>`|
 
 ## Opt-in matrix
@@ -55,8 +55,8 @@ the two is the main source of false-positive events.
 | `ReconcileRecovered` | Automatic     | Reconciler observer succeeds after a prior failure     |
 | `EventSuperseded`    | Explicit      | Operator runs `knotch supersede`                       |
 | `SubagentCompleted`  | Automatic     | Claude Code fires `SubagentStop` for a delegated task  |
-| `ToolCallFailed`     | Automatic     | Claude Code PostToolUse `tool_response.error` or non-zero Bash `exit_code` |
-| `ModelSwitched`      | Automatic     | `load-context` hook compares `$KNOTCH_MODEL` to `model_timeline` at SessionStart |
+| `ToolCallFailed`     | Automatic     | Claude Code fires `PostToolUseFailure` (filtered to drop `is_interrupt`) |
+| `ModelSwitched`      | Automatic     | `load-context` compares `SessionStart.model` payload to `model_timeline` |
 | `ApprovalRecorded`   | Explicit      | Reviewer runs `knotch approve`                         |
 
 **Opt-in rationale** (`MilestoneShipped`): one feature usually

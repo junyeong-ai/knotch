@@ -63,7 +63,7 @@ non-zero code are treated as non-blocking and the tool call proceeds.
 | `Err(HookError::Orphan)`              | empty                             | empty   | 0    |
 | `Err(HookError::NotAProject)`         | empty                             | empty   | 0    |
 | `Err(_)` — `PreToolUse` event         | empty                             | message | **2**|
-| `Err(_)` — `PostToolUse` event        | empty                             | empty   | 0 (and queued) |
+| `Err(_)` — `PostToolUse` / `PostToolUseFailure` event | empty             | empty   | 0 (and queued) |
 | `Err(_)` — `SessionStart` / `UserPromptSubmit` / `SubagentStop` / `SessionEnd` | empty | message | 0 |
 
 Never emit exit 1 or exit 3+. Those would let a tool call proceed
@@ -119,11 +119,12 @@ continue without touching the ledger.
   current global active unit. Later `knotch unit use` elsewhere
   does **not** disturb the running session.
 - `SessionStart` also runs the model-change detector before the
-  context injection: `$KNOTCH_MODEL` is compared against
-  `project::model_timeline(log).last()` and a `ModelSwitched`
-  event is appended when they differ. Detection silent-noops when
-  the env var is unset, no active unit exists, the log carries no
-  prior model, or the current model matches the prior one — see
+  context injection: the payload's `model` field is compared
+  against `project::model_timeline(log).last()` and a
+  `ModelSwitched` event is appended when they differ. Detection
+  silent-noops when the payload carries no model, no active unit
+  exists, the log carries no prior model, or the current model
+  matches the prior one — see
   `knotch_agent::model::record_switch_if_changed`.
 - `SessionEnd` with `reason != "resume"` removes the per-session
   pointer via `active::clear_session`. `reason == "resume"` keeps
@@ -131,32 +132,40 @@ continue without touching the ledger.
 - Queue auto-drain happens on `SessionStart`. `SessionEnd` logs
   residual queue size for visibility.
 
-## Tool-call failure detection (PostToolUse)
+## Tool-call failure detection (PostToolUseFailure)
 
-The `record-tool-failure` hook matches **every** PostToolUse
-(empty Bash-matcher plus a universal matcher) and classifies the
-payload into a `ToolCallFailureReason`. Emission rules:
+The `record-tool-failure` hook subscribes to Claude Code's
+dedicated `PostToolUseFailure` event. Payload shape:
 
-- A non-empty `tool_response.error` string → `Backend { message }`.
-  Covers Edit, Write, Read, Grep, Glob, WebFetch, WebSearch, and
-  MCP calls — every Claude Code tool surfaces failures through
-  this field.
-- Bash with non-zero `tool_response.exit_code` → `Backend` with
-  `exit <code>[: <stderr>]`.
-- Anything else (successful response, missing `tool_response`,
-  zero-exit Bash) → no event.
+```json
+{
+  "tool_name": "Bash",
+  "tool_use_id": "call-...",
+  "error": "exit 127: command not found",
+  "is_interrupt": false
+}
+```
 
-`RateLimited` and `Timeout` variants are **not** emitted by this
-hook — both carry exact durations we cannot extract from a
-PostToolUse payload. Harnesses that wrap the LLM backend itself
-call `knotch_agent::tool_call::record_failure` directly with the
-richer classification.
+Emission rules:
 
-The `tool_use_id` field carried by Claude Code on every
-PostToolUse is unique per invocation, so attempt = 1 is always
-correct for hook-emitted events. Missing id is a silent drop
-with a tracing warn; the precondition's `(tool, call_id)`
-monotonicity rule would otherwise be unenforceable.
+- `error` (non-empty) → `ToolCallFailureReason::Backend { message: cap_message(error) }`
+  (capped at 1 KiB).
+- `is_interrupt == true` → no-op. User Esc / Ctrl-C is intent,
+  not a failure, and should not inflate the retry timeline.
+- Missing `tool_use_id` → silent drop with a tracing warn; the
+  precondition's `(tool, call_id)` monotonicity rule would
+  otherwise be unenforceable.
+
+`RateLimited` and `Timeout` variants of
+`ToolCallFailureReason` are not emitted by this hook — both
+carry exact durations Claude Code does not expose in the
+`PostToolUseFailure` payload. Harnesses that wrap the LLM
+backend itself call `knotch_agent::tool_call::record_failure`
+directly with the richer classification.
+
+Every Claude Code invocation produces a distinct `tool_use_id`,
+so the `(tool_name, tool_use_id)` pair never repeats and
+`attempt = 1` is always correct for hook-emitted events.
 
 ## Causation construction
 
@@ -164,16 +173,17 @@ Hook-emitted causations use `knotch_agent::causation::hook_causation`
 which constructs:
 
 - `source = Source::Hook`
-- `principal = Principal::Agent { agent_id, model, harness }`
-  - `agent_id` = `input.event.agent_id()` when the event carries it
-    (`SubagentStop`), otherwise the session id as best-effort
-    fallback.
-  - `model` = `$KNOTCH_MODEL` env var, or `"unknown"`.
-  - `harness` = `$KNOTCH_HARNESS` env var, or `"claude-code"`.
 - `trigger = Trigger::GitHook { name }` where `name` is the
   subcommand (`"check-commit"`, `"verify-commit"`, …).
 - `session = SessionId::parse(&input.session_id)` — UUID when
   possible, `Opaque(CompactString)` fallback.
+- `agent_id = input.agent_id()` — envelope-level field when
+  Claude Code ran inside a subagent scope, otherwise `None`.
+
+Model attribution is not on the causation. `ModelSwitched`
+events — appended by `load-context` at every SessionStart
+payload — carry the model transitions; `project::model_timeline`
+is the authoritative read.
 
 The CLI entry point is the only place allowed to build a
 `Causation`; `knotch-agent` functions receive it as a parameter.
