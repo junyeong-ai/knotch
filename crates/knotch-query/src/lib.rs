@@ -108,10 +108,10 @@ impl<W: WorkflowKind> QueryBuilder<W> {
             let log = repo.load(&unit).await.map_err(QueryError::Repository)?;
             if self.filters.iter().all(|f| f.matches(workflow, &log)) {
                 matched.push(unit);
-                if let Some(n) = self.limit {
-                    if matched.len() >= n {
-                        break;
-                    }
+                if let Some(n) = self.limit
+                    && matched.len() >= n
+                {
+                    break;
                 }
             }
         }

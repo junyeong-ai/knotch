@@ -58,10 +58,10 @@ impl Rule for DirectLogWriteRule {
     }
 
     fn check(&self, ctx: &LintContext, file: &syn::File) -> Vec<Violation> {
-        if let Some(name) = &ctx.crate_name {
-            if self.allowlist.contains(name) {
-                return Vec::new();
-            }
+        if let Some(name) = &ctx.crate_name
+            && self.allowlist.contains(name)
+        {
+            return Vec::new();
         }
         let mut v =
             DirectLogWriteVisitor { ctx, path_needles: &self.path_needles, findings: Vec::new() };

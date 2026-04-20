@@ -151,18 +151,18 @@ pub fn enqueue_raw(
     // Warn-don't-drop: operators need a signal when SessionStart
     // auto-drain isn't keeping up. The hard cap catches real
     // overflow; this warning catches the approach.
-    if let Ok(size) = queue_size(queue_dir) {
-        if size >= QUEUE_WARN_THRESHOLD {
-            tracing::warn!(
-                queue_dir = %queue_dir.display(),
-                size,
-                threshold = QUEUE_WARN_THRESHOLD,
-                max = config.max_entries,
-                "knotch queue backpressure: SessionStart auto-drain is not keeping up — \
-                 run `knotch reconcile` to drain, or `knotch reconcile --prune-older <HOURS>` \
-                 to TTL out entries that will never succeed",
-            );
-        }
+    if let Ok(size) = queue_size(queue_dir)
+        && size >= QUEUE_WARN_THRESHOLD
+    {
+        tracing::warn!(
+            queue_dir = %queue_dir.display(),
+            size,
+            threshold = QUEUE_WARN_THRESHOLD,
+            max = config.max_entries,
+            "knotch queue backpressure: SessionStart auto-drain is not keeping up — \
+             run `knotch reconcile` to drain, or `knotch reconcile --prune-older <HOURS>` \
+             to TTL out entries that will never succeed",
+        );
     }
     Ok(())
 }

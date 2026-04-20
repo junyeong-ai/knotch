@@ -69,10 +69,10 @@ struct ParsedHeader {
 impl ParsedHeader {
     fn try_parse(subject: &str) -> Result<Self, ParseError> {
         // Try a synthetic revert header first.
-        if let Some(stripped) = subject.strip_prefix("Revert \"") {
-            if stripped.ends_with('"') {
-                return Ok(Self { kind: CommitKind::Revert, scope: None, breaking: false });
-            }
+        if let Some(stripped) = subject.strip_prefix("Revert \"")
+            && stripped.ends_with('"')
+        {
+            return Ok(Self { kind: CommitKind::Revert, scope: None, breaking: false });
         }
 
         let mut input = subject;

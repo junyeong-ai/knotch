@@ -361,12 +361,11 @@ async fn check_queue_stale(root: &Path) -> Check {
             continue;
         }
         total += 1;
-        if let Ok(meta) = entry.metadata().await {
-            if let Ok(mtime) = meta.modified() {
-                if mtime < threshold {
-                    stale += 1;
-                }
-            }
+        if let Ok(meta) = entry.metadata().await
+            && let Ok(mtime) = meta.modified()
+            && mtime < threshold
+        {
+            stale += 1;
         }
     }
     if total == 0 {

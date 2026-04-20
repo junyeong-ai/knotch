@@ -152,10 +152,10 @@ async fn run_list(config: &Config, out: OutputMode) -> anyhow::Result<()> {
         Err(e) => return Err(anyhow::Error::new(e).context("read state_dir")),
     };
     while let Some(entry) = rd.next_entry().await? {
-        if entry.file_type().await?.is_dir() {
-            if let Some(name) = entry.file_name().to_str() {
-                entries.push(name.to_owned());
-            }
+        if entry.file_type().await?.is_dir()
+            && let Some(name) = entry.file_name().to_str()
+        {
+            entries.push(name.to_owned());
         }
     }
     entries.sort();

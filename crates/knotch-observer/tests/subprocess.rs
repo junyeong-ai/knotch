@@ -1,6 +1,13 @@
 //! End-to-end SubprocessObserver test. Spawns a real shell script
 //! that implements the wire protocol and confirms proposals round-trip.
+//!
+//! Gated to `#[cfg(unix)]` because the script is a POSIX shebang
+//! (`#!/bin/sh`) and the chmod-to-755 setup uses
+//! `std::os::unix::fs::PermissionsExt`. Windows integration lands
+//! separately (a `cmd.exe` / PowerShell shim) if demand warrants —
+//! `SubprocessObserver` itself is cross-platform at the Rust level.
 
+#![cfg(unix)]
 #![allow(missing_docs)]
 
 use std::{path::PathBuf, sync::Arc};

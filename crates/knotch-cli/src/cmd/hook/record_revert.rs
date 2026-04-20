@@ -115,13 +115,11 @@ fn extract_revert_target_from_cmd(cmd: &str) -> Option<String> {
 
 fn extract_sha_from_stdout(stdout: &str) -> Option<String> {
     for line in stdout.lines() {
-        if let Some(stripped) = line.strip_prefix('[') {
-            if let Some(end) = stripped.find(']') {
-                let header = &stripped[..end];
-                if let Some(token) = header.split_whitespace().nth(1) {
-                    return Some(token.to_owned());
-                }
-            }
+        if let Some(stripped) = line.strip_prefix('[')
+            && let Some(end) = stripped.find(']')
+            && let Some(token) = stripped[..end].split_whitespace().nth(1)
+        {
+            return Some(token.to_owned());
         }
     }
     None

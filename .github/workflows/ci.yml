@@ -55,7 +55,7 @@ jobs:
         toolchain: [stable]
         include:
           - os: ubuntu-latest
-            toolchain: "1.85"   # MSRV
+            toolchain: "1.94"   # MSRV
           - os: ubuntu-latest
             toolchain: beta
     steps:
@@ -163,7 +163,7 @@ jobs:
           done
 
   msrv:
-    name: cargo-msrv (verify 1.85)
+    name: cargo-msrv (verify 1.94)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

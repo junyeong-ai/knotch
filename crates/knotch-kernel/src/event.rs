@@ -255,14 +255,11 @@ impl<W: WorkflowKind> EventBody<W> {
         // except `EventSuperseded` — the escape hatch for rolling
         // back a mistaken transition. Every other variant is refused
         // so archived / abandoned / superseded units stay immutable.
-        if !matches!(self, EventBody::EventSuperseded { .. }) {
-            if let Some(status) = current_status(ctx.log) {
-                if ctx.workflow.is_terminal_status(&status) {
-                    return Err(E::AppendAgainstTerminalUnit {
-                        status: status.as_str().to_owned(),
-                    });
-                }
-            }
+        if !matches!(self, EventBody::EventSuperseded { .. })
+            && let Some(status) = current_status(ctx.log)
+            && ctx.workflow.is_terminal_status(&status)
+        {
+            return Err(E::AppendAgainstTerminalUnit { status: status.as_str().to_owned() });
         }
 
         match self {
@@ -273,10 +270,10 @@ impl<W: WorkflowKind> EventBody<W> {
             }
             EventBody::PhaseCompleted { phase, artifacts } => {
                 for evt in effective_events(ctx.log) {
-                    if let EventBody::PhaseCompleted { phase: prior, .. } = &evt.body {
-                        if prior == phase {
-                            return Err(E::PhaseAlreadyCompleted(phase.id().into_owned()));
-                        }
+                    if let EventBody::PhaseCompleted { phase: prior, .. } = &evt.body
+                        && prior == phase
+                    {
+                        return Err(E::PhaseAlreadyCompleted(phase.id().into_owned()));
                     }
                 }
                 if let Some(fs) = ctx.fs {
@@ -298,10 +295,9 @@ impl<W: WorkflowKind> EventBody<W> {
                 for evt in effective_events(ctx.log) {
                     if let EventBody::PhaseCompleted { phase: prior, .. }
                     | EventBody::PhaseSkipped { phase: prior, .. } = &evt.body
+                        && prior == phase
                     {
-                        if prior == phase {
-                            return Err(E::PhaseAlreadyCompleted(phase.id().into_owned()));
-                        }
+                        return Err(E::PhaseAlreadyCompleted(phase.id().into_owned()));
                     }
                 }
             }
@@ -349,10 +345,10 @@ impl<W: WorkflowKind> EventBody<W> {
                 if !shipped.iter().any(|m| m.id() == id) {
                     return Err(E::MilestoneNotShipped(id.into_owned()));
                 }
-                if let Some(vcs) = ctx.vcs {
-                    if matches!(vcs.verify(revert)?, CommitStatus::Missing) {
-                        return Err(E::CommitUnverifiable(revert.as_str().to_owned()));
-                    }
+                if let Some(vcs) = ctx.vcs
+                    && matches!(vcs.verify(revert)?, CommitStatus::Missing)
+                {
+                    return Err(E::CommitUnverifiable(revert.as_str().to_owned()));
                 }
             }
             EventBody::MilestoneVerified { milestone, commit } => {
@@ -373,10 +369,10 @@ impl<W: WorkflowKind> EventBody<W> {
                         commit: commit.as_str().to_owned(),
                     });
                 }
-                if let Some(vcs) = ctx.vcs {
-                    if !matches!(vcs.verify(commit)?, CommitStatus::Verified) {
-                        return Err(E::CommitUnverifiable(commit.as_str().to_owned()));
-                    }
+                if let Some(vcs) = ctx.vcs
+                    && !matches!(vcs.verify(commit)?, CommitStatus::Verified)
+                {
+                    return Err(E::CommitUnverifiable(commit.as_str().to_owned()));
                 }
             }
             EventBody::GateRecorded { gate, rationale, .. } => {
@@ -403,10 +399,10 @@ impl<W: WorkflowKind> EventBody<W> {
                 }
             }
             EventBody::StatusTransitioned { target, forced, rationale } => {
-                if let Some(current) = crate::project::current_status(ctx.log) {
-                    if &current == target {
-                        return Err(E::NoOpStatusTransition(target.as_str().to_owned()));
-                    }
+                if let Some(current) = crate::project::current_status(ctx.log)
+                    && &current == target
+                {
+                    return Err(E::NoOpStatusTransition(target.as_str().to_owned()));
                 }
                 if *forced && rationale.is_none() {
                     return Err(E::ForcedWithoutRationale);
@@ -414,15 +410,16 @@ impl<W: WorkflowKind> EventBody<W> {
                 // Phase × Status cross-invariant: terminal
                 // transitions require all required phases to be
                 // resolved unless the caller explicitly forces.
-                if !*forced && ctx.workflow.is_terminal_status(target) {
-                    if let Some(scope) = scope_of_log(ctx.log) {
-                        let resolved = phases_resolved(&effective_events(ctx.log));
-                        for required in ctx.workflow.required_phases(&scope).iter() {
-                            if !resolved.iter().any(|r| r == required) {
-                                return Err(E::RequiredPhaseNotResolved {
-                                    phase: required.id().into_owned(),
-                                });
-                            }
+                if !*forced
+                    && ctx.workflow.is_terminal_status(target)
+                    && let Some(scope) = scope_of_log(ctx.log)
+                {
+                    let resolved = phases_resolved(&effective_events(ctx.log));
+                    for required in ctx.workflow.required_phases(&scope).iter() {
+                        if !resolved.iter().any(|r| r == required) {
+                            return Err(E::RequiredPhaseNotResolved {
+                                phase: required.id().into_owned(),
+                            });
                         }
                     }
                 }
@@ -450,10 +447,10 @@ impl<W: WorkflowKind> EventBody<W> {
                     if evt.id == *target {
                         target_exists = true;
                     }
-                    if let EventBody::EventSuperseded { target: prior, .. } = &evt.body {
-                        if prior == target {
-                            return Err(E::AlreadySuperseded(target.to_string()));
-                        }
+                    if let EventBody::EventSuperseded { target: prior, .. } = &evt.body
+                        && prior == target
+                    {
+                        return Err(E::AlreadySuperseded(target.to_string()));
                     }
                 }
                 if !target_exists {
@@ -468,10 +465,11 @@ impl<W: WorkflowKind> EventBody<W> {
 fn max_attempt_for_anchor<W: WorkflowKind>(log: &crate::log::Log<W>, anchor: &RetryAnchor) -> u32 {
     let mut max = 0;
     for evt in log.events() {
-        if let EventBody::ReconcileFailed { anchor: prior, attempt, .. } = &evt.body {
-            if prior == anchor && attempt.get() > max {
-                max = attempt.get();
-            }
+        if let EventBody::ReconcileFailed { anchor: prior, attempt, .. } = &evt.body
+            && prior == anchor
+            && attempt.get() > max
+        {
+            max = attempt.get();
         }
     }
     max

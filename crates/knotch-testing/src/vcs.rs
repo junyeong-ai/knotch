@@ -135,10 +135,10 @@ impl Vcs for InMemoryVcs {
         let commits = self.state.commits.load();
         let mut out = Vec::new();
         for fixture in commits.iter() {
-            if let Some(since) = since {
-                if fixture.commit.sha == *since {
-                    break;
-                }
+            if let Some(since) = since
+                && fixture.commit.sha == *since
+            {
+                break;
             }
             if !filter.kinds.is_empty() {
                 match &fixture.kind {
@@ -147,10 +147,10 @@ impl Vcs for InMemoryVcs {
                 }
             }
             out.push(fixture.commit.clone());
-            if let Some(n) = filter.limit {
-                if out.len() >= n {
-                    break;
-                }
+            if let Some(n) = filter.limit
+                && out.len() >= n
+            {
+                break;
             }
         }
         Ok(out)

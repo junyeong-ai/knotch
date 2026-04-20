@@ -25,14 +25,14 @@ pub fn finalize(
 ) -> Result<HookOutput, HookError> {
     // 1. Surface residual queue size (advisory only).
     let queue_dir = project_root.join(".knotch").join("queue");
-    if let Ok(n) = queue::queue_size(&queue_dir) {
-        if n > 0 {
-            tracing::info!(
-                queued = n,
-                "knotch: reconciler queue pending drain at session end; \
-                 run `knotch reconcile` to flush"
-            );
-        }
+    if let Ok(n) = queue::queue_size(&queue_dir)
+        && n > 0
+    {
+        tracing::info!(
+            queued = n,
+            "knotch: reconciler queue pending drain at session end; \
+             run `knotch reconcile` to flush"
+        );
     }
 
     // 2. GC the per-session pointer unless we're about to resume.

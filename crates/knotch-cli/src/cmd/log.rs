@@ -49,10 +49,10 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
         .collect();
 
     if args.tail {
-        if let Some(limit) = args.limit {
-            if events.len() > limit {
-                events = events.split_off(events.len() - limit);
-            }
+        if let Some(limit) = args.limit
+            && events.len() > limit
+        {
+            events = events.split_off(events.len() - limit);
         }
     } else if let Some(limit) = args.limit {
         events.truncate(limit);

@@ -23,14 +23,14 @@ where
     R: Repository<W>,
 {
     let log = repo.load(unit).await?;
-    if let Some(status) = current_status(&log) {
-        if repo.workflow().is_terminal_status(&status) {
-            return Ok(HookOutput::block(format!(
-                "Destructive command `{cmd}` blocked: unit `{}` is in terminal status `{}`.",
-                unit.as_str(),
-                status.as_str()
-            )));
-        }
+    if let Some(status) = current_status(&log)
+        && repo.workflow().is_terminal_status(&status)
+    {
+        return Ok(HookOutput::block(format!(
+            "Destructive command `{cmd}` blocked: unit `{}` is in terminal status `{}`.",
+            unit.as_str(),
+            status.as_str()
+        )));
     }
     let shipped = shipped_milestones(&log);
     if !shipped.is_empty() {

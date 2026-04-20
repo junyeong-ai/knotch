@@ -57,10 +57,10 @@ impl LifecycleFsm {
     /// Returns [`LifecycleError`] describing the first invariant
     /// violated.
     pub fn evaluate(&self, request: &TransitionRequest) -> Result<(), LifecycleError> {
-        if let Some(current) = &request.current {
-            if current.as_str() == request.target.as_str() {
-                return Err(LifecycleError::NoOpTransition { status: request.target.clone() });
-            }
+        if let Some(current) = &request.current
+            && current.as_str() == request.target.as_str()
+        {
+            return Err(LifecycleError::NoOpTransition { status: request.target.clone() });
         }
 
         if request.forced && request.rationale.is_none() {

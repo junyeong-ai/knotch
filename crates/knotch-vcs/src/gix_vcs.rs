@@ -98,10 +98,10 @@ impl Vcs for GixVcs {
             for info in walk {
                 let info = info.map_err(|e| VcsError::Backend(Box::new(e)))?;
                 let id_str = info.id.to_string();
-                if let Some(since) = since_sha_norm.as_deref() {
-                    if id_str.starts_with(since) {
-                        break;
-                    }
+                if let Some(since) = since_sha_norm.as_deref()
+                    && id_str.starts_with(since)
+                {
+                    break;
                 }
                 let commit =
                     repo.find_commit(info.id).map_err(|e| VcsError::Backend(Box::new(e)))?;
@@ -118,10 +118,10 @@ impl Vcs for GixVcs {
                     }
                 }
                 out.push(built);
-                if let Some(n) = limit {
-                    if out.len() >= n {
-                        break;
-                    }
+                if let Some(n) = limit
+                    && out.len() >= n
+                {
+                    break;
                 }
             }
             Ok(out)

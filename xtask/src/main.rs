@@ -150,12 +150,12 @@ fn extract_citations(line: &str) -> Vec<String> {
         let rest = &line[i + 1..];
         let end = rest.find('`').unwrap_or(rest.len());
         let inner = &rest[..end];
-        if inner.starts_with("crates/") && inner.contains(".rs:") {
-            if let Some((path, rest)) = inner.split_once(':') {
-                if rest.chars().all(|c| c.is_ascii_digit()) {
-                    out.push(format!("{path}:{rest}"));
-                }
-            }
+        if inner.starts_with("crates/")
+            && inner.contains(".rs:")
+            && let Some((path, rest)) = inner.split_once(':')
+            && rest.chars().all(|c| c.is_ascii_digit())
+        {
+            out.push(format!("{path}:{rest}"));
         }
         for _ in 0..end + 1 {
             chars.next();

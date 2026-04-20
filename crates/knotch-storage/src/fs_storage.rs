@@ -181,12 +181,12 @@ async fn collect_units(root: PathBuf) -> Vec<Result<UnitId, StorageError>> {
                         continue;
                     }
                 };
-                if ty.is_dir() {
-                    if let Some(name) = entry.file_name().to_str() {
-                        let candidate = entry.path().join("log.jsonl");
-                        if tokio::fs::metadata(&candidate).await.is_ok() {
-                            out.push(Ok(UnitId::new(name)));
-                        }
+                if ty.is_dir()
+                    && let Some(name) = entry.file_name().to_str()
+                {
+                    let candidate = entry.path().join("log.jsonl");
+                    if tokio::fs::metadata(&candidate).await.is_ok() {
+                        out.push(Ok(UnitId::new(name)));
                     }
                 }
             }

@@ -1,5 +1,5 @@
 avoid-breaking-exported-api = false
-msrv = "1.85"
+msrv = "1.94"
 disallowed-names = ["helper", "util", "utils", "common", "misc", "manager", "handler", "processor"]
 disallowed-methods = [
     { path = "std::env::set_var", reason = "mutates process state; thread-unsafe" },

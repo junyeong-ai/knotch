@@ -13,10 +13,10 @@ fn walk(root: &Path) -> Vec<PathBuf> {
         let Ok(entries) = std::fs::read_dir(root) else { return };
         for entry in entries.flatten() {
             let path = entry.path();
-            if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                if matches!(name, "target" | ".git" | "fixtures") {
-                    continue;
-                }
+            if let Some(name) = path.file_name().and_then(|n| n.to_str())
+                && matches!(name, "target" | ".git" | "fixtures")
+            {
+                continue;
             }
             match entry.file_type() {
                 Ok(t) if t.is_dir() => rec(&path, out),
