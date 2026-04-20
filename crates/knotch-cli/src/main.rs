@@ -62,6 +62,8 @@ enum Command {
     Migrate(cmd::migrate::Args),
     /// Supersede an event on a unit's log.
     Supersede(cmd::supersede::Args),
+    /// Record a human approval / rejection against an event.
+    Approve(cmd::approve::Args),
     /// Manage units (init / use / list / current).
     Unit {
         #[command(subcommand)]
@@ -126,6 +128,7 @@ fn main() -> ExitCode {
                     Command::Doctor(args) => cmd::doctor::run(&config, out_mode, args).await,
                     Command::Migrate(args) => cmd::migrate::run(&config, out_mode, args).await,
                     Command::Supersede(args) => cmd::supersede::run(&config, out_mode, args).await,
+                    Command::Approve(args) => cmd::approve::run(&config, out_mode, args).await,
                     Command::Unit { cmd } => cmd::unit::run(&config, out_mode, cmd).await,
                     Command::Current => {
                         cmd::unit::run(&config, out_mode, cmd::unit::UnitCommand::Current).await

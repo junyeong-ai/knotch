@@ -232,16 +232,11 @@ pub fn tool_call_timeline<W: WorkflowKind>(
     let mut entries: Vec<ToolCallFailureEntry> = effective_events(log)
         .into_iter()
         .filter_map(|evt| match evt.body {
-            EventBody::ToolCallFailed {
-                tool: ref t,
-                call_id: ref c,
-                attempt,
-                reason,
-            } if t.as_str() == tool && c.as_str() == call_id => Some(ToolCallFailureEntry {
-                attempt: attempt.get(),
-                reason,
-                at: evt.at,
-            }),
+            EventBody::ToolCallFailed { tool: ref t, call_id: ref c, attempt, reason }
+                if t.as_str() == tool && c.as_str() == call_id =>
+            {
+                Some(ToolCallFailureEntry { attempt: attempt.get(), reason, at: evt.at })
+            }
             _ => None,
         })
         .collect();

@@ -168,6 +168,19 @@ pub enum PreconditionError {
         /// The model repeated on both sides of the switch.
         model: String,
     },
+    /// `ApprovalRecorded` references an event id that is not in the
+    /// log.
+    #[error("approval target {0} not found in log")]
+    ApprovalTargetMissing(String),
+    /// The same approver already has an `ApprovalRecorded` event
+    /// against this target. A re-signature is meaningless — if the
+    /// approver wants to change their mind they supersede the prior
+    /// approval.
+    #[error("approval already recorded for target {target} by this approver")]
+    ApprovalAlreadyRecorded {
+        /// The targeted event id.
+        target: String,
+    },
     /// Forced status transition without a supplied rationale.
     #[error("forced status transition requires a rationale")]
     ForcedWithoutRationale,

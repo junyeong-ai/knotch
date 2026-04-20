@@ -892,3 +892,71 @@ fn subagent_completed_after_supersede_can_be_re_recorded() {
     .check_precondition(&ctx)
     .expect("superseded prior allows fresh SubagentCompleted");
 }
+
+// --- ApprovalRecorded -------------------------------------------------
+
+#[test]
+fn approval_rejects_missing_target() {
+    use compact_str::CompactString;
+    use knotch_kernel::causation::Person;
+
+    let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
+    let phantom = EventId::new_v7();
+    let body: EventBody<Wf> = EventBody::ApprovalRecorded {
+        target: phantom,
+        approver: Person(CompactString::from("alice")),
+        decision: Decision::Approved,
+        rationale: Rationale::new("looks fine to me").unwrap(),
+    };
+    let err = body.check_precondition(&ctx(&l)).unwrap_err();
+    assert!(matches!(err, PreconditionError::ApprovalTargetMissing(_)));
+}
+
+#[test]
+fn approval_rejects_duplicate_from_same_approver_and_accepts_another() {
+    use compact_str::CompactString;
+    use knotch_kernel::causation::Person;
+
+    let unit_created_id = EventId::new_v7();
+    let events = vec![
+        knotch_kernel::Event {
+            id: unit_created_id,
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::UnitCreated { scope: Scope::Standard },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::ApprovalRecorded {
+                target: unit_created_id,
+                approver: Person(CompactString::from("alice")),
+                decision: Decision::Approved,
+                rationale: Rationale::new("sign-off one").unwrap(),
+            },
+            supersedes: None,
+        },
+    ];
+    let log = Log::from_events(UnitId::try_new("u").unwrap(), events);
+    let duplicate: EventBody<Wf> = EventBody::ApprovalRecorded {
+        target: unit_created_id,
+        approver: Person(CompactString::from("alice")),
+        decision: Decision::Rejected,
+        rationale: Rationale::new("changed mind").unwrap(),
+    };
+    let err = duplicate.check_precondition(&AppendContext::new(&WF, &log)).unwrap_err();
+    assert!(matches!(err, PreconditionError::ApprovalAlreadyRecorded { .. }));
+
+    // Different approver lands fine.
+    let second: EventBody<Wf> = EventBody::ApprovalRecorded {
+        target: unit_created_id,
+        approver: Person(CompactString::from("bob")),
+        decision: Decision::Approved,
+        rationale: Rationale::new("bob also agrees").unwrap(),
+    };
+    assert!(second.check_precondition(&AppendContext::new(&WF, &log)).is_ok());
+}

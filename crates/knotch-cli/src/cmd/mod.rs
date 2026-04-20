@@ -1,5 +1,6 @@
 //! Subcommand entry points.
 
+pub(crate) mod approve;
 pub(crate) mod doctor;
 pub(crate) mod gate;
 pub(crate) mod hook;

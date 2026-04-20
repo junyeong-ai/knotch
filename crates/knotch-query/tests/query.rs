@@ -372,11 +372,7 @@ fn agent_causation(agent: &str, model: &str, harness: &str) -> Causation {
 
 fn agent_causation_with_cost(agent: &str, model: &str, harness: &str, usd_cents: i64) -> Causation {
     let mut c = agent_causation(agent, model, harness);
-    c = c.with_cost(Cost::new(
-        Some(rust_decimal::Decimal::new(usd_cents, 2)),
-        100,
-        200,
-    ));
+    c = c.with_cost(Cost::new(Some(rust_decimal::Decimal::new(usd_cents, 2)), 100, 200));
     c
 }
 

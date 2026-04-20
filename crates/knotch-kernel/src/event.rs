@@ -6,7 +6,7 @@ use compact_str::CompactString;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    causation::{AgentId, Causation, ModelId},
+    causation::{AgentId, Causation, ModelId, Person},
     id::EventId,
     rationale::Rationale,
     scope::Scope,
@@ -248,6 +248,36 @@ pub enum EventBody<W: WorkflowKind> {
         /// The model that becomes active from this event onward.
         to: ModelId,
     },
+    /// A human (operator, reviewer, manager) has recorded an
+    /// approval — or rejection — of a specific prior event. Shipped
+    /// for human-in-the-loop workflows where an agent proposes an
+    /// action (a gate decision, a status transition, a milestone
+    /// push) and a named person ratifies or refuses it.
+    ///
+    /// Preconditions:
+    /// - `target` must reference an event that exists in the log.
+    /// - The same `approver` must not already have recorded an approval for the same
+    ///   `target` — duplicate signatures are meaningless. A different approver may always
+    ///   chime in.
+    /// - `Rationale` already enforces the `W::min_rationale_chars()` floor at
+    ///   construction, so the signature is meaningfully documented.
+    ///
+    /// Emitted by the `knotch approve` CLI subcommand — see
+    /// `plugins/knotch/skills/knotch-approve/SKILL.md`.
+    ApprovalRecorded {
+        /// The event being approved or refused.
+        target: EventId,
+        /// Named human who is signing off (or refusing). `Person`
+        /// carries `Sensitive` — subscribers hash it for external
+        /// sinks.
+        approver: Person,
+        /// The decision carried with the signature. Reuses the same
+        /// `Decision` vocabulary as `GateRecorded` so dashboards
+        /// have a single enum to aggregate across both surfaces.
+        decision: Decision,
+        /// Why — bounded by `W::min_rationale_chars()`.
+        rationale: Rationale,
+    },
 }
 
 impl<W: WorkflowKind> EventBody<W> {
@@ -276,6 +306,7 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::SubagentCompleted { .. } => "subagent_completed",
             EventBody::ToolCallFailed { .. } => "tool_call_failed",
             EventBody::ModelSwitched { .. } => "model_switched",
+            EventBody::ApprovalRecorded { .. } => "approval_recorded",
         }
     }
 
@@ -300,6 +331,7 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::SubagentCompleted { .. } => 12,
             EventBody::ToolCallFailed { .. } => 13,
             EventBody::ModelSwitched { .. } => 14,
+            EventBody::ApprovalRecorded { .. } => 15,
         }
     }
 
@@ -551,18 +583,17 @@ impl<W: WorkflowKind> EventBody<W> {
                 // prior `ToolCallFailed` for the same (tool, call_id).
                 // Otherwise the retry timeline is non-monotonic and
                 // projections can't reconstruct attempt order.
-                let prior_max = effective_events(ctx.log)
-                    .iter()
-                    .filter_map(|evt| match &evt.body {
-                        EventBody::ToolCallFailed { tool: t, call_id: c, attempt: a, .. }
-                            if t == tool && c == call_id =>
-                        {
-                            Some(a.get())
-                        }
-                        _ => None,
-                    })
-                    .max()
-                    .unwrap_or(0);
+                let prior_max =
+                    effective_events(ctx.log)
+                        .iter()
+                        .filter_map(|evt| match &evt.body {
+                            EventBody::ToolCallFailed {
+                                tool: t, call_id: c, attempt: a, ..
+                            } if t == tool && c == call_id => Some(a.get()),
+                            _ => None,
+                        })
+                        .max()
+                        .unwrap_or(0);
                 if attempt.get() <= prior_max {
                     return Err(E::NonMonotonicAttempt {
                         attempt: attempt.get(),
@@ -580,6 +611,26 @@ impl<W: WorkflowKind> EventBody<W> {
                 // what this event builds.
                 if from == to {
                     return Err(E::NoOpModelSwitch { model: from.0.to_string() });
+                }
+            }
+            EventBody::ApprovalRecorded { target, approver, .. } => {
+                // Target must exist in the log.
+                let target_present = ctx.log.events().iter().any(|e| e.id == *target);
+                if !target_present {
+                    return Err(E::ApprovalTargetMissing(target.to_string()));
+                }
+                // The same approver must not have already signed this
+                // target. Different approvers can each record their
+                // own approval.
+                let duplicate = effective_events(ctx.log).iter().any(|evt| {
+                    matches!(
+                        &evt.body,
+                        EventBody::ApprovalRecorded { target: t, approver: a, .. }
+                            if t == target && a == approver,
+                    )
+                });
+                if duplicate {
+                    return Err(E::ApprovalAlreadyRecorded { target: target.to_string() });
                 }
             }
         }

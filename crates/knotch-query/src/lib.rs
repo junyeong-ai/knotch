@@ -8,15 +8,13 @@
 //!
 //! Predicates cover three axes:
 //!
-//! - **Unit state** — `where_phase`, `where_status`,
-//!   `where_milestone_shipped` — projection-derived.
+//! - **Unit state** — `where_phase`, `where_status`, `where_milestone_shipped` —
+//!   projection-derived.
 //! - **Time** — `since`, `until` — event-timestamp windowing.
-//! - **Causation** — `where_agent_id`, `where_model`,
-//!   `where_harness`, `where_cost_gte` — introspect who /
-//!   which model / which harness produced the events, and how
-//!   much the unit cost to run. Agents use these for retrospection
-//!   ("what have I worked on?"), cost attribution dashboards, and
-//!   model-migration audits.
+//! - **Causation** — `where_agent_id`, `where_model`, `where_harness`, `where_cost_gte` —
+//!   introspect who / which model / which harness produced the events, and how much the
+//!   unit cost to run. Agents use these for retrospection ("what have I worked on?"),
+//!   cost attribution dashboards, and model-migration audits.
 
 use std::borrow::Cow;
 

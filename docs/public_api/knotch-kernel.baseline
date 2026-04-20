@@ -309,6 +309,9 @@ pub knotch_kernel::error::PreconditionError::AlreadyCreated
 pub knotch_kernel::error::PreconditionError::AlreadySuperseded(alloc::string::String)
 pub knotch_kernel::error::PreconditionError::AppendAgainstTerminalUnit
 pub knotch_kernel::error::PreconditionError::AppendAgainstTerminalUnit::status: alloc::string::String
+pub knotch_kernel::error::PreconditionError::ApprovalAlreadyRecorded
+pub knotch_kernel::error::PreconditionError::ApprovalAlreadyRecorded::target: alloc::string::String
+pub knotch_kernel::error::PreconditionError::ApprovalTargetMissing(alloc::string::String)
 pub knotch_kernel::error::PreconditionError::ArtifactMissing
 pub knotch_kernel::error::PreconditionError::ArtifactMissing::path: alloc::string::String
 pub knotch_kernel::error::PreconditionError::CommitKindNotImplementation
@@ -471,6 +474,11 @@ impl core::marker::UnsafeUnpin for knotch_kernel::event::CommitStatus
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::CommitStatus
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::CommitStatus
 #[non_exhaustive] pub enum knotch_kernel::event::EventBody<W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_kernel::event::EventBody::ApprovalRecorded
+pub knotch_kernel::event::EventBody::ApprovalRecorded::approver: knotch_kernel::causation::Person
+pub knotch_kernel::event::EventBody::ApprovalRecorded::decision: knotch_kernel::status::Decision
+pub knotch_kernel::event::EventBody::ApprovalRecorded::rationale: knotch_kernel::rationale::Rationale
+pub knotch_kernel::event::EventBody::ApprovalRecorded::target: knotch_kernel::id::EventId
 pub knotch_kernel::event::EventBody::EventSuperseded
 pub knotch_kernel::event::EventBody::EventSuperseded::reason: knotch_kernel::rationale::Rationale
 pub knotch_kernel::event::EventBody::EventSuperseded::target: knotch_kernel::id::EventId
@@ -1462,6 +1470,11 @@ impl core::marker::UnsafeUnpin for knotch_kernel::status::Decision
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::status::Decision
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::status::Decision
 #[non_exhaustive] pub enum knotch_kernel::EventBody<W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_kernel::EventBody::ApprovalRecorded
+pub knotch_kernel::EventBody::ApprovalRecorded::approver: knotch_kernel::causation::Person
+pub knotch_kernel::EventBody::ApprovalRecorded::decision: knotch_kernel::status::Decision
+pub knotch_kernel::EventBody::ApprovalRecorded::rationale: knotch_kernel::rationale::Rationale
+pub knotch_kernel::EventBody::ApprovalRecorded::target: knotch_kernel::id::EventId
 pub knotch_kernel::EventBody::EventSuperseded
 pub knotch_kernel::EventBody::EventSuperseded::reason: knotch_kernel::rationale::Rationale
 pub knotch_kernel::EventBody::EventSuperseded::target: knotch_kernel::id::EventId
@@ -1592,6 +1605,9 @@ pub knotch_kernel::PreconditionError::AlreadyCreated
 pub knotch_kernel::PreconditionError::AlreadySuperseded(alloc::string::String)
 pub knotch_kernel::PreconditionError::AppendAgainstTerminalUnit
 pub knotch_kernel::PreconditionError::AppendAgainstTerminalUnit::status: alloc::string::String
+pub knotch_kernel::PreconditionError::ApprovalAlreadyRecorded
+pub knotch_kernel::PreconditionError::ApprovalAlreadyRecorded::target: alloc::string::String
+pub knotch_kernel::PreconditionError::ApprovalTargetMissing(alloc::string::String)
 pub knotch_kernel::PreconditionError::ArtifactMissing
 pub knotch_kernel::PreconditionError::ArtifactMissing::path: alloc::string::String
 pub knotch_kernel::PreconditionError::CommitKindNotImplementation
