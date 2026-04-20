@@ -1,0 +1,28 @@
+[package]
+name = "knotch-lock"
+description = "Cross-platform advisory file locks for knotch. Zero unsafe — uses rustix + fs4."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+rustix.workspace = true
+fs4.workspace = true
+tokio = { workspace = true, features = ["fs", "io-util", "sync", "time", "rt"] }
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+jiff.workspace = true
+dashmap.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
