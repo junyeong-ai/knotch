@@ -81,19 +81,6 @@ pub struct GateSpec {
     pub prerequisites: Vec<CompactString>,
 }
 
-/// Required-phase lists keyed by scope. Scope variants that appear
-/// in `knotch_kernel::Scope` as of SCHEMA v1: `tiny` / `standard`.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct ScopedPhaseMap {
-    /// Phases required under [`Scope::Tiny`].
-    #[serde(default)]
-    pub tiny: Vec<CompactString>,
-    /// Phases required under [`Scope::Standard`] (also the fallback
-    /// for every non-tiny scope).
-    #[serde(default)]
-    pub standard: Vec<CompactString>,
-}
-
 /// Top-level TOML shape. Sits under the `[workflow]` table in
 /// `knotch.toml`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,8 +94,17 @@ pub struct WorkflowSpec {
     pub schema_version: u32,
     /// Phase list in canonical order.
     pub phases: Vec<PhaseSpec>,
-    /// Per-scope required-phase lists.
-    pub required_phases: ScopedPhaseMap,
+    /// Required-phase lists keyed by arbitrary scope tags. The tag
+    /// ultimately lands in `Scope::Custom(tag)` (or the matching
+    /// built-in `Scope::Tiny` / `Standard` / `Epic`) via
+    /// [`Scope::from_tag`](knotch_kernel::Scope::from_tag). Every
+    /// key referenced here must also appear as a declared `phases`
+    /// entry — validated in [`ConfigWorkflow::from_spec`].
+    pub required_phases: HashMap<CompactString, Vec<CompactString>>,
+    /// Scope key used when `knotch unit init` runs without
+    /// `--scope`. MUST be a key declared in `required_phases`;
+    /// enforced by [`ConfigWorkflow::from_spec`].
+    pub default_scope: CompactString,
     /// Gate list with prerequisite edges.
     #[serde(default)]
     pub gates: Vec<GateSpec>,
@@ -145,8 +141,9 @@ pub struct ConfigWorkflow {
     phase_meta: Arc<HashMap<CompactString, PhaseMeta>>,
     gate_lookup: Arc<HashMap<CompactString, DynamicGate>>,
     gate_prereqs: Arc<HashMap<CompactString, Vec<DynamicGate>>>,
-    required_tiny: Arc<Vec<DynamicPhase>>,
-    required_standard: Arc<Vec<DynamicPhase>>,
+    /// Pre-resolved required phases per scope key. `from_spec`
+    /// guarantees `spec.default_scope` is a key.
+    required_by_scope: Arc<HashMap<CompactString, Vec<DynamicPhase>>>,
     terminal_statuses: Arc<Vec<CompactString>>,
 }
 
@@ -228,13 +225,26 @@ impl ConfigWorkflow {
             gate_prereqs.insert(g.id.clone(), prereqs);
         }
 
-        let required_tiny = resolve_required(&spec.required_phases.tiny, &phase_lookup, "tiny")?;
-        let required_standard =
-            resolve_required(&spec.required_phases.standard, &phase_lookup, "standard")?;
-        if required_standard.is_empty() {
+        if spec.required_phases.is_empty() {
             return Err(ConfigError::Invalid(
-                "required_phases.standard must list at least one phase id".into(),
+                "required_phases must declare at least one scope key".into(),
             ));
+        }
+        if !spec.required_phases.contains_key(&spec.default_scope) {
+            return Err(ConfigError::Invalid(format!(
+                "default_scope `{}` is not declared in required_phases (declared keys: {})",
+                spec.default_scope,
+                spec.required_phases
+                    .keys()
+                    .map(CompactString::as_str)
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            )));
+        }
+        let mut required_by_scope: HashMap<CompactString, Vec<DynamicPhase>> = HashMap::new();
+        for (scope_key, ids) in &spec.required_phases {
+            let resolved = resolve_required(ids, &phase_lookup, scope_key.as_str())?;
+            required_by_scope.insert(scope_key.clone(), resolved);
         }
 
         Ok(Self {
@@ -244,9 +254,15 @@ impl ConfigWorkflow {
             phase_meta: Arc::new(phase_meta),
             gate_lookup: Arc::new(gate_lookup),
             gate_prereqs: Arc::new(gate_prereqs),
-            required_tiny: Arc::new(required_tiny),
-            required_standard: Arc::new(required_standard),
+            required_by_scope: Arc::new(required_by_scope),
         })
+    }
+
+    /// Scope key used when callers don't pass an explicit scope.
+    /// Returns a borrowed view into the spec's `default_scope`.
+    #[must_use]
+    pub fn default_scope(&self) -> &str {
+        self.spec.default_scope.as_str()
     }
 
     /// Look up a gate by id. Used by the CLI's `gate` subcommand.
@@ -298,10 +314,15 @@ impl WorkflowKind for ConfigWorkflow {
     }
 
     fn required_phases(&self, scope: &Scope) -> Cow<'_, [Self::Phase]> {
-        match scope {
-            Scope::Tiny => Cow::Borrowed(self.required_tiny.as_slice()),
-            _ => Cow::Borrowed(self.required_standard.as_slice()),
-        }
+        // Deterministic lookup: exact tag match, else fall back to
+        // the validated `default_scope` key (`from_spec` guarantees
+        // it exists). No reliance on `HashMap` iteration order.
+        let key = scope.tag();
+        self.required_by_scope
+            .get(key)
+            .or_else(|| self.required_by_scope.get(self.spec.default_scope.as_str()))
+            .map(|v| Cow::Borrowed(v.as_slice()))
+            .unwrap_or(Cow::Borrowed(&[]))
     }
 
     fn is_terminal_status(&self, status: &StatusId) -> bool {
@@ -366,6 +387,35 @@ pub const CANONICAL_TOML: &str = include_str!("../canonical.toml");
 mod tests {
     use super::*;
 
+    fn phase_spec(id: &str) -> PhaseSpec {
+        PhaseSpec { id: id.into(), accepts_skips: vec![] }
+    }
+
+    fn spec_with(
+        name: &str,
+        phases: Vec<PhaseSpec>,
+        required: Vec<(&str, Vec<&str>)>,
+        default_scope: &str,
+        gates: Vec<GateSpec>,
+    ) -> WorkflowSpec {
+        let mut required_phases: HashMap<CompactString, Vec<CompactString>> = HashMap::new();
+        for (scope, ids) in required {
+            required_phases
+                .insert(scope.into(), ids.into_iter().map(CompactString::from).collect());
+        }
+        WorkflowSpec {
+            name: name.into(),
+            schema_version: 1,
+            phases,
+            required_phases,
+            default_scope: default_scope.into(),
+            gates,
+            terminal_statuses: vec![],
+            known_statuses: vec![],
+            min_rationale_chars: None,
+        }
+    }
+
     #[test]
     fn canonical_parses_and_validates() {
         let w = ConfigWorkflow::canonical();
@@ -373,6 +423,60 @@ mod tests {
         assert_eq!(w.schema_version(), 1);
         assert_eq!(w.required_phases(&Scope::Standard).len(), 5);
         assert_eq!(w.required_phases(&Scope::Tiny).len(), 3);
+    }
+
+    #[test]
+    fn required_phases_accepts_arbitrary_scope_keys() {
+        let spec = spec_with(
+            "open",
+            vec![phase_spec("a"), phase_spec("b"), phase_spec("c")],
+            vec![
+                ("tiny", vec!["a"]),
+                ("standard", vec!["a", "b"]),
+                ("quick", vec!["a", "c"]),
+                ("complex", vec!["a", "b", "c"]),
+            ],
+            "standard",
+            vec![],
+        );
+        let w = ConfigWorkflow::from_spec(spec).expect("valid");
+        assert_eq!(w.required_phases(&Scope::Custom("quick".into())).len(), 2);
+        assert_eq!(w.required_phases(&Scope::Custom("complex".into())).len(), 3);
+    }
+
+    #[test]
+    fn required_phases_falls_back_to_default_scope_for_unknown_keys() {
+        let spec = spec_with(
+            "fallback",
+            vec![phase_spec("a"), phase_spec("b")],
+            vec![("tiny", vec!["a"]), ("standard", vec!["a", "b"])],
+            "standard",
+            vec![],
+        );
+        let w = ConfigWorkflow::from_spec(spec).expect("valid");
+        // Unknown scope falls through to `standard` per `default_scope`.
+        assert_eq!(w.required_phases(&Scope::Custom("unknown".into())).len(), 2);
+        assert_eq!(w.default_scope(), "standard");
+    }
+
+    #[test]
+    fn from_spec_rejects_default_scope_not_in_required_phases() {
+        let spec = spec_with(
+            "bad-default",
+            vec![phase_spec("a")],
+            vec![("tiny", vec!["a"]), ("standard", vec!["a"])],
+            "missing", // not a key in required_phases
+            vec![],
+        );
+        let err = ConfigWorkflow::from_spec(spec).expect_err("unknown default must fail");
+        assert!(matches!(err, ConfigError::Invalid(_)));
+    }
+
+    #[test]
+    fn from_spec_rejects_empty_required_phases() {
+        let spec = spec_with("empty", vec![phase_spec("a")], vec![], "standard", vec![]);
+        let err = ConfigWorkflow::from_spec(spec).expect_err("empty required_phases must fail");
+        assert!(matches!(err, ConfigError::Invalid(_)));
     }
 
     #[test]
@@ -406,52 +510,27 @@ mod tests {
 
     #[test]
     fn from_spec_rejects_duplicate_phase_ids() {
-        let spec = WorkflowSpec {
-            name: "dup".into(),
-            schema_version: 1,
-            phases: vec![
-                PhaseSpec { id: "a".into(), accepts_skips: vec![] },
-                PhaseSpec { id: "a".into(), accepts_skips: vec![] },
-            ],
-            required_phases: ScopedPhaseMap { tiny: vec!["a".into()], standard: vec!["a".into()] },
-            gates: vec![],
-            terminal_statuses: vec![],
-            known_statuses: vec![],
-            min_rationale_chars: None,
-        };
+        let spec = spec_with(
+            "dup",
+            vec![phase_spec("a"), phase_spec("a")],
+            vec![("tiny", vec!["a"]), ("standard", vec!["a"])],
+            "standard",
+            vec![],
+        );
         let err = ConfigWorkflow::from_spec(spec).expect_err("duplicate must fail");
         assert!(matches!(err, ConfigError::Invalid(_)));
     }
 
     #[test]
     fn from_spec_rejects_dangling_gate_prereq() {
-        let spec = WorkflowSpec {
-            name: "ghost".into(),
-            schema_version: 1,
-            phases: vec![PhaseSpec { id: "a".into(), accepts_skips: vec![] }],
-            required_phases: ScopedPhaseMap { tiny: vec!["a".into()], standard: vec!["a".into()] },
-            gates: vec![GateSpec { id: "g1".into(), prerequisites: vec!["g0".into()] }],
-            terminal_statuses: vec![],
-            known_statuses: vec![],
-            min_rationale_chars: None,
-        };
+        let spec = spec_with(
+            "ghost",
+            vec![phase_spec("a")],
+            vec![("tiny", vec!["a"]), ("standard", vec!["a"])],
+            "standard",
+            vec![GateSpec { id: "g1".into(), prerequisites: vec!["g0".into()] }],
+        );
         let err = ConfigWorkflow::from_spec(spec).expect_err("dangling prereq must fail");
-        assert!(matches!(err, ConfigError::Invalid(_)));
-    }
-
-    #[test]
-    fn from_spec_rejects_empty_standard_required() {
-        let spec = WorkflowSpec {
-            name: "empty".into(),
-            schema_version: 1,
-            phases: vec![PhaseSpec { id: "a".into(), accepts_skips: vec![] }],
-            required_phases: ScopedPhaseMap { tiny: vec![], standard: vec![] },
-            gates: vec![],
-            terminal_statuses: vec![],
-            known_statuses: vec![],
-            min_rationale_chars: None,
-        };
-        let err = ConfigWorkflow::from_spec(spec).expect_err("empty standard must fail");
         assert!(matches!(err, ConfigError::Invalid(_)));
     }
 }

@@ -14,7 +14,7 @@ terminal immutability, kernel-enforced gate ordering).
 | Module | Owns |
 |---|---|
 | `knotch` | `Knotch` marker, `KnotchPhase`, `KnotchGate` (kebab-case serde), `TaskId`, `build_repository` helper — the canonical typed workflow |
-| `config` | `ConfigWorkflow` + `WorkflowSpec` / `PhaseSpec` / `GateSpec` / `ScopedPhaseMap` + `ConfigError` — TOML-loaded runtime workflow. `CANONICAL_TOML` ships the canonical shape for `knotch init` to stamp into `knotch.toml` |
+| `config` | `ConfigWorkflow` + `WorkflowSpec` / `PhaseSpec` / `GateSpec` + `ConfigError` — TOML-loaded runtime workflow. `required_phases` accepts arbitrary scope keys (tiny / standard / epic / any adopter-chosen tag); `default_scope` must name one of them. `CANONICAL_TOML` ships the canonical shape for `knotch init` to stamp into `knotch.toml` |
 | `dynamic` | `DynamicPhase` / `DynamicGate` / `DynamicMilestone` / `DynamicExtension` — all `#[serde(transparent)]` newtypes over `CompactString` / `serde_json::Value`; used by `ConfigWorkflow` |
 | `ordering` | `PhaseOrdering` — compact declarative graph; `validate_ordering` runs acyclicity + uniqueness checks |
 | `skip` | `SkipPolicy` — reusable predicate describing which `SkipKind` values a phase accepts |

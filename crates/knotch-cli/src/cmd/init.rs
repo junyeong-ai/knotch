@@ -173,6 +173,7 @@ fn default_config_toml(state_dir: &Path) -> String {
             "[workflow]\n",
             "name = \"knotch\"\n",
             "schema_version = 1\n",
+            "default_scope = \"standard\"\n",
             "terminal_statuses = [\"archived\", \"abandoned\", \"superseded\", \"deprecated\"]\n",
             "known_statuses = [\n",
             "    \"draft\", \"in_progress\", \"in_review\", \"shipped\",\n",

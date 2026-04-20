@@ -21,7 +21,7 @@ pub mod ordering;
 pub mod skip;
 
 pub use self::{
-    config::{ConfigError, ConfigWorkflow, GateSpec, PhaseSpec, ScopedPhaseMap, WorkflowSpec},
+    config::{ConfigError, ConfigWorkflow, GateSpec, PhaseSpec, WorkflowSpec},
     dynamic::{DynamicExtension, DynamicGate, DynamicMilestone, DynamicPhase},
     knotch::{Knotch, KnotchGate, KnotchPhase, TaskId, build_repository},
     ordering::{OrderingError, PhaseOrdering, validate_ordering},

@@ -24,6 +24,7 @@ impl !core::panic::unwind_safe::UnwindSafe for knotch_workflow::config::ConfigEr
 pub struct knotch_workflow::config::ConfigWorkflow
 impl knotch_workflow::config::ConfigWorkflow
 pub fn knotch_workflow::config::ConfigWorkflow::canonical() -> Self
+pub fn knotch_workflow::config::ConfigWorkflow::default_scope(&self) -> &str
 pub fn knotch_workflow::config::ConfigWorkflow::from_spec(spec: knotch_workflow::config::WorkflowSpec) -> core::result::Result<Self, knotch_workflow::config::ConfigError>
 pub fn knotch_workflow::config::ConfigWorkflow::gate(&self, id: &str) -> core::option::Option<&knotch_workflow::dynamic::DynamicGate>
 pub fn knotch_workflow::config::ConfigWorkflow::load(path: &std::path::Path) -> core::result::Result<Self, knotch_workflow::config::ConfigError>
@@ -93,33 +94,14 @@ impl core::marker::Unpin for knotch_workflow::config::PhaseSpec
 impl core::marker::UnsafeUnpin for knotch_workflow::config::PhaseSpec
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::config::PhaseSpec
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::config::PhaseSpec
-pub struct knotch_workflow::config::ScopedPhaseMap
-pub knotch_workflow::config::ScopedPhaseMap::standard: alloc::vec::Vec<compact_str::CompactString>
-pub knotch_workflow::config::ScopedPhaseMap::tiny: alloc::vec::Vec<compact_str::CompactString>
-impl core::clone::Clone for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::clone(&self) -> knotch_workflow::config::ScopedPhaseMap
-impl core::default::Default for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::default() -> knotch_workflow::config::ScopedPhaseMap
-impl core::fmt::Debug for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::Send for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::Sync for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::Unpin for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::UnsafeUnpin for knotch_workflow::config::ScopedPhaseMap
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::config::ScopedPhaseMap
-impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::config::ScopedPhaseMap
 pub struct knotch_workflow::config::WorkflowSpec
+pub knotch_workflow::config::WorkflowSpec::default_scope: compact_str::CompactString
 pub knotch_workflow::config::WorkflowSpec::gates: alloc::vec::Vec<knotch_workflow::config::GateSpec>
 pub knotch_workflow::config::WorkflowSpec::known_statuses: alloc::vec::Vec<compact_str::CompactString>
 pub knotch_workflow::config::WorkflowSpec::min_rationale_chars: core::option::Option<usize>
 pub knotch_workflow::config::WorkflowSpec::name: compact_str::CompactString
 pub knotch_workflow::config::WorkflowSpec::phases: alloc::vec::Vec<knotch_workflow::config::PhaseSpec>
-pub knotch_workflow::config::WorkflowSpec::required_phases: knotch_workflow::config::ScopedPhaseMap
+pub knotch_workflow::config::WorkflowSpec::required_phases: std::collections::hash::map::HashMap<compact_str::CompactString, alloc::vec::Vec<compact_str::CompactString>>
 pub knotch_workflow::config::WorkflowSpec::schema_version: u32
 pub knotch_workflow::config::WorkflowSpec::terminal_statuses: alloc::vec::Vec<compact_str::CompactString>
 impl core::clone::Clone for knotch_workflow::config::WorkflowSpec
@@ -567,6 +549,7 @@ impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::ordering::Orderin
 pub struct knotch_workflow::ConfigWorkflow
 impl knotch_workflow::config::ConfigWorkflow
 pub fn knotch_workflow::config::ConfigWorkflow::canonical() -> Self
+pub fn knotch_workflow::config::ConfigWorkflow::default_scope(&self) -> &str
 pub fn knotch_workflow::config::ConfigWorkflow::from_spec(spec: knotch_workflow::config::WorkflowSpec) -> core::result::Result<Self, knotch_workflow::config::ConfigError>
 pub fn knotch_workflow::config::ConfigWorkflow::gate(&self, id: &str) -> core::option::Option<&knotch_workflow::dynamic::DynamicGate>
 pub fn knotch_workflow::config::ConfigWorkflow::load(path: &std::path::Path) -> core::result::Result<Self, knotch_workflow::config::ConfigError>
@@ -801,26 +784,6 @@ impl core::marker::Unpin for knotch_workflow::config::PhaseSpec
 impl core::marker::UnsafeUnpin for knotch_workflow::config::PhaseSpec
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::config::PhaseSpec
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::config::PhaseSpec
-pub struct knotch_workflow::ScopedPhaseMap
-pub knotch_workflow::ScopedPhaseMap::standard: alloc::vec::Vec<compact_str::CompactString>
-pub knotch_workflow::ScopedPhaseMap::tiny: alloc::vec::Vec<compact_str::CompactString>
-impl core::clone::Clone for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::clone(&self) -> knotch_workflow::config::ScopedPhaseMap
-impl core::default::Default for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::default() -> knotch_workflow::config::ScopedPhaseMap
-impl core::fmt::Debug for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_workflow::config::ScopedPhaseMap
-pub fn knotch_workflow::config::ScopedPhaseMap::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::Send for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::Sync for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::Unpin for knotch_workflow::config::ScopedPhaseMap
-impl core::marker::UnsafeUnpin for knotch_workflow::config::ScopedPhaseMap
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::config::ScopedPhaseMap
-impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::config::ScopedPhaseMap
 pub struct knotch_workflow::SkipPolicy
 pub knotch_workflow::SkipPolicy::amnesty: core::option::Option<alloc::vec::Vec<compact_str::CompactString>>
 pub knotch_workflow::SkipPolicy::custom: core::option::Option<alloc::vec::Vec<compact_str::CompactString>>
@@ -876,12 +839,13 @@ impl core::marker::UnsafeUnpin for knotch_workflow::knotch::TaskId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_workflow::knotch::TaskId
 impl core::panic::unwind_safe::UnwindSafe for knotch_workflow::knotch::TaskId
 pub struct knotch_workflow::WorkflowSpec
+pub knotch_workflow::WorkflowSpec::default_scope: compact_str::CompactString
 pub knotch_workflow::WorkflowSpec::gates: alloc::vec::Vec<knotch_workflow::config::GateSpec>
 pub knotch_workflow::WorkflowSpec::known_statuses: alloc::vec::Vec<compact_str::CompactString>
 pub knotch_workflow::WorkflowSpec::min_rationale_chars: core::option::Option<usize>
 pub knotch_workflow::WorkflowSpec::name: compact_str::CompactString
 pub knotch_workflow::WorkflowSpec::phases: alloc::vec::Vec<knotch_workflow::config::PhaseSpec>
-pub knotch_workflow::WorkflowSpec::required_phases: knotch_workflow::config::ScopedPhaseMap
+pub knotch_workflow::WorkflowSpec::required_phases: std::collections::hash::map::HashMap<compact_str::CompactString, alloc::vec::Vec<compact_str::CompactString>>
 pub knotch_workflow::WorkflowSpec::schema_version: u32
 pub knotch_workflow::WorkflowSpec::terminal_statuses: alloc::vec::Vec<compact_str::CompactString>
 impl core::clone::Clone for knotch_workflow::config::WorkflowSpec
