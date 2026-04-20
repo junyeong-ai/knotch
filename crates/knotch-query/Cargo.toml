@@ -1,0 +1,28 @@
+[package]
+name = "knotch-query"
+description = "CQRS read-side query builder for knotch — cross-unit queries, roll-ups, time-range filters."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+futures.workspace = true
+tokio = { workspace = true, features = ["rt", "sync"] }
+thiserror.workspace = true
+jiff.workspace = true
+
+[dev-dependencies]
+knotch-derive.workspace = true
+knotch-testing.workspace = true
+knotch-storage.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+serde.workspace = true

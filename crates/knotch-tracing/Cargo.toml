@@ -1,0 +1,33 @@
+[package]
+name = "knotch-tracing"
+description = "Tracing attribute schema, OpenTelemetry bridge, and cost attribution helpers for knotch."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[features]
+default = []
+otel = ["dep:opentelemetry", "dep:opentelemetry-otlp", "dep:tracing-opentelemetry"]
+metrics = ["dep:metrics", "dep:metrics-exporter-prometheus"]
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+blake3.workspace = true
+tracing-opentelemetry = { workspace = true, optional = true }
+opentelemetry = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
+metrics = { workspace = true, optional = true }
+metrics-exporter-prometheus = { workspace = true, optional = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true, features = ["std", "fmt"] }
+compact_str.workspace = true
