@@ -358,9 +358,6 @@ pub knotch_kernel::error::RepositoryError::Corrupted
 pub knotch_kernel::error::RepositoryError::Corrupted::line: u64
 pub knotch_kernel::error::RepositoryError::Duplicate(knotch_kernel::fingerprint::Fingerprint)
 pub knotch_kernel::error::RepositoryError::Lock(knotch_kernel::error::BoxError)
-pub knotch_kernel::error::RepositoryError::NonMonotonic
-pub knotch_kernel::error::RepositoryError::NonMonotonic::attempted: jiff::timestamp::Timestamp
-pub knotch_kernel::error::RepositoryError::NonMonotonic::last: jiff::timestamp::Timestamp
 pub knotch_kernel::error::RepositoryError::Precondition(knotch_kernel::error::PreconditionError)
 pub knotch_kernel::error::RepositoryError::SaltMismatch
 pub knotch_kernel::error::RepositoryError::SaltMismatch::current: alloc::string::String
@@ -1163,6 +1160,7 @@ pub trait knotch_kernel::time::Clock: core::marker::Send + core::marker::Sync
 pub fn knotch_kernel::time::Clock::now(&self) -> jiff::timestamp::Timestamp
 impl knotch_kernel::time::Clock for knotch_kernel::time::SystemClock
 pub fn knotch_kernel::time::SystemClock::now(&self) -> jiff::timestamp::Timestamp
+pub fn knotch_kernel::time::stamp_monotonic(clock: &dyn knotch_kernel::time::Clock, last: core::option::Option<jiff::timestamp::Timestamp>) -> jiff::timestamp::Timestamp
 pub mod knotch_kernel::workflow
 pub trait knotch_kernel::workflow::ExtensionKind: core::clone::Clone + serde_core::ser::Serialize + serde_core::de::DeserializeOwned + core::fmt::Debug + core::marker::Send + core::marker::Sync + 'static
 pub fn knotch_kernel::workflow::ExtensionKind::check_extension<W>(&self, _ctx: &knotch_kernel::precondition::AppendContext<'_, W>) -> core::result::Result<(), knotch_kernel::error::PreconditionError> where W: knotch_kernel::workflow::WorkflowKind<Extension = Self>
@@ -1494,9 +1492,6 @@ pub knotch_kernel::RepositoryError::Corrupted
 pub knotch_kernel::RepositoryError::Corrupted::line: u64
 pub knotch_kernel::RepositoryError::Duplicate(knotch_kernel::fingerprint::Fingerprint)
 pub knotch_kernel::RepositoryError::Lock(knotch_kernel::error::BoxError)
-pub knotch_kernel::RepositoryError::NonMonotonic
-pub knotch_kernel::RepositoryError::NonMonotonic::attempted: jiff::timestamp::Timestamp
-pub knotch_kernel::RepositoryError::NonMonotonic::last: jiff::timestamp::Timestamp
 pub knotch_kernel::RepositoryError::Precondition(knotch_kernel::error::PreconditionError)
 pub knotch_kernel::RepositoryError::SaltMismatch
 pub knotch_kernel::RepositoryError::SaltMismatch::current: alloc::string::String

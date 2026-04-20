@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use crate::{fingerprint::Fingerprint, time::Timestamp};
+use crate::fingerprint::Fingerprint;
 
 /// Boxed adapter error. Adapters (`knotch-storage`, `-lock`, etc.)
 /// surface concrete errors and box them into this type at the
@@ -47,15 +47,6 @@ pub enum RepositoryError {
     Corrupted {
         /// 1-indexed line number of the first corrupted line.
         line: u64,
-    },
-    /// An incoming proposal's timestamp is earlier than the log's last
-    /// event timestamp.
-    #[error("append ordering violated — attempted at={attempted} < last={last}")]
-    NonMonotonic {
-        /// Timestamp on the proposal.
-        attempted: Timestamp,
-        /// Timestamp on the last log entry.
-        last: Timestamp,
     },
     /// The log header carries a `fingerprint_salt` that does not match
     /// `W::fingerprint_salt()` on the current build. Either the

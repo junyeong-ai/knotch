@@ -132,8 +132,9 @@ flowchart LR
      로 디스패치 (자세히:
      [`.claude/rules/preconditions.md`](.claude/rules/preconditions.md)).
    - **Extension precondition** — `ExtensionKind::check_extension`.
-   - **Monotonic `at`** — 찍힌 타임스탬프가 로그의 마지막 이벤트 ≥
-     여야 함; 위반 시 `NonMonotonic`.
+   - **Monotonic `at`** — `stamp_monotonic(&clock, last_at)` 을
+     통해 `at` 가 항상 마지막 이벤트보다 엄격히 크게 찍힘. NTP
+     보정·VM suspend 등 벽시계 역행에도 자가복구.
    - **Stamp + working log 에 추가** — 다음 proposal 이 그 상태를
      보고 검증할 수 있도록.
 5. **All-or-nothing rollback** — `AppendMode::AllOrNothing` 에서

@@ -128,8 +128,9 @@ flowchart LR
      dispatches per variant (see
      [`.claude/rules/preconditions.md`](.claude/rules/preconditions.md)).
    - **Extension precondition** — `ExtensionKind::check_extension`.
-   - **Monotonic `at`** — the stamped timestamp must be ≥ the
-     log's last event; else `NonMonotonic`.
+   - **Monotonic `at`** — stamped via `stamp_monotonic(&clock,
+     last_at)` so every event's `at` is strictly greater than the
+     log's last event. Self-heals against clock drift.
    - **Stamp + append to working log** — so the next proposal
      in the batch sees it.
 5. **All-or-nothing rollback** — under `AppendMode::AllOrNothing`,

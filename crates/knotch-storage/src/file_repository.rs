@@ -17,6 +17,7 @@ use knotch_kernel::{
     event::{RejectedProposal, SubscribeEvent, SubscribeMode},
     fingerprint_event, fingerprint_proposal,
     repository::{CacheMutator, PinStream, Repository, ResumeCache},
+    time::{stamp_monotonic, SystemClock},
 };
 use knotch_lock::{FileLock, Lock};
 use knotch_proto::header::Header;
@@ -272,17 +273,8 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
                 rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
-            // 3. Monotonic timestamp.
-            let at = Timestamp::now();
-            if let Some(prev) = last_at {
-                if at < prev {
-                    if matches!(mode, AppendMode::AllOrNothing) {
-                        return Err(RepositoryError::NonMonotonic { attempted: at, last: prev });
-                    }
-                    rejected.push(RejectedProposal { proposal, reason: "non-monotonic".into() });
-                    continue;
-                }
-            }
+            // 3. Monotonic timestamp — self-healing against clock drift.
+            let at = stamp_monotonic(&SystemClock, last_at);
             let event = Event {
                 id: EventId::new_v7(),
                 at,
@@ -440,16 +432,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
                 rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
-            let at = Timestamp::now();
-            if let Some(prev) = last_at {
-                if at < prev {
-                    if matches!(mode, AppendMode::AllOrNothing) {
-                        return Err(RepositoryError::NonMonotonic { attempted: at, last: prev });
-                    }
-                    rejected.push(RejectedProposal { proposal, reason: "non-monotonic".into() });
-                    continue;
-                }
-            }
+            let at = stamp_monotonic(&SystemClock, last_at);
             let event = Event {
                 id: EventId::new_v7(),
                 at,

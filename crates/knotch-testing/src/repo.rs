@@ -18,13 +18,13 @@ use std::sync::Arc;
 use async_stream::try_stream;
 use dashmap::DashMap;
 use futures::{StreamExt as _, stream};
-use jiff::Timestamp;
 use knotch_kernel::{
     AppendMode, AppendReport, Event, EventId, ExtensionKind as _, Fingerprint, Log, Proposal,
     RepositoryError, UnitId, WorkflowKind,
     event::{RejectedProposal, SubscribeEvent, SubscribeMode},
     fingerprint_proposal,
     repository::{PinStream, Repository, ResumeCache},
+    time::{stamp_monotonic, SystemClock},
 };
 use tokio::sync::{Mutex as AsyncMutex, broadcast};
 
@@ -151,19 +151,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                 rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
-            let at = Timestamp::now();
-            let last_at = inner.events.last().map(|e| e.at);
-            if let Some(last_at) = last_at {
-                if at < last_at {
-                    if matches!(mode, AppendMode::AllOrNothing) {
-                        inner.events.truncate(accepted_before);
-                        inner.fingerprints.truncate(accepted_before);
-                        return Err(RepositoryError::NonMonotonic { attempted: at, last: last_at });
-                    }
-                    rejected.push(RejectedProposal { proposal, reason: "non-monotonic".into() });
-                    continue;
-                }
-            }
+            let at = stamp_monotonic(&SystemClock, inner.events.last().map(|e| e.at));
             let event = Event {
                 id: EventId::new_v7(),
                 at,
@@ -310,19 +298,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                 rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
-            let at = Timestamp::now();
-            let last_at = inner.events.last().map(|e| e.at);
-            if let Some(last_at) = last_at {
-                if at < last_at {
-                    if matches!(mode, AppendMode::AllOrNothing) {
-                        inner.events.truncate(accepted_before);
-                        inner.fingerprints.truncate(accepted_before);
-                        return Err(RepositoryError::NonMonotonic { attempted: at, last: last_at });
-                    }
-                    rejected.push(RejectedProposal { proposal, reason: "non-monotonic".into() });
-                    continue;
-                }
-            }
+            let at = stamp_monotonic(&SystemClock, inner.events.last().map(|e| e.at));
             let event = Event {
                 id: EventId::new_v7(),
                 at,

@@ -32,9 +32,13 @@ async fn append(
       `AllOrNothing` → surface as `RepositoryError::Precondition`.
       `BestEffort` → push to `rejected` with display of the error.
    c. **Extension precondition** — `extension.check_extension(ctx)`.
-   d. **Monotonic `at`** — `Timestamp::now()` must be ≥ last event's
-      `at`. Violation → `NonMonotonic` or `rejected`.
-   e. **Stamp** — `EventId::new_v7()`, `at = Timestamp::now()`.
+   d. **Monotonic `at`** — stamp via
+      `knotch_kernel::time::stamp_monotonic(&clock, last_at)` so the
+      resulting `at` is strictly greater than the log's last-event
+      `at`, regardless of wall-clock adjustments. Deterministic per
+      constitution §IX: replay under a fixed clock yields identical
+      stamps.
+   e. **Stamp** — `EventId::new_v7()`, `at = stamp_monotonic(..)`.
    f. **Append to working log** — so next proposal sees it in its
       precondition window.
 5. **All-or-nothing rollback** — if any rejection exists under
@@ -73,8 +77,11 @@ layer contracts**: the kernel precondition engine dispatches on
 covers each with a regression test:
 
 1. Acquire the unit's lock before reading storage.
-2. Reject proposals whose stamped `at` is earlier than the log's
-   last-event `at` with `RepositoryError::NonMonotonic`.
+2. Stamp events via `knotch_kernel::time::stamp_monotonic(&clock,
+   last_at)` so every stamped `at` is strictly greater than the
+   log's last-event `at`. The helper self-heals against NTP skew,
+   VM pause/resume, and operator clock edits; no "non-monotonic"
+   rejection is possible.
 3. Refuse cross-process writes that observed a stale log via
    optimistic CAS on the line count — `StorageError::LogMutated`
    signals retry.
@@ -93,7 +100,5 @@ covers each with a regression test:
 
 - Accept that a `"duplicate"` rejection is the idempotent-replay
   success signal.
-- Treat `RepositoryError::NonMonotonic` as a caller bug (check
-  clock skew before retry).
 - Use `AllOrNothing` for multi-proposal invariants; `BestEffort` for
   independent batches.
