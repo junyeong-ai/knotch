@@ -8,10 +8,7 @@
 use std::{borrow::Cow, hash::Hash};
 
 use compact_str::CompactString;
-use knotch_kernel::{
-    ExtensionKind, GateKind, MilestoneKind, PhaseKind,
-    event::SkipKind,
-};
+use knotch_kernel::{ExtensionKind, GateKind, MilestoneKind, PhaseKind, event::SkipKind};
 use serde::{Deserialize, Serialize};
 
 /// Runtime-configurable phase. Serialized as a bare string id so the
@@ -23,9 +20,7 @@ use serde::{Deserialize, Serialize};
 /// (`ConfigWorkflow`'s config), not on the phase value. Kernel
 /// dispatch consults
 /// [`WorkflowKind::accepts_skip_for`](knotch_kernel::WorkflowKind::accepts_skip_for).
-#[derive(
-    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct DynamicPhase(pub CompactString);
 

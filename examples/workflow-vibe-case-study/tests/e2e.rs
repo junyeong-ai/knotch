@@ -9,22 +9,24 @@ use knotch_kernel::{
     causation::{Cost, Trigger},
     event::{ArtifactList, CommitKind, CommitRef, EventBody},
 };
+use rust_decimal::Decimal;
 use workflow_vibe_case_study::{
     Session, SummaryBudget, TaskId, Vibe, VibePhase, build_repository, summary_for_llm,
     total_tokens, total_usd,
 };
-use rust_decimal::Decimal;
 
 fn tool_causation(session: &Session) -> knotch_kernel::Causation {
     session.tool("edit_file", "call-1")
 }
 
-fn cost_causation(session: &Session, usd: Decimal, tin: u32, tout: u32) -> knotch_kernel::Causation {
+fn cost_causation(
+    session: &Session,
+    usd: Decimal,
+    tin: u32,
+    tout: u32,
+) -> knotch_kernel::Causation {
     session
-        .causation(Trigger::ToolInvocation {
-            tool: "bash".into(),
-            call_id: "call-2".into(),
-        })
+        .causation(Trigger::ToolInvocation { tool: "bash".into(), call_id: "call-2".into() })
         .with_cost(Cost::new(Some(usd), tin, tout))
 }
 
@@ -65,9 +67,7 @@ async fn agent_session_lifecycle() {
         },
     ];
 
-    repo.append(&unit, proposals, AppendMode::BestEffort)
-        .await
-        .expect("append");
+    repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("append");
 
     let log = repo.load(&unit).await.expect("load");
     assert_eq!(log.events().len(), 3);

@@ -14,12 +14,7 @@ use super::{Knotch, KnotchGate, KnotchPhase, TaskId};
 /// `UnitCreated` with the given scope.
 #[must_use]
 pub fn unit_created(causation: Causation, scope: knotch_kernel::Scope) -> Proposal<Knotch> {
-    Proposal {
-        causation,
-        extension: (),
-        body: EventBody::UnitCreated { scope },
-        supersedes: None,
-    }
+    Proposal { causation, extension: (), body: EventBody::UnitCreated { scope }, supersedes: None }
 }
 
 /// `PhaseCompleted` for `phase` with the supplied artifact list.

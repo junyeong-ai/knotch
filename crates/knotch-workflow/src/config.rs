@@ -164,8 +164,7 @@ impl ConfigWorkflow {
     /// init` writes this to `knotch.toml` for editing.
     #[must_use]
     pub fn canonical() -> Self {
-        let spec: WorkflowSpec = toml::from_str(CANONICAL_TOML)
-            .expect("canonical.toml parses");
+        let spec: WorkflowSpec = toml::from_str(CANONICAL_TOML).expect("canonical.toml parses");
         Self::from_spec(spec).expect("canonical spec validates")
     }
 
@@ -201,28 +200,17 @@ impl ConfigWorkflow {
         let mut phase_meta: HashMap<CompactString, PhaseMeta> = HashMap::new();
         for p in &spec.phases {
             if phase_lookup.contains_key(&p.id) {
-                return Err(ConfigError::Invalid(format!(
-                    "duplicate phase id `{}`",
-                    p.id
-                )));
+                return Err(ConfigError::Invalid(format!("duplicate phase id `{}`", p.id)));
             }
             phase_lookup.insert(p.id.clone(), DynamicPhase(p.id.clone()));
-            phase_meta.insert(
-                p.id.clone(),
-                PhaseMeta {
-                    accepts_skips: p.accepts_skips.clone(),
-                },
-            );
+            phase_meta.insert(p.id.clone(), PhaseMeta { accepts_skips: p.accepts_skips.clone() });
         }
 
         let mut gate_lookup: HashMap<CompactString, DynamicGate> = HashMap::new();
         let mut gate_prereqs: HashMap<CompactString, Vec<DynamicGate>> = HashMap::new();
         for g in &spec.gates {
             if gate_lookup.contains_key(&g.id) {
-                return Err(ConfigError::Invalid(format!(
-                    "duplicate gate id `{}`",
-                    g.id
-                )));
+                return Err(ConfigError::Invalid(format!("duplicate gate id `{}`", g.id)));
             }
             gate_lookup.insert(g.id.clone(), DynamicGate(g.id.clone()));
         }
@@ -241,11 +229,8 @@ impl ConfigWorkflow {
         }
 
         let required_tiny = resolve_required(&spec.required_phases.tiny, &phase_lookup, "tiny")?;
-        let required_standard = resolve_required(
-            &spec.required_phases.standard,
-            &phase_lookup,
-            "standard",
-        )?;
+        let required_standard =
+            resolve_required(&spec.required_phases.standard, &phase_lookup, "standard")?;
         if required_standard.is_empty() {
             return Err(ConfigError::Invalid(
                 "required_phases.standard must list at least one phase id".into(),
@@ -320,9 +305,7 @@ impl WorkflowKind for ConfigWorkflow {
     }
 
     fn is_terminal_status(&self, status: &StatusId) -> bool {
-        self.terminal_statuses
-            .iter()
-            .any(|t| t.as_str() == status.as_str())
+        self.terminal_statuses.iter().any(|t| t.as_str() == status.as_str())
     }
 
     fn parse_phase(&self, text: &str) -> Option<Self::Phase> {
@@ -338,11 +321,7 @@ impl WorkflowKind for ConfigWorkflow {
     }
 
     fn known_statuses(&self) -> Vec<Cow<'_, str>> {
-        self.spec
-            .known_statuses
-            .iter()
-            .map(|s| Cow::Borrowed(s.as_str()))
-            .collect()
+        self.spec.known_statuses.iter().map(|s| Cow::Borrowed(s.as_str())).collect()
     }
 
     fn min_rationale_chars(&self) -> usize {
@@ -351,10 +330,7 @@ impl WorkflowKind for ConfigWorkflow {
             .unwrap_or(knotch_kernel::rationale::DEFAULT_MIN_RATIONALE_CHARS)
     }
 
-    fn prerequisites_for<'a>(
-        &'a self,
-        gate: &'a Self::Gate,
-    ) -> Cow<'a, [Self::Gate]> {
+    fn prerequisites_for<'a>(&'a self, gate: &'a Self::Gate) -> Cow<'a, [Self::Gate]> {
         self.gate_prereqs
             .get(gate.0.as_str())
             .map(|v| Cow::Borrowed(v.as_slice()))
@@ -372,10 +348,9 @@ impl WorkflowKind for ConfigWorkflow {
         };
         match reason {
             SkipKind::ScopeTooNarrow => meta.accepts_skips.iter().any(|c| c == "scope"),
-            SkipKind::Amnesty { code } | SkipKind::Custom { code } => meta
-                .accepts_skips
-                .iter()
-                .any(|c| c == code.as_str() || c == "*"),
+            SkipKind::Amnesty { code } | SkipKind::Custom { code } => {
+                meta.accepts_skips.iter().any(|c| c == code.as_str() || c == "*")
+            }
             _ => false,
         }
     }
@@ -414,10 +389,7 @@ mod tests {
         let w = ConfigWorkflow::canonical();
         let known = w.known_statuses();
         for t in ["archived", "abandoned", "superseded", "deprecated"] {
-            assert!(
-                known.iter().any(|s| s.as_ref() == t),
-                "missing terminal `{t}`",
-            );
+            assert!(known.iter().any(|s| s.as_ref() == t), "missing terminal `{t}`",);
         }
     }
 
@@ -441,10 +413,7 @@ mod tests {
                 PhaseSpec { id: "a".into(), accepts_skips: vec![] },
                 PhaseSpec { id: "a".into(), accepts_skips: vec![] },
             ],
-            required_phases: ScopedPhaseMap {
-                tiny: vec!["a".into()],
-                standard: vec!["a".into()],
-            },
+            required_phases: ScopedPhaseMap { tiny: vec!["a".into()], standard: vec!["a".into()] },
             gates: vec![],
             terminal_statuses: vec![],
             known_statuses: vec![],
@@ -460,14 +429,8 @@ mod tests {
             name: "ghost".into(),
             schema_version: 1,
             phases: vec![PhaseSpec { id: "a".into(), accepts_skips: vec![] }],
-            required_phases: ScopedPhaseMap {
-                tiny: vec!["a".into()],
-                standard: vec!["a".into()],
-            },
-            gates: vec![GateSpec {
-                id: "g1".into(),
-                prerequisites: vec!["g0".into()],
-            }],
+            required_phases: ScopedPhaseMap { tiny: vec!["a".into()], standard: vec!["a".into()] },
+            gates: vec![GateSpec { id: "g1".into(), prerequisites: vec!["g0".into()] }],
             terminal_statuses: vec![],
             known_statuses: vec![],
             min_rationale_chars: None,
@@ -482,10 +445,7 @@ mod tests {
             name: "empty".into(),
             schema_version: 1,
             phases: vec![PhaseSpec { id: "a".into(), accepts_skips: vec![] }],
-            required_phases: ScopedPhaseMap {
-                tiny: vec![],
-                standard: vec![],
-            },
+            required_phases: ScopedPhaseMap { tiny: vec![], standard: vec![] },
             gates: vec![],
             terminal_statuses: vec![],
             known_statuses: vec![],

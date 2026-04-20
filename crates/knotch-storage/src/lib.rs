@@ -22,17 +22,17 @@ pub mod fs_storage;
 mod error;
 mod load_report;
 
+use std::future::Future;
+
+use futures::Stream;
+use knotch_kernel::UnitId;
+
 pub use self::{
     error::StorageError,
     file_repository::FileRepository,
     fs_storage::FileSystemStorage,
     load_report::{CorruptionSpan, LoadReport},
 };
-
-use std::future::Future;
-
-use futures::Stream;
-use knotch_kernel::UnitId;
 
 /// Port for event-log persistence.
 ///
@@ -92,9 +92,7 @@ pub trait Storage: Send + Sync + 'static {
     fn read_cache(
         &self,
         unit: &UnitId,
-    ) -> impl Future<
-        Output = Result<serde_json::Map<String, serde_json::Value>, StorageError>,
-    > + Send;
+    ) -> impl Future<Output = Result<serde_json::Map<String, serde_json::Value>, StorageError>> + Send;
 
     /// Write the resume-cache JSON for a unit atomically.
     ///

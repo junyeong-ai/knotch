@@ -15,21 +15,32 @@ use knotch_storage::FileRepository;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-enum Phase { Only }
+enum Phase {
+    Only,
+}
 
 impl PhaseKind for Phase {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("only") }
-    fn is_skippable(&self, _: &SkipKind) -> bool { false }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("only")
+    }
+    fn is_skippable(&self, _: &SkipKind) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(rename_all = "snake_case")]
-enum Milestone { Alpha, Beta }
+enum Milestone {
+    Alpha,
+    Beta,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 enum Gate {}
 impl knotch_kernel::GateKind for Gate {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("none") }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("none")
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,9 +52,15 @@ impl WorkflowKind for Wf {
     type Milestone = Milestone;
     type Gate = Gate;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("filerepo-test") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("filerepo-test")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
 }
 
 fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
@@ -74,10 +91,7 @@ async fn append_then_load_round_trips() {
             status: knotch_kernel::CommitStatus::Verified,
         }),
     ];
-    let report = repo
-        .append(&unit, proposals, AppendMode::BestEffort)
-        .await
-        .expect("append");
+    let report = repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("append");
     assert_eq!(report.accepted.len(), 2);
     assert!(report.rejected.is_empty());
 
@@ -120,13 +134,9 @@ async fn duplicate_proposals_are_rejected() {
         commit_kind: CommitKind::Fix,
         status: knotch_kernel::CommitStatus::Verified,
     };
-    repo.append(&unit, vec![proposal(body.clone())], AppendMode::BestEffort)
-        .await
-        .expect("first");
-    let second = repo
-        .append(&unit, vec![proposal(body)], AppendMode::BestEffort)
-        .await
-        .expect("second");
+    repo.append(&unit, vec![proposal(body.clone())], AppendMode::BestEffort).await.expect("first");
+    let second =
+        repo.append(&unit, vec![proposal(body)], AppendMode::BestEffort).await.expect("second");
     assert!(second.accepted.is_empty());
     assert_eq!(second.rejected.len(), 1);
     assert_eq!(second.rejected[0].reason.as_str(), "duplicate");
@@ -167,9 +177,15 @@ impl WorkflowKind for WfSaltChanged {
     type Milestone = Milestone;
     type Gate = Gate;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("filerepo-test") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("filerepo-test")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
     fn fingerprint_salt(&self) -> std::borrow::Cow<'_, [u8]> {
         std::borrow::Cow::Borrowed(b"different-salt")
     }
@@ -199,19 +215,14 @@ async fn load_rejects_header_with_mismatched_salt() {
     original
         .append(
             &unit,
-            vec![proposal_for::<Wf>(EventBody::UnitCreated {
-                scope: Scope::Standard,
-            })],
+            vec![proposal_for::<Wf>(EventBody::UnitCreated { scope: Scope::Standard })],
             AppendMode::BestEffort,
         )
         .await
         .expect("seed with original salt");
 
     let shifted = FileRepository::<WfSaltChanged>::new(dir.path(), WfSaltChanged);
-    let err = shifted
-        .load(&unit)
-        .await
-        .expect_err("load must refuse mismatched salt");
+    let err = shifted.load(&unit).await.expect_err("load must refuse mismatched salt");
     assert!(
         matches!(err, knotch_kernel::RepositoryError::SaltMismatch { .. }),
         "expected SaltMismatch, got {err:?}",
@@ -226,9 +237,7 @@ async fn append_rejects_header_with_mismatched_salt() {
     original
         .append(
             &unit,
-            vec![proposal_for::<Wf>(EventBody::UnitCreated {
-                scope: Scope::Standard,
-            })],
+            vec![proposal_for::<Wf>(EventBody::UnitCreated { scope: Scope::Standard })],
             AppendMode::BestEffort,
         )
         .await
@@ -238,9 +247,7 @@ async fn append_rejects_header_with_mismatched_salt() {
     let err = shifted
         .append(
             &unit,
-            vec![proposal_for::<WfSaltChanged>(EventBody::UnitCreated {
-                scope: Scope::Standard,
-            })],
+            vec![proposal_for::<WfSaltChanged>(EventBody::UnitCreated { scope: Scope::Standard })],
             AppendMode::BestEffort,
         )
         .await
@@ -262,9 +269,7 @@ async fn load_until_drops_events_after_cutoff() {
     let unit = UnitId::new("timewalk");
     repo.append(
         &unit,
-        vec![proposal(EventBody::UnitCreated {
-            scope: Scope::Standard,
-        })],
+        vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
         AppendMode::BestEffort,
     )
     .await
@@ -273,9 +278,7 @@ async fn load_until_drops_events_after_cutoff() {
     let first_at = full.events()[0].at;
 
     // Cutoff one hour BEFORE the first event → empty log.
-    let before = first_at
-        .checked_sub(SignedDuration::from_hours(1))
-        .expect("sub");
+    let before = first_at.checked_sub(SignedDuration::from_hours(1)).expect("sub");
     let past = repo.load_until(&unit, before).await.expect("load_until");
     assert!(past.events().is_empty());
 

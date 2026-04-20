@@ -94,18 +94,19 @@ pub(crate) async fn run(config: &Config, out: OutputMode, _args: Args) -> anyhow
     }
 
     if has_fail {
-        anyhow::bail!("doctor found {} failure(s)", checks.iter().filter(|c| c.status == Status::Fail).count());
+        anyhow::bail!(
+            "doctor found {} failure(s)",
+            checks.iter().filter(|c| c.status == Status::Fail).count()
+        );
     }
     Ok(())
 }
 
 async fn check_directory(name: &'static str, path: &Path) -> Check {
     match tokio::fs::metadata(path).await {
-        Ok(meta) if meta.is_dir() => Check {
-            name,
-            status: Status::Ok,
-            detail: format!("{} (dir)", path.display()),
-        },
+        Ok(meta) if meta.is_dir() => {
+            Check { name, status: Status::Ok, detail: format!("{} (dir)", path.display()) }
+        }
         Ok(_) => Check {
             name,
             status: Status::Fail,
@@ -116,11 +117,9 @@ async fn check_directory(name: &'static str, path: &Path) -> Check {
             status: Status::Warn,
             detail: format!("{} does not exist (run `knotch init`)", path.display()),
         },
-        Err(err) => Check {
-            name,
-            status: Status::Fail,
-            detail: format!("{}: {err}", path.display()),
-        },
+        Err(err) => {
+            Check { name, status: Status::Fail, detail: format!("{}: {err}", path.display()) }
+        }
     }
 }
 
@@ -141,11 +140,9 @@ fn check_workflow(config: &Config) -> Check {
                 ),
             }
         }
-        Err(err) => Check {
-            name: "workflow",
-            status: Status::Fail,
-            detail: format!("load failed: {err}"),
-        },
+        Err(err) => {
+            Check { name: "workflow", status: Status::Fail, detail: format!("load failed: {err}") }
+        }
     }
 }
 
@@ -158,11 +155,8 @@ fn check_observers(config: &Config) -> Check {
         },
         Ok(ms) => {
             let names: Vec<String> = ms.iter().map(|m| m.name.to_string()).collect();
-            let missing: Vec<&str> = ms
-                .iter()
-                .filter(|m| !m.binary.exists())
-                .map(|m| m.name.as_str())
-                .collect();
+            let missing: Vec<&str> =
+                ms.iter().filter(|m| !m.binary.exists()).map(|m| m.name.as_str()).collect();
             if missing.is_empty() {
                 Check {
                     name: "observers",
@@ -276,15 +270,11 @@ async fn check_gitignore(root: &Path) -> Check {
     let path = root.join(".gitignore");
     match tokio::fs::read_to_string(&path).await {
         Ok(body) => {
-            let ignored = body.lines().any(|l| {
-                matches!(l.trim(), ".knotch" | ".knotch/" | "/.knotch" | "/.knotch/")
-            });
+            let ignored = body
+                .lines()
+                .any(|l| matches!(l.trim(), ".knotch" | ".knotch/" | "/.knotch" | "/.knotch/"));
             if ignored {
-                Check {
-                    name: ".gitignore",
-                    status: Status::Ok,
-                    detail: "contains .knotch/".into(),
-                }
+                Check { name: ".gitignore", status: Status::Ok, detail: "contains .knotch/".into() }
             } else {
                 Check {
                     name: ".gitignore",
@@ -306,11 +296,7 @@ async fn check_gitignore(root: &Path) -> Check {
 async fn check_queue_stale(root: &Path) -> Check {
     let queue = root.join(".knotch").join("queue");
     let Ok(mut entries) = tokio::fs::read_dir(&queue).await else {
-        return Check {
-            name: "queue",
-            status: Status::Ok,
-            detail: "empty".into(),
-        };
+        return Check { name: "queue", status: Status::Ok, detail: "empty".into() };
     };
     let threshold = std::time::SystemTime::now()
         .checked_sub(std::time::Duration::from_secs(24 * 60 * 60))
@@ -331,11 +317,7 @@ async fn check_queue_stale(root: &Path) -> Check {
         }
     }
     if total == 0 {
-        return Check {
-            name: "queue",
-            status: Status::Ok,
-            detail: "empty".into(),
-        };
+        return Check { name: "queue", status: Status::Ok, detail: "empty".into() };
     }
     if stale > 0 {
         return Check {

@@ -22,10 +22,7 @@ pub(crate) async fn run(_config: &Config, input: HookInput) -> anyhow::Result<Ho
 
     let root = project_root(&input.cwd);
     // Record only inside a knotch project; otherwise silent no-op.
-    if matches!(
-        resolve_active_for_hook(&root, input.session_id.as_str())?,
-        ActiveUnit::NoProject
-    ) {
+    if matches!(resolve_active_for_hook(&root, input.session_id.as_str())?, ActiveUnit::NoProject) {
         return Ok(HookOutput::Continue);
     }
 

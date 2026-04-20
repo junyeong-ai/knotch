@@ -3,14 +3,13 @@
 //!
 //! The preset ships:
 //!
-//! - [`Vibe`] — the `WorkflowKind` impl plus milestone/gate
-//!   shapes. Milestones are free-form ids so agents can coin names.
-//! - [`Session`] — a `Causation`-factory that tags every event with
-//!   agent/model/session metadata, making cost and attribution
-//!   first-class.
+//! - [`Vibe`] — the `WorkflowKind` impl plus milestone/gate shapes. Milestones are
+//!   free-form ids so agents can coin names.
+//! - [`Session`] — a `Causation`-factory that tags every event with agent/model/session
+//!   metadata, making cost and attribution first-class.
 //! - [`total_usd`] / [`total_tokens`] — roll-ups over an effective log.
-//! - [`summary_for_llm`] — LLM-friendly natural-language summary
-//!   budget-capped to a target token count (approximated by chars).
+//! - [`summary_for_llm`] — LLM-friendly natural-language summary budget-capped to a
+//!   target token count (approximated by chars).
 //! - [`build_repository`] — one-liner file-backed repo.
 
 use std::{borrow::Cow, path::PathBuf};
@@ -30,8 +29,7 @@ use serde::{Deserialize, Serialize};
 
 /// Vibe-coding lifecycle phases.
 #[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash,
-    Serialize, Deserialize, PhaseKind,
+    Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize, PhaseKind,
 )]
 #[serde(rename_all = "snake_case")]
 pub enum VibePhase {
@@ -46,17 +44,12 @@ pub enum VibePhase {
 }
 
 /// Milestone id — free-form short name coined per unit.
-#[derive(
-    Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(transparent)]
 pub struct TaskId(pub CompactString);
 
-
 /// Gates at which the agent hands control back to the human.
-#[derive(
-    Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, GateKind,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, GateKind)]
 #[serde(rename_all = "snake_case")]
 pub enum VibeGate {
     /// Intent is clear enough to start exploring.
@@ -69,21 +62,11 @@ pub enum VibeGate {
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Vibe;
 
-const PHASES: [VibePhase; 4] = [
-    VibePhase::Intent,
-    VibePhase::Explore,
-    VibePhase::Implement,
-    VibePhase::Verify,
-];
+const PHASES: [VibePhase; 4] =
+    [VibePhase::Intent, VibePhase::Explore, VibePhase::Implement, VibePhase::Verify];
 
-const VIBE_STATUSES: &[&str] = &[
-    "in_progress",
-    "in_review",
-    "shipped",
-    "archived",
-    "abandoned",
-    "handed_off",
-];
+const VIBE_STATUSES: &[&str] =
+    &["in_progress", "in_review", "shipped", "archived", "abandoned", "handed_off"];
 
 impl WorkflowKind for Vibe {
     type Phase = VibePhase;
@@ -91,8 +74,12 @@ impl WorkflowKind for Vibe {
     type Gate = VibeGate;
     type Extension = ();
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("vibe") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("vibe")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, _: &Scope) -> Cow<'_, [Self::Phase]> {
         Cow::Borrowed(&PHASES)
@@ -246,12 +233,7 @@ pub fn summary_for_llm(log: &Log<Vibe>, budget: SummaryBudget) -> LlmSummary {
     body.push_str("\n## recent events\n");
     let effective = effective_events(log);
     for evt in effective.iter().rev() {
-        let line = format!(
-            "- {} · {} · {}\n",
-            evt.at,
-            event_tag(&evt.body),
-            short_detail(evt),
-        );
+        let line = format!("- {} · {} · {}\n", evt.at, event_tag(&evt.body), short_detail(evt),);
         if body.len() + line.len() > max_chars {
             body.push_str("- …\n");
             break;
@@ -303,8 +285,9 @@ pub fn _keepalive(_: Timestamp) {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use knotch_kernel::{UnitId, event::CommitRef};
+
+    use super::*;
 
     #[test]
     fn session_emits_agent_principal() {

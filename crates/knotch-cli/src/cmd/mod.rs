@@ -32,9 +32,7 @@ impl OutputMode {
 
 /// Read all non-empty lines of a knotch JSONL log, tolerating a
 /// missing file (returns an empty vec).
-pub(crate) async fn read_log_lines(
-    path: &std::path::Path,
-) -> anyhow::Result<Vec<String>> {
+pub(crate) async fn read_log_lines(path: &std::path::Path) -> anyhow::Result<Vec<String>> {
     match tokio::fs::read_to_string(path).await {
         Ok(body) => Ok(body
             .lines()
@@ -43,9 +41,8 @@ pub(crate) async fn read_log_lines(
             .map(ToOwned::to_owned)
             .collect()),
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(Vec::new()),
-        Err(err) => Err(anyhow::Error::new(err).context(format!(
-            "failed to read {}",
-            path.display()
-        ))),
+        Err(err) => {
+            Err(anyhow::Error::new(err).context(format!("failed to read {}", path.display())))
+        }
     }
 }

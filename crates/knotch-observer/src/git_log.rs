@@ -22,7 +22,7 @@ use knotch_kernel::{
 };
 use knotch_vcs::{CommitFilter, Vcs, parse::parse_commit_message};
 
-use crate::{Observer, ObserveContext, ObserverError};
+use crate::{ObserveContext, Observer, ObserverError};
 
 /// Function that converts a parsed commit to a workflow milestone.
 /// Returns `None` if the commit does not ship any milestone known
@@ -66,11 +66,8 @@ where
         &'ctx self,
         ctx: &'ctx ObserveContext<'ctx, W>,
     ) -> Result<Vec<Proposal<W>>, ObserverError> {
-        let since_raw: Option<String> = ctx
-            .cache
-            .get::<String>("git.last_seen_head_sha")
-            .ok()
-            .flatten();
+        let since_raw: Option<String> =
+            ctx.cache.get::<String>("git.last_seen_head_sha").ok().flatten();
         let since = since_raw.as_deref().map(CommitRef::new);
 
         let commits = self
@@ -114,11 +111,7 @@ where
                     let Some(milestone) = (self.resolver)(&parsed) else {
                         continue;
                     };
-                    EventBody::MilestoneReverted {
-                        milestone,
-                        original,
-                        revert: commit.sha.clone(),
-                    }
+                    EventBody::MilestoneReverted { milestone, original, revert: commit.sha.clone() }
                 }
                 _ => continue,
             };

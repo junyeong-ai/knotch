@@ -9,23 +9,26 @@ use knotch_kernel::{
     Causation, CommitStatus, Decision, EventId, Log, PhaseKind, Proposal, Rationale,
     RepositoryError, Scope, StatusId, UnitId, WorkflowKind,
     causation::{Principal, Source, Trigger},
-    event::{
-        ArtifactList, CommitKind, CommitRef, EventBody, FailureKind, RetryAnchor,
-        SkipKind,
-    },
-    precondition::{AppendContext, ArtifactCheck, VerifyCommit},
     error::PreconditionError,
+    event::{ArtifactList, CommitKind, CommitRef, EventBody, FailureKind, RetryAnchor, SkipKind},
+    precondition::{AppendContext, ArtifactCheck, VerifyCommit},
 };
 use serde::{Deserialize, Serialize};
 
 // --- Workflow fixture -------------------------------------------------
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-enum P { One, Two }
+enum P {
+    One,
+    Two,
+}
 
 impl PhaseKind for P {
     fn id(&self) -> Cow<'_, str> {
-        Cow::Borrowed(match self { P::One => "one", P::Two => "two" })
+        Cow::Borrowed(match self {
+            P::One => "one",
+            P::Two => "two",
+        })
     }
     fn is_skippable(&self, r: &SkipKind) -> bool {
         matches!(r, SkipKind::ScopeTooNarrow) && matches!(self, P::Two)
@@ -35,13 +38,17 @@ impl PhaseKind for P {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 struct M(String);
 impl knotch_kernel::MilestoneKind for M {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed(self.0.as_str()) }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed(self.0.as_str())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 struct G(String);
 impl knotch_kernel::GateKind for G {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed(self.0.as_str()) }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed(self.0.as_str())
+    }
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -52,9 +59,15 @@ impl WorkflowKind for Wf {
     type Milestone = M;
     type Gate = G;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("precondition-fixture") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("precondition-fixture")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
 }
 
 // --- Helpers ----------------------------------------------------------
@@ -115,10 +128,8 @@ fn phase_completed_rejects_when_phase_already_completed() {
         EventBody::UnitCreated { scope: Scope::Standard },
         EventBody::PhaseCompleted { phase: P::One, artifacts: ArtifactList::default() },
     ]);
-    let body: EventBody<Wf> = EventBody::PhaseCompleted {
-        phase: P::One,
-        artifacts: ArtifactList::default(),
-    };
+    let body: EventBody<Wf> =
+        EventBody::PhaseCompleted { phase: P::One, artifacts: ArtifactList::default() };
     assert_eq!(
         body.check_precondition(&ctx(&l)),
         Err(PreconditionError::PhaseAlreadyCompleted("one".into())),
@@ -129,7 +140,9 @@ fn phase_completed_rejects_when_phase_already_completed() {
 fn phase_completed_requires_artifacts_when_fs_provided() {
     struct MissingFs;
     impl ArtifactCheck for MissingFs {
-        fn exists(&self, _: &Path) -> bool { false }
+        fn exists(&self, _: &Path) -> bool {
+            false
+        }
     }
     let _unit = UnitId::new("u");
     let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
@@ -149,18 +162,14 @@ fn phase_completed_requires_artifacts_when_fs_provided() {
 fn phase_skipped_respects_is_skippable() {
     let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
     // P::One refuses skips.
-    let body: EventBody<Wf> = EventBody::PhaseSkipped {
-        phase: P::One,
-        reason: SkipKind::ScopeTooNarrow,
-    };
+    let body: EventBody<Wf> =
+        EventBody::PhaseSkipped { phase: P::One, reason: SkipKind::ScopeTooNarrow };
     let err = body.check_precondition(&ctx(&l)).unwrap_err();
     assert!(matches!(err, PreconditionError::SkipRejected { .. }));
 
     // P::Two accepts ScopeTooNarrow.
-    let body: EventBody<Wf> = EventBody::PhaseSkipped {
-        phase: P::Two,
-        reason: SkipKind::ScopeTooNarrow,
-    };
+    let body: EventBody<Wf> =
+        EventBody::PhaseSkipped { phase: P::Two, reason: SkipKind::ScopeTooNarrow };
     assert!(body.check_precondition(&ctx(&l)).is_ok());
 }
 
@@ -227,20 +236,16 @@ fn milestone_verified_requires_pending_ship() {
             status: CommitStatus::Pending,
         },
     ]);
-    let body: EventBody<Wf> = EventBody::MilestoneVerified {
-        milestone: M("x".into()),
-        commit: CommitRef::new("abc"),
-    };
+    let body: EventBody<Wf> =
+        EventBody::MilestoneVerified { milestone: M("x".into()), commit: CommitRef::new("abc") };
     assert!(body.check_precondition(&ctx(&l)).is_ok());
 }
 
 #[test]
 fn milestone_verified_rejects_when_no_pending() {
     let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
-    let body: EventBody<Wf> = EventBody::MilestoneVerified {
-        milestone: M("x".into()),
-        commit: CommitRef::new("abc"),
-    };
+    let body: EventBody<Wf> =
+        EventBody::MilestoneVerified { milestone: M("x".into()), commit: CommitRef::new("abc") };
     let err = body.check_precondition(&ctx(&l)).unwrap_err();
     assert!(matches!(err, PreconditionError::NoPendingShip { .. }));
 }
@@ -298,9 +303,15 @@ impl WorkflowKind for OrderedWf {
     type Milestone = M;
     type Gate = OG;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("ordered-gate-fixture") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&OPHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("ordered-gate-fixture")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&OPHASES)
+    }
 }
 
 fn olog(events: Vec<EventBody<OrderedWf>>) -> Log<OrderedWf> {
@@ -418,9 +429,15 @@ impl WorkflowKind for TerminalWf {
     type Milestone = M;
     type Gate = G;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("terminal-fixture") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&ALL) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("terminal-fixture")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&ALL)
+    }
     fn is_terminal_status(&self, status: &StatusId) -> bool {
         status.as_str() == "archived"
     }
@@ -495,10 +512,7 @@ fn status_transitioned_forced_requires_rationale() {
         forced: true,
         rationale: None,
     };
-    assert_eq!(
-        body.check_precondition(&ctx(&l)),
-        Err(PreconditionError::ForcedWithoutRationale),
-    );
+    assert_eq!(body.check_precondition(&ctx(&l)), Err(PreconditionError::ForcedWithoutRationale),);
 }
 
 // --- ReconcileFailed / Recovered --------------------------------------
@@ -578,10 +592,7 @@ fn event_superseded_rejects_double_supersede_of_same_target() {
         at: Timestamp::now(),
         causation: causation(),
         extension: (),
-        body: EventBody::PhaseCompleted {
-            phase: P::One,
-            artifacts: ArtifactList::default(),
-        },
+        body: EventBody::PhaseCompleted { phase: P::One, artifacts: ArtifactList::default() },
         supersedes: None,
     };
     let target = phase.id;
@@ -599,10 +610,8 @@ fn event_superseded_rejects_double_supersede_of_same_target() {
     let l = Log::<Wf>::from_events(unit.clone(), vec![base, phase, first_supersede]);
 
     // Second attempt to supersede the same target must be rejected.
-    let body: EventBody<Wf> = EventBody::EventSuperseded {
-        target,
-        reason: Rationale::new("second rollback").unwrap(),
-    };
+    let body: EventBody<Wf> =
+        EventBody::EventSuperseded { target, reason: Rationale::new("second rollback").unwrap() };
     let err = body.check_precondition(&ctx(&l)).unwrap_err();
     assert!(
         matches!(err, PreconditionError::AlreadySuperseded(_)),
@@ -620,13 +629,21 @@ async fn repository_rejects_already_created() {
     let repo = knotch_testing::InMemoryRepository::<Wf>::new(Wf);
     let unit = UnitId::new("u");
     use knotch_kernel::{AppendMode, Repository};
-    repo.append(&unit, vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
-                AppendMode::BestEffort).await.unwrap();
-    let report = repo.append(
+    repo.append(
         &unit,
         vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
         AppendMode::BestEffort,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
+    let report = repo
+        .append(
+            &unit,
+            vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
+            AppendMode::BestEffort,
+        )
+        .await
+        .unwrap();
     // Duplicate dedup wins over precondition — idempotent replay is silent.
     assert_eq!(report.rejected.len(), 1);
     assert!(report.accepted.is_empty());
@@ -634,8 +651,7 @@ async fn repository_rejects_already_created() {
     // But a fresh-fingerprint UnitCreated with different scope still
     // surfaces AlreadyCreated.
     let body = EventBody::UnitCreated { scope: Scope::Tiny };
-    let report = repo.append(&unit, vec![proposal(body)], AppendMode::BestEffort)
-        .await.unwrap();
+    let report = repo.append(&unit, vec![proposal(body)], AppendMode::BestEffort).await.unwrap();
     assert_eq!(report.rejected.len(), 1);
     assert!(report.rejected[0].reason.contains("already"));
 }
@@ -652,26 +668,37 @@ async fn repository_all_or_nothing_propagates_precondition_error() {
         &unit,
         vec![
             proposal(EventBody::UnitCreated { scope: Scope::Standard }),
-            proposal(EventBody::PhaseCompleted { phase: P::One, artifacts: ArtifactList::default() }),
+            proposal(EventBody::PhaseCompleted {
+                phase: P::One,
+                artifacts: ArtifactList::default(),
+            }),
         ],
         AppendMode::BestEffort,
-    ).await.unwrap();
+    )
+    .await
+    .unwrap();
 
-    let err = repo.append(
-        &unit,
-        vec![proposal(EventBody::PhaseCompleted {
-            phase: P::One,
-            artifacts: {
-                // Fingerprint must differ — use a non-empty list so the
-                // precondition path runs instead of dedup.
-                let mut a = ArtifactList::default();
-                a.0.push("x.md".into());
-                a
-            },
-        })],
-        AppendMode::AllOrNothing,
-    ).await.unwrap_err();
-    assert!(matches!(err, RepositoryError::Precondition(PreconditionError::PhaseAlreadyCompleted(_))));
+    let err = repo
+        .append(
+            &unit,
+            vec![proposal(EventBody::PhaseCompleted {
+                phase: P::One,
+                artifacts: {
+                    // Fingerprint must differ — use a non-empty list so the
+                    // precondition path runs instead of dedup.
+                    let mut a = ArtifactList::default();
+                    a.0.push("x.md".into());
+                    a
+                },
+            })],
+            AppendMode::AllOrNothing,
+        )
+        .await
+        .unwrap_err();
+    assert!(matches!(
+        err,
+        RepositoryError::Precondition(PreconditionError::PhaseAlreadyCompleted(_))
+    ));
 }
 
 // --- P0-1 terminal-unit append refusal ---------------------------------
@@ -690,9 +717,15 @@ fn terminal_unit_refuses_non_supersede_appends() {
         type Milestone = M;
         type Gate = G;
         type Extension = ();
-        fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("terminal-fixture") }
-        fn schema_version(&self) -> u32 { 1 }
-        fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&[]) }
+        fn name(&self) -> std::borrow::Cow<'_, str> {
+            std::borrow::Cow::Borrowed("terminal-fixture")
+        }
+        fn schema_version(&self) -> u32 {
+            1
+        }
+        fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+            std::borrow::Cow::Borrowed(&[])
+        }
         fn is_terminal_status(&self, status: &StatusId) -> bool {
             status.as_str() == "archived"
         }
@@ -729,12 +762,10 @@ fn terminal_unit_refuses_non_supersede_appends() {
     let ctx = AppendContext::new(&tw, &log);
 
     // A plain PhaseCompleted must be refused.
-    let err = EventBody::<Terminal>::PhaseCompleted {
-        phase: P::One,
-        artifacts: ArtifactList::default(),
-    }
-    .check_precondition(&ctx)
-    .unwrap_err();
+    let err =
+        EventBody::<Terminal>::PhaseCompleted { phase: P::One, artifacts: ArtifactList::default() }
+            .check_precondition(&ctx)
+            .unwrap_err();
     assert!(
         matches!(err, PreconditionError::AppendAgainstTerminalUnit { .. }),
         "expected AppendAgainstTerminalUnit, got {err:?}",

@@ -8,7 +8,10 @@
 pub mod attrs;
 pub mod spans;
 
-pub use self::{attrs::Attrs, spans::emit_append, spans::emit_reconcile};
+pub use self::{
+    attrs::Attrs,
+    spans::{emit_append, emit_reconcile},
+};
 
 /// Convenience facade: install the standard tracing subscriber with
 /// knotch's attribute formatter. Returns the subscriber's guard; drop
@@ -17,8 +20,7 @@ pub use self::{attrs::Attrs, spans::emit_append, spans::emit_reconcile};
 /// # Errors
 /// Returns the subscriber's `TryInitError` when a global subscriber
 /// is already installed.
-pub fn install_default()
--> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+pub fn install_default() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     use tracing_subscriber::{EnvFilter, fmt, prelude::*};
     tracing_subscriber::registry()
         .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))

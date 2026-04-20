@@ -7,8 +7,8 @@
 //! phases in the development sense — so `knotch-adr` ships its own
 //! `WorkflowKind` impl that composes:
 //!
-//! - A [`FrontmatterSchema`] requiring `id`, `title`, `status`,
-//!   `created` in the ADR markdown file.
+//! - A [`FrontmatterSchema`] requiring `id`, `title`, `status`, `created` in the ADR
+//!   markdown file.
 //! - A [`LifecycleFsm`] encoding the four-state transition graph.
 //!
 //! The crate intentionally refuses to pick a numbering scheme
@@ -85,8 +85,12 @@ impl WorkflowKind for Adr {
     type Gate = AdrGate;
     type Extension = ();
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("adr") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("adr")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
         std::borrow::Cow::Borrowed(&PHASES)
@@ -131,10 +135,7 @@ pub fn frontmatter_schema() -> FrontmatterSchema {
         .field(FieldSchema::required(
             "status",
             FieldType::Enum(
-                Adr.known_statuses()
-                    .iter()
-                    .map(|s| CompactString::from(s.as_ref()))
-                    .collect(),
+                Adr.known_statuses().iter().map(|s| CompactString::from(s.as_ref())).collect(),
             ),
         ))
         .field(FieldSchema::required("created", FieldType::String))
@@ -146,9 +147,7 @@ pub fn frontmatter_schema() -> FrontmatterSchema {
 /// same codebase.
 #[must_use]
 pub fn lifecycle_fsm() -> LifecycleFsm {
-    LifecycleFsm::builder()
-        .terminal("superseded")
-        .terminal("deprecated")
+    LifecycleFsm::builder().terminal("superseded").terminal("deprecated")
 }
 
 /// The canonical template an adopter can use for a new ADR.
@@ -179,8 +178,9 @@ Proposed\n\
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use knotch_kernel::PhaseKind as _;
+
+    use super::*;
 
     #[test]
     fn schema_required_fields_include_status_enum() {

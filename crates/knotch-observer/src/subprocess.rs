@@ -29,12 +29,11 @@
 //!
 //! **Exit codes:**
 //! - `0` — success; stdout holds the proposals line.
-//! - `1` — transient failure (reconciler records as `ObserverError::Backend`
-//!   and retries on next reconcile).
-//! - `2` — permanent failure (same classification — the subprocess
-//!   contract doesn't need two retryable levels; reconciler semantics
-//!   already treat every observer error as "try again next cycle" for
-//!   non-determinism reasons).
+//! - `1` — transient failure (reconciler records as `ObserverError::Backend` and retries
+//!   on next reconcile).
+//! - `2` — permanent failure (same classification — the subprocess contract doesn't need
+//!   two retryable levels; reconciler semantics already treat every observer error as
+//!   "try again next cycle" for non-determinism reasons).
 //! - other — treated as crash; stderr appended to the error message.
 //!
 //! ## Manifest
@@ -51,11 +50,7 @@
 //! timeout_ms = 10_000
 //! ```
 
-use std::{
-    path::PathBuf,
-    process::Stdio,
-    time::Duration,
-};
+use std::{path::PathBuf, process::Stdio, time::Duration};
 
 use compact_str::CompactString;
 use knotch_kernel::{Event, Proposal, WorkflowKind};
@@ -65,7 +60,7 @@ use tokio::{
     process::Command,
 };
 
-use crate::{context::ObserveContext, error::ObserverError, Observer};
+use crate::{Observer, context::ObserveContext, error::ObserverError};
 
 /// Declarative observer manifest. Loaded from the `[[observers]]`
 /// array in `knotch.toml`.
@@ -143,10 +138,7 @@ impl<W: WorkflowKind> SubprocessObserver<W> {
                 path: manifest.binary.clone(),
             });
         }
-        Ok(Self {
-            manifest,
-            _phantom: std::marker::PhantomData,
-        })
+        Ok(Self { manifest, _phantom: std::marker::PhantomData })
     }
 
     /// Borrow the manifest — exposed for `knotch doctor` and CLI
@@ -210,17 +202,9 @@ where
         let events: Vec<&Event<W>> = if self.manifest.subscribes.is_empty() {
             ctx.log.events().iter().collect()
         } else {
-            let want: std::collections::HashSet<&str> = self
-                .manifest
-                .subscribes
-                .iter()
-                .map(CompactString::as_str)
-                .collect();
-            ctx.log
-                .events()
-                .iter()
-                .filter(|e| want.contains(e.body.kind_tag()))
-                .collect()
+            let want: std::collections::HashSet<&str> =
+                self.manifest.subscribes.iter().map(CompactString::as_str).collect();
+            ctx.log.events().iter().filter(|e| want.contains(e.body.kind_tag())).collect()
         };
 
         let req = Request::<W> {
@@ -228,34 +212,24 @@ where
             head: ctx.head,
             taken_at: ctx.taken_at.to_string(),
             events,
-            budget: BudgetWire {
-                max_proposals: ctx.budget.max_proposals,
-            },
+            budget: BudgetWire { max_proposals: ctx.budget.max_proposals },
         };
 
         let mut cmd = Command::new(&self.manifest.binary);
         cmd.args(&self.manifest.args);
-        cmd.stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .kill_on_drop(true);
+        cmd.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped()).kill_on_drop(true);
 
-        let mut child = cmd
-            .spawn()
-            .map_err(|source| ObserverError::Backend(Box::new(source)))?;
+        let mut child = cmd.spawn().map_err(|source| ObserverError::Backend(Box::new(source)))?;
 
-        let stdin_payload = serde_json::to_vec(&req)
-            .map_err(|source| ObserverError::Backend(Box::new(source)))?;
+        let stdin_payload =
+            serde_json::to_vec(&req).map_err(|source| ObserverError::Backend(Box::new(source)))?;
 
         if let Some(mut stdin) = child.stdin.take() {
             stdin
                 .write_all(&stdin_payload)
                 .await
                 .map_err(|source| ObserverError::Backend(Box::new(source)))?;
-            stdin
-                .shutdown()
-                .await
-                .map_err(|source| ObserverError::Backend(Box::new(source)))?;
+            stdin.shutdown().await.map_err(|source| ObserverError::Backend(Box::new(source)))?;
         }
 
         // Read stdout + stderr in parallel so a chatty stderr
@@ -277,10 +251,8 @@ where
             buf
         });
 
-        let status = child
-            .wait()
-            .await
-            .map_err(|source| ObserverError::Backend(Box::new(source)))?;
+        let status =
+            child.wait().await.map_err(|source| ObserverError::Backend(Box::new(source)))?;
 
         let stdout_bytes = stdout_task.await.unwrap_or_default();
         let stderr_bytes = stderr_task.await.unwrap_or_default();
@@ -290,14 +262,12 @@ where
             let message = format!(
                 "observer `{}` exited {code}: {stderr}",
                 self.manifest.name,
-                code = status
-                    .code()
-                    .map_or_else(|| "signal".to_owned(), |c| c.to_string()),
+                code = status.code().map_or_else(|| "signal".to_owned(), |c| c.to_string()),
                 stderr = stderr_text.trim(),
             );
-            return Err(ObserverError::Backend(
-                Box::<dyn std::error::Error + Send + Sync>::from(message),
-            ));
+            return Err(ObserverError::Backend(Box::<dyn std::error::Error + Send + Sync>::from(
+                message,
+            )));
         }
 
         if stdout_bytes.is_empty() {

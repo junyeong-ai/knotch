@@ -12,16 +12,12 @@ use crate::{error::HookError, output::HookOutput};
 
 /// Inspect the active unit and block the command when:
 ///
-/// 1. the unit's current status is terminal (per
-///    [`WorkflowKind::is_terminal_status`]), or
+/// 1. the unit's current status is terminal (per [`WorkflowKind::is_terminal_status`]),
+///    or
 /// 2. the unit has any shipped milestones not yet reverted.
 ///
 /// Otherwise the command proceeds.
-pub async fn rewrite<W, R>(
-    repo: &R,
-    unit: &UnitId,
-    cmd: &str,
-) -> Result<HookOutput, HookError>
+pub async fn rewrite<W, R>(repo: &R, unit: &UnitId, cmd: &str) -> Result<HookOutput, HookError>
 where
     W: WorkflowKind,
     R: Repository<W>,

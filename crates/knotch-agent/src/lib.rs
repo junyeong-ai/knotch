@@ -9,10 +9,10 @@
 //! Responsibilities:
 //! - parse hook stdin JSON into typed [`HookInput`]
 //! - resolve the active unit from `.knotch/active.toml`
-//! - translate tool calls (git commit, revert, destructive ops) and
-//!   session events into knotch [`Proposal`](knotch_kernel::Proposal)s
-//! - surface decisions as [`HookOutput`] (exit-0 continue, exit-0
-//!   context injection, exit-2 block)
+//! - translate tool calls (git commit, revert, destructive ops) and session events into
+//!   knotch [`Proposal`](knotch_kernel::Proposal)s
+//! - surface decisions as [`HookOutput`] (exit-0 continue, exit-0 context injection,
+//!   exit-2 block)
 //! - queue best-effort failures for the reconciler
 //! - log orphan (pre-initialization) invocations without failing
 //!

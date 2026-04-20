@@ -75,17 +75,12 @@ impl FrontmatterSchema {
     /// Returns `SchemaError::MissingField` for absent required fields;
     /// `SchemaError::WrongType` for type mismatches;
     /// `SchemaError::Unknown` for fields not declared in the schema.
-    pub fn validate(
-        &self,
-        object: &serde_json::Map<String, Value>,
-    ) -> Result<(), SchemaError> {
+    pub fn validate(&self, object: &serde_json::Map<String, Value>) -> Result<(), SchemaError> {
         for schema in self.fields.values() {
             let value = object.get(schema.name.as_str());
             match (value, schema.required) {
                 (None, true) => {
-                    return Err(SchemaError::MissingField {
-                        field: schema.name.clone(),
-                    });
+                    return Err(SchemaError::MissingField { field: schema.name.clone() });
                 }
                 (None, false) => continue,
                 (Some(v), _) => validate_type(schema.name.as_str(), &schema.ty, v)?,
@@ -108,9 +103,7 @@ fn validate_type(name: &str, ty: &FieldType, value: &Value) -> Result<(), Schema
         (FieldType::StringArray, Value::Array(items)) => {
             items.iter().all(|i| matches!(i, Value::String(_)))
         }
-        (FieldType::Enum(allowed), Value::String(s)) => {
-            allowed.iter().any(|opt| opt == s)
-        }
+        (FieldType::Enum(allowed), Value::String(s)) => allowed.iter().any(|opt| opt == s),
         _ => false,
     };
     if ok {
@@ -168,9 +161,7 @@ mod tests {
     #[test]
     fn accepts_valid_object() {
         let obj = json!({ "id": "sp-001", "status": "planning", "tags": ["a", "b"] });
-        spec_schema()
-            .validate(obj.as_object().expect("obj"))
-            .expect("valid");
+        spec_schema().validate(obj.as_object().expect("obj")).expect("valid");
     }
 
     #[test]

@@ -2,15 +2,13 @@
 //!
 //! Four formats via `--format`:
 //!
-//! - `summary` (default) — projection overview (phase, status,
-//!   shipped count, event count).
-//! - `brief` — one-line status (unit, phase, status). Machine-
-//!   friendly default for scripts. Replaces the old `knotch status`
-//!   subcommand.
-//! - `raw` — full JSONL event stream, identical to `knotch log`
-//!   output.
-//! - `json` — structured JSON version of `summary`. Same as
-//!   `--json` global flag applied to the default format.
+//! - `summary` (default) — projection overview (phase, status, shipped count, event
+//!   count).
+//! - `brief` — one-line status (unit, phase, status). Machine- friendly default for
+//!   scripts. Replaces the old `knotch status` subcommand.
+//! - `raw` — full JSONL event stream, identical to `knotch log` output.
+//! - `json` — structured JSON version of `summary`. Same as `--json` global flag applied
+//!   to the default format.
 
 use clap::{Args as ClapArgs, ValueEnum};
 use knotch_kernel::{MilestoneKind as _, PhaseKind, Repository, UnitId, WorkflowKind};
@@ -76,10 +74,7 @@ where
             );
             println!(
                 "current status:     {}",
-                status
-                    .as_ref()
-                    .map(knotch_kernel::StatusId::as_str)
-                    .unwrap_or("(none)")
+                status.as_ref().map(knotch_kernel::StatusId::as_str).unwrap_or("(none)")
             );
             println!("shipped milestones: {}", shipped.len());
             for m in &shipped {
@@ -92,10 +87,8 @@ where
                 .as_ref()
                 .map(|p| PhaseKind::id(p).into_owned())
                 .unwrap_or_else(|| "(none)".to_owned());
-            let status_str = status
-                .as_ref()
-                .map(knotch_kernel::StatusId::as_str)
-                .unwrap_or("(none)");
+            let status_str =
+                status.as_ref().map(knotch_kernel::StatusId::as_str).unwrap_or("(none)");
             println!(
                 "{}\tphase={phase_str}\tstatus={status_str}\tshipped={}\tevents={}",
                 unit.as_str(),

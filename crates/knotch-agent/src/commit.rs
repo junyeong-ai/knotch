@@ -2,14 +2,13 @@
 //!
 //! Three hook entry points:
 //!
-//! - [`check`] — `PreToolUse(git commit *)`. Validates that the
-//!   proposed milestone (if the commit carries a trailer) is not
-//!   already in the unit's shipped set. Emits no events.
-//! - [`verify`] — `PostToolUse(git commit *)`. Appends
-//!   `MilestoneShipped { status: Verified }` when the commit's
-//!   `Knotch-Milestone:` trailer names a milestone.
-//! - [`record_revert`] — `PostToolUse(git revert *)`. Appends
-//!   `MilestoneReverted` tying the revert SHA to the original.
+//! - [`check`] — `PreToolUse(git commit *)`. Validates that the proposed milestone (if
+//!   the commit carries a trailer) is not already in the unit's shipped set. Emits no
+//!   events.
+//! - [`verify`] — `PostToolUse(git commit *)`. Appends `MilestoneShipped { status:
+//!   Verified }` when the commit's `Knotch-Milestone:` trailer names a milestone.
+//! - [`record_revert`] — `PostToolUse(git revert *)`. Appends `MilestoneReverted` tying
+//!   the revert SHA to the original.
 //!
 //! ## Milestone opt-in
 //!
@@ -26,9 +25,8 @@
 //! description.
 
 use knotch_kernel::{
-    AppendMode, Causation, CommitKind, CommitRef, CommitStatus, EventBody, MilestoneKind,
-    Proposal, Repository, RepositoryError, UnitId, WorkflowKind,
-    project::shipped_milestones,
+    AppendMode, Causation, CommitKind, CommitRef, CommitStatus, EventBody, MilestoneKind, Proposal,
+    Repository, RepositoryError, UnitId, WorkflowKind, project::shipped_milestones,
 };
 use serde::Serialize;
 
@@ -140,11 +138,7 @@ where
     let proposal = Proposal {
         causation,
         extension: <W::Extension as Default>::default(),
-        body: EventBody::MilestoneReverted {
-            milestone,
-            original,
-            revert,
-        },
+        body: EventBody::MilestoneReverted { milestone, original, revert },
         supersedes: None,
     };
     repo.append(unit, vec![proposal], AppendMode::BestEffort).await?;
@@ -215,10 +209,10 @@ pub fn extract_milestone_id(commit_message: &str) -> Option<String> {
 /// Reassemble the effective commit message from a `git commit`
 /// command line, handling all the ways Git accepts a message:
 ///
-/// - `-m <msg>` / `--message=<msg>` — repeatable; multiple values
-///   join with a blank-line separator (git convention).
-/// - `-F <path>` / `--file=<path>` — read message body from disk.
-///   `-F -` (stdin) is not supported; callers cannot replay stdin.
+/// - `-m <msg>` / `--message=<msg>` — repeatable; multiple values join with a blank-line
+///   separator (git convention).
+/// - `-F <path>` / `--file=<path>` — read message body from disk. `-F -` (stdin) is not
+///   supported; callers cannot replay stdin.
 ///
 /// Shell quoting / escaping goes through
 /// [`shell_words::split`] so `-m 'It\'s fine'`, `-m "with \"quotes\""`

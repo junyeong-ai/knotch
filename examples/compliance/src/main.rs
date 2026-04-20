@@ -17,9 +17,7 @@ use compact_str::CompactString;
 use knotch_derive::{GateKind, MilestoneKind, PhaseKind};
 use knotch_kernel::{
     AppendMode, Causation, ExtensionKind, Proposal, Rationale, Repository, Scope, StatusId, UnitId,
-    WorkflowKind,
-    event::EventBody,
-    status::Decision,
+    WorkflowKind, event::EventBody, status::Decision,
 };
 use knotch_storage::FileRepository;
 use serde::{Deserialize, Serialize};
@@ -79,18 +77,19 @@ impl WorkflowKind for Compliance {
     type Gate = ComplianceGate;
     type Extension = AuditMeta;
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("compliance") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("compliance")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, _scope: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
         std::borrow::Cow::Borrowed(&PHASES)
     }
 
     fn is_terminal_status(&self, status: &StatusId) -> bool {
-        matches!(
-            status.as_str(),
-            "approved_closed" | "rejected_closed" | "abandoned"
-        )
+        matches!(status.as_str(), "approved_closed" | "rejected_closed" | "abandoned")
     }
 
     fn min_rationale_chars(&self) -> usize {
@@ -161,17 +160,11 @@ async fn main() -> anyhow::Result<()> {
 
     let log = repo.load(&unit).await?;
     println!("change:         {}", unit.as_str());
-    println!(
-        "status:         {:?}",
-        knotch_kernel::project::current_status(&log)
-    );
+    println!("status:         {:?}", knotch_kernel::project::current_status(&log));
     println!("events:         {}", log.events().len());
     // Demonstrate that extension data is readable off the stream.
-    let reviewers: Vec<_> = log
-        .events()
-        .iter()
-        .filter_map(|evt| evt.extension.reviewer.as_ref())
-        .collect();
+    let reviewers: Vec<_> =
+        log.events().iter().filter_map(|evt| evt.extension.reviewer.as_ref()).collect();
     println!("reviewers seen: {:?}", reviewers);
     Ok(())
 }
@@ -191,7 +184,6 @@ where
         body,
         supersedes: None,
     };
-    repo.append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     Ok(())
 }

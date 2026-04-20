@@ -29,17 +29,7 @@ pub mod events;
 
 /// Phases of the canonical knotch workflow, in order.
 #[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Serialize,
-    Deserialize,
-    PhaseKind,
+    Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize, PhaseKind,
 )]
 #[serde(rename_all = "snake_case")]
 pub enum KnotchPhase {
@@ -78,17 +68,10 @@ pub enum KnotchGate {
 
 const KNOTCH_PREREQ_G1: &[KnotchGate] = &[KnotchGate::G0Scope];
 const KNOTCH_PREREQ_G2: &[KnotchGate] = &[KnotchGate::G0Scope, KnotchGate::G1Clarify];
-const KNOTCH_PREREQ_G3: &[KnotchGate] = &[
-    KnotchGate::G0Scope,
-    KnotchGate::G1Clarify,
-    KnotchGate::G2Plan,
-];
-const KNOTCH_PREREQ_G4: &[KnotchGate] = &[
-    KnotchGate::G0Scope,
-    KnotchGate::G1Clarify,
-    KnotchGate::G2Plan,
-    KnotchGate::G3Review,
-];
+const KNOTCH_PREREQ_G3: &[KnotchGate] =
+    &[KnotchGate::G0Scope, KnotchGate::G1Clarify, KnotchGate::G2Plan];
+const KNOTCH_PREREQ_G4: &[KnotchGate] =
+    &[KnotchGate::G0Scope, KnotchGate::G1Clarify, KnotchGate::G2Plan, KnotchGate::G3Review];
 
 impl GateKind for KnotchGate {
     fn id(&self) -> Cow<'_, str> {
@@ -113,16 +96,7 @@ impl GateKind for KnotchGate {
 }
 
 /// Free-form milestone slug coined per unit.
-#[derive(
-    Debug,
-    Clone,
-    PartialEq,
-    Eq,
-    Hash,
-    Serialize,
-    Deserialize,
-    MilestoneKind,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(transparent)]
 pub struct TaskId(pub CompactString);
 
@@ -130,11 +104,7 @@ pub struct TaskId(pub CompactString);
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Knotch;
 
-const PHASES_TINY: [KnotchPhase; 3] = [
-    KnotchPhase::Specify,
-    KnotchPhase::Build,
-    KnotchPhase::Ship,
-];
+const PHASES_TINY: [KnotchPhase; 3] = [KnotchPhase::Specify, KnotchPhase::Build, KnotchPhase::Ship];
 
 const PHASES_STANDARD: [KnotchPhase; 5] = [
     KnotchPhase::Specify,
@@ -161,8 +131,12 @@ impl WorkflowKind for Knotch {
     type Gate = KnotchGate;
     type Extension = ();
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("knotch") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("knotch")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, scope: &Scope) -> Cow<'_, [Self::Phase]> {
         match scope {
@@ -175,10 +149,7 @@ impl WorkflowKind for Knotch {
     /// transitions into these require every required phase to be
     /// resolved first (Phase × Status cross-invariant).
     fn is_terminal_status(&self, status: &StatusId) -> bool {
-        matches!(
-            status.as_str(),
-            "archived" | "abandoned" | "superseded" | "deprecated"
-        )
+        matches!(status.as_str(), "archived" | "abandoned" | "superseded" | "deprecated")
     }
 
     /// Canonical status vocabulary. Non-terminal statuses precede

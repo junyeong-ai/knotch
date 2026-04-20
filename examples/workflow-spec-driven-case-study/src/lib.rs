@@ -23,17 +23,7 @@ use serde::{Deserialize, Serialize};
 
 /// Spec-driven lifecycle phases, declared in canonical order.
 #[derive(
-    Debug,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Serialize,
-    Deserialize,
-    PhaseKind,
+    Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize, PhaseKind,
 )]
 #[serde(rename_all = "snake_case")]
 pub enum SpecPhase {
@@ -50,19 +40,9 @@ pub enum SpecPhase {
 }
 
 /// Story milestone — a single user-visible unit of work.
-#[derive(
-    Debug,
-    Clone,
-    PartialEq,
-    Eq,
-    Hash,
-    Serialize,
-    Deserialize,
-    MilestoneKind,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(transparent)]
 pub struct StoryId(pub compact_str::CompactString);
-
 
 /// G0–G6 gate ladder for spec-driven development checkpoints.
 ///
@@ -90,12 +70,8 @@ const SPEC_PREREQ_G1: &[SpecGate] = &[SpecGate::G0Scope];
 const SPEC_PREREQ_G2: &[SpecGate] = &[SpecGate::G0Scope, SpecGate::G1Clarify];
 const SPEC_PREREQ_G3: &[SpecGate] =
     &[SpecGate::G0Scope, SpecGate::G1Clarify, SpecGate::G2Constitution];
-const SPEC_PREREQ_G5: &[SpecGate] = &[
-    SpecGate::G0Scope,
-    SpecGate::G1Clarify,
-    SpecGate::G2Constitution,
-    SpecGate::G3Analyze,
-];
+const SPEC_PREREQ_G5: &[SpecGate] =
+    &[SpecGate::G0Scope, SpecGate::G1Clarify, SpecGate::G2Constitution, SpecGate::G3Analyze];
 const SPEC_PREREQ_G6: &[SpecGate] = &[
     SpecGate::G0Scope,
     SpecGate::G1Clarify,
@@ -132,12 +108,8 @@ impl GateKind for SpecGate {
 #[derive(Debug, Clone, Copy, Default)]
 pub struct SpecDriven;
 
-const PHASES_TINY: [SpecPhase; 4] = [
-    SpecPhase::Specify,
-    SpecPhase::Design,
-    SpecPhase::Implement,
-    SpecPhase::Wrapup,
-];
+const PHASES_TINY: [SpecPhase; 4] =
+    [SpecPhase::Specify, SpecPhase::Design, SpecPhase::Implement, SpecPhase::Wrapup];
 
 const PHASES_STANDARD: [SpecPhase; 5] = [
     SpecPhase::Specify,
@@ -147,15 +119,8 @@ const PHASES_STANDARD: [SpecPhase; 5] = [
     SpecPhase::Wrapup,
 ];
 
-const SPEC_DRIVEN_STATUSES: &[&str] = &[
-    "in_progress",
-    "in_review",
-    "shipped",
-    "archived",
-    "abandoned",
-    "superseded",
-    "deprecated",
-];
+const SPEC_DRIVEN_STATUSES: &[&str] =
+    &["in_progress", "in_review", "shipped", "archived", "abandoned", "superseded", "deprecated"];
 
 impl WorkflowKind for SpecDriven {
     type Phase = SpecPhase;
@@ -163,8 +128,12 @@ impl WorkflowKind for SpecDriven {
     type Gate = SpecGate;
     type Extension = ();
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("specdriven") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("specdriven")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, scope: &Scope) -> Cow<'_, [Self::Phase]> {
         match scope {
@@ -204,10 +173,7 @@ pub mod events {
     use super::{SpecDriven, SpecGate, SpecPhase, StoryId};
 
     /// `UnitCreated` with the given scope.
-    pub fn unit_created(
-        causation: Causation,
-        scope: knotch_kernel::Scope,
-    ) -> Proposal<SpecDriven> {
+    pub fn unit_created(causation: Causation, scope: knotch_kernel::Scope) -> Proposal<SpecDriven> {
         Proposal {
             causation,
             extension: (),

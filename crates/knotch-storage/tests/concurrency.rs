@@ -18,9 +18,7 @@ async fn append_one(
     unit: &UnitId,
     line: String,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let guard = lock
-        .acquire(unit, Duration::from_secs(10), Duration::from_secs(60))
-        .await?;
+    let guard = lock.acquire(unit, Duration::from_secs(10), Duration::from_secs(60)).await?;
     let (lines, _report) = storage.load(unit).await?;
     let expected_len = lines.len() as u64;
     storage.append(unit, expected_len, vec![line]).await?;
@@ -32,9 +30,7 @@ async fn append_one(
 async fn sixteen_threads_each_appending_sixty_four_events_converge() {
     let dir = tempfile::tempdir().expect("tempdir");
     let storage = Arc::new(FileSystemStorage::new(dir.path()));
-    let lock = Arc::new(
-        FileLock::new(dir.path()).with_poll_interval(Duration::from_millis(5)),
-    );
+    let lock = Arc::new(FileLock::new(dir.path()).with_poll_interval(Duration::from_millis(5)));
     let unit = Arc::new(UnitId::new("convergence"));
 
     let mut tasks = Vec::new();
@@ -81,9 +77,7 @@ async fn contending_writers_never_corrupt_log() {
     // the test, every line must parse as JSON.
     let dir = tempfile::tempdir().expect("tempdir");
     let storage = Arc::new(FileSystemStorage::new(dir.path()));
-    let lock = Arc::new(
-        FileLock::new(dir.path()).with_poll_interval(Duration::from_millis(5)),
-    );
+    let lock = Arc::new(FileLock::new(dir.path()).with_poll_interval(Duration::from_millis(5)));
     let unit = Arc::new(UnitId::new("no-corruption"));
 
     let mut tasks = Vec::new();

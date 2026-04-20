@@ -10,7 +10,10 @@
 
 use std::path::{Path, PathBuf};
 
-use figment::{Figment, providers::{Env, Format, Serialized, Toml}};
+use figment::{
+    Figment,
+    providers::{Env, Format, Serialized, Toml},
+};
 use knotch_observer::ObserverManifest;
 use knotch_storage::FileRepository;
 use knotch_workflow::ConfigWorkflow;

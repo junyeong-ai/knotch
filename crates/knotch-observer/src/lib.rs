@@ -18,6 +18,10 @@ pub mod git_log;
 pub mod pending_commit;
 pub mod subprocess;
 
+use std::{future::Future, pin::Pin, time::Duration};
+
+use knotch_kernel::{Proposal, WorkflowKind};
+
 pub use self::{
     artifact::ArtifactObserver,
     context::{FsView, ObserveBudget, ObserveContext, StdFsView},
@@ -26,10 +30,6 @@ pub use self::{
     pending_commit::PendingCommitObserver,
     subprocess::{ObserverManifest, SubprocessError, SubprocessObserver},
 };
-
-use std::{future::Future, pin::Pin, time::Duration};
-
-use knotch_kernel::{Proposal, WorkflowKind};
 
 /// `Observer` port. Each observer is responsible for a single source
 /// of truth; the Reconciler composes many observers in parallel.

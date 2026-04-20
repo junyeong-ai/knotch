@@ -15,9 +15,7 @@ pub enum LockError {
         waited: Duration,
     },
     /// Refused to reclaim a lock whose prior holder is still alive.
-    #[error(
-        "lock on unit {unit} is held by pid {holder_pid} on {holder_host:?} — still alive"
-    )]
+    #[error("lock on unit {unit} is held by pid {holder_pid} on {holder_host:?} — still alive")]
     Contended {
         /// Unit the caller was trying to lock.
         unit: String,

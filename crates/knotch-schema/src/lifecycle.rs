@@ -59,9 +59,7 @@ impl LifecycleFsm {
     pub fn evaluate(&self, request: &TransitionRequest) -> Result<(), LifecycleError> {
         if let Some(current) = &request.current {
             if current.as_str() == request.target.as_str() {
-                return Err(LifecycleError::NoOpTransition {
-                    status: request.target.clone(),
-                });
+                return Err(LifecycleError::NoOpTransition { status: request.target.clone() });
             }
         }
 
@@ -69,13 +67,8 @@ impl LifecycleFsm {
             return Err(LifecycleError::ForcedWithoutRationale);
         }
 
-        if self.is_terminal(&request.target)
-            && !request.forced
-            && !request.all_phases_resolved
-        {
-            return Err(LifecycleError::RequiredPhasesPending {
-                target: request.target.clone(),
-            });
+        if self.is_terminal(&request.target) && !request.forced && !request.all_phases_resolved {
+            return Err(LifecycleError::RequiredPhasesPending { target: request.target.clone() });
         }
 
         Ok(())
@@ -108,9 +101,7 @@ mod tests {
     use super::*;
 
     fn fsm() -> LifecycleFsm {
-        LifecycleFsm::builder()
-            .terminal("archived")
-            .terminal("abandoned")
+        LifecycleFsm::builder().terminal("archived").terminal("abandoned")
     }
 
     #[test]

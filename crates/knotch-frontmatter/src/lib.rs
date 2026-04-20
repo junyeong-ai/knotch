@@ -25,10 +25,9 @@
 use std::{io, path::Path};
 
 use compact_str::CompactString;
+pub use knotch_schema::{FieldSchema, FieldType, FrontmatterSchema, SchemaError};
 use serde_json::{Map, Value};
 use yaml_serde::Value as YamlValue;
-
-pub use knotch_schema::{FieldSchema, FieldType, FrontmatterSchema, SchemaError};
 
 /// Errors produced by the frontmatter utilities.
 #[derive(Debug, thiserror::Error)]
@@ -105,10 +104,7 @@ impl Document {
             return Err(FrontmatterError::NotAnObject);
         };
         let json = yaml_map_to_json(map)?;
-        Ok(Self {
-            header: json,
-            body: body.to_owned(),
-        })
+        Ok(Self { header: json, body: body.to_owned() })
     }
 
     /// Look up a field in the frontmatter.
@@ -195,10 +191,8 @@ pub async fn sync_status_on_file(
 pub async fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), FrontmatterError> {
     use tokio::io::AsyncWriteExt as _;
 
-    let parent = path
-        .parent()
-        .filter(|p| !p.as_os_str().is_empty())
-        .unwrap_or_else(|| Path::new("."));
+    let parent =
+        path.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or_else(|| Path::new("."));
     let file_name = path
         .file_name()
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "path has no file name"))?;
@@ -220,13 +214,12 @@ fn split_frontmatter(markdown: &str) -> Option<(&str, &str)> {
     let rest = markdown.strip_prefix("---\n")?;
     let end = rest.find("\n---\n").or_else(|| rest.find("\n---"))?;
     let front = &rest[..end];
-    let after = rest[end..].strip_prefix("\n---\n").or_else(|| rest[end..].strip_prefix("\n---"))?;
+    let after =
+        rest[end..].strip_prefix("\n---\n").or_else(|| rest[end..].strip_prefix("\n---"))?;
     Some((front, after))
 }
 
-fn yaml_map_to_json(
-    map: yaml_serde::Mapping,
-) -> Result<Map<String, Value>, FrontmatterError> {
+fn yaml_map_to_json(map: yaml_serde::Mapping) -> Result<Map<String, Value>, FrontmatterError> {
     let mut out = Map::with_capacity(map.len());
     for (k, v) in map {
         let YamlValue::String(key) = k else {
@@ -247,19 +240,15 @@ fn yaml_to_json(yaml: YamlValue) -> Result<Value, FrontmatterError> {
             } else if let Some(u) = n.as_u64() {
                 Value::Number(u.into())
             } else if let Some(f) = n.as_f64() {
-                serde_json::Number::from_f64(f)
-                    .map(Value::Number)
-                    .unwrap_or(Value::Null)
+                serde_json::Number::from_f64(f).map(Value::Number).unwrap_or(Value::Null)
             } else {
                 Value::Null
             }
         }
         YamlValue::String(s) => Value::String(s),
-        YamlValue::Sequence(seq) => Value::Array(
-            seq.into_iter()
-                .map(yaml_to_json)
-                .collect::<Result<_, _>>()?,
-        ),
+        YamlValue::Sequence(seq) => {
+            Value::Array(seq.into_iter().map(yaml_to_json).collect::<Result<_, _>>()?)
+        }
         YamlValue::Mapping(map) => {
             let json = yaml_map_to_json(map)?;
             Value::Object(json)

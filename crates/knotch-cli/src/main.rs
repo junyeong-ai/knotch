@@ -104,10 +104,7 @@ fn main() -> ExitCode {
         }
     };
 
-    let runtime = match tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-    {
+    let runtime = match tokio::runtime::Builder::new_multi_thread().enable_all().build() {
         Ok(rt) => rt,
         Err(err) => {
             eprintln!("knotch: runtime init failed: {err}");
@@ -115,11 +112,7 @@ fn main() -> ExitCode {
         }
     };
 
-    let out_mode = if cli.json {
-        cmd::OutputMode::Json
-    } else {
-        cmd::OutputMode::Human
-    };
+    let out_mode = if cli.json { cmd::OutputMode::Json } else { cmd::OutputMode::Human };
 
     match cli.command {
         Command::Hook { cmd: hook_cmd } => runtime.block_on(cmd::hook::run(&config, hook_cmd)),

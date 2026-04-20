@@ -72,17 +72,11 @@ impl ResumeCache {
     ///
     /// # Errors
     /// See [`CacheError`].
-    pub fn get<T: serde::de::DeserializeOwned>(
-        &self,
-        key: &str,
-    ) -> Result<Option<T>, CacheError> {
+    pub fn get<T: serde::de::DeserializeOwned>(&self, key: &str) -> Result<Option<T>, CacheError> {
         match self.payload.get(key) {
             Some(v) => serde_json::from_value(v.clone())
                 .map(Some)
-                .map_err(|source| CacheError::TypeMismatch {
-                    key: key.to_owned(),
-                    source,
-                }),
+                .map_err(|source| CacheError::TypeMismatch { key: key.to_owned(), source }),
             None => Ok(None),
         }
     }
@@ -97,10 +91,8 @@ impl ResumeCache {
         value: &T,
     ) -> Result<(), CacheError> {
         let key = key.into();
-        let value = serde_json::to_value(value).map_err(|source| CacheError::Serialize {
-            key: key.clone(),
-            source,
-        })?;
+        let value = serde_json::to_value(value)
+            .map_err(|source| CacheError::Serialize { key: key.clone(), source })?;
         self.payload.insert(key, value);
         Ok(())
     }
@@ -177,12 +169,8 @@ pub trait Repository<W: WorkflowKind>: Send + Sync + 'static {
     ) -> impl Future<Output = Result<Arc<Log<W>>, RepositoryError>> + Send {
         async move {
             let full = self.load(unit).await?;
-            let filtered: Vec<_> = full
-                .events()
-                .iter()
-                .take_while(|evt| evt.at <= cutoff)
-                .cloned()
-                .collect();
+            let filtered: Vec<_> =
+                full.events().iter().take_while(|evt| evt.at <= cutoff).cloned().collect();
             Ok(Arc::new(Log::from_events(unit.clone(), filtered)))
         }
     }

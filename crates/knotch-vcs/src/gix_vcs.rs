@@ -37,12 +37,8 @@ impl GixVcs {
     /// open the repository.
     pub fn open(path: impl AsRef<Path>) -> Result<Self, VcsError> {
         let path = path.as_ref().to_owned();
-        let repo = gix::ThreadSafeRepository::open(&path).map_err(|e| {
-            VcsError::OpenRepository {
-                path: path.clone(),
-                source: Box::new(e),
-            }
-        })?;
+        let repo = gix::ThreadSafeRepository::open(&path)
+            .map_err(|e| VcsError::OpenRepository { path: path.clone(), source: Box::new(e) })?;
         Ok(Self { repo: Arc::new(repo), path })
     }
 
@@ -72,14 +68,12 @@ impl GixVcs {
 impl Vcs for GixVcs {
     async fn verify_commit(&self, sha: &CommitRef) -> Result<CommitStatus, VcsError> {
         let wanted = sha.as_str().to_owned();
-        self.with_repo(move |repo| {
-            match repo.rev_parse_single(wanted.as_str()) {
-                Ok(id) => match repo.find_commit(id) {
-                    Ok(_) => Ok(CommitStatus::Verified),
-                    Err(_) => Ok(CommitStatus::Missing),
-                },
+        self.with_repo(move |repo| match repo.rev_parse_single(wanted.as_str()) {
+            Ok(id) => match repo.find_commit(id) {
+                Ok(_) => Ok(CommitStatus::Verified),
                 Err(_) => Ok(CommitStatus::Missing),
-            }
+            },
+            Err(_) => Ok(CommitStatus::Missing),
         })
         .await
     }
@@ -93,15 +87,13 @@ impl Vcs for GixVcs {
         let filter_kinds = filter.kinds.clone();
         let limit = filter.limit;
         self.with_repo(move |repo| {
-            let head = repo.head_commit().map_err(|e| VcsError::HeadUnresolvable {
-                source: Box::new(e),
-            })?;
+            let head = repo
+                .head_commit()
+                .map_err(|e| VcsError::HeadUnresolvable { source: Box::new(e) })?;
             let since_sha_norm = since_sha.as_ref().map(|s| s.to_ascii_lowercase());
 
-            let walk = repo
-                .rev_walk([head.id])
-                .all()
-                .map_err(|e| VcsError::Backend(Box::new(e)))?;
+            let walk =
+                repo.rev_walk([head.id]).all().map_err(|e| VcsError::Backend(Box::new(e)))?;
             let mut out = Vec::new();
             for info in walk {
                 let info = info.map_err(|e| VcsError::Backend(Box::new(e)))?;
@@ -111,15 +103,13 @@ impl Vcs for GixVcs {
                         break;
                     }
                 }
-                let commit = repo
-                    .find_commit(info.id)
-                    .map_err(|e| VcsError::Backend(Box::new(e)))?;
+                let commit =
+                    repo.find_commit(info.id).map_err(|e| VcsError::Backend(Box::new(e)))?;
                 let built = build_commit(&commit)?;
                 if !filter_kinds.is_empty() {
-                    if let Ok(parsed) = parse_commit_message(
-                        built.sha.clone(),
-                        &commit_message_string(&commit),
-                    ) {
+                    if let Ok(parsed) =
+                        parse_commit_message(built.sha.clone(), &commit_message_string(&commit))
+                    {
                         if !filter_kinds.contains(&parsed.kind) {
                             continue;
                         }
@@ -141,9 +131,9 @@ impl Vcs for GixVcs {
 
     async fn current_head(&self) -> Result<CommitRef, VcsError> {
         self.with_repo(move |repo| {
-            let head = repo.head_commit().map_err(|e| VcsError::HeadUnresolvable {
-                source: Box::new(e),
-            })?;
+            let head = repo
+                .head_commit()
+                .map_err(|e| VcsError::HeadUnresolvable { source: Box::new(e) })?;
             Ok(CommitRef::new(head.id.to_string()))
         })
         .await
@@ -158,17 +148,10 @@ impl Vcs for GixVcs {
 fn build_commit(commit: &gix::Commit<'_>) -> Result<Commit, VcsError> {
     let message = commit_message_string(commit);
     let (subject, body) = split_subject_body(&message);
-    let when = commit
-        .committer()
-        .map_err(|e| VcsError::Backend(Box::new(e)))?
-        .time
-        .seconds;
+    let when = commit.committer().map_err(|e| VcsError::Backend(Box::new(e)))?.time.seconds;
     let committed_at = Timestamp::from_second(when)
         .unwrap_or_else(|_| Timestamp::from_second(0).expect("epoch is valid"));
-    let parents = commit
-        .parent_ids()
-        .map(|id| CommitRef::new(id.to_string()))
-        .collect::<Vec<_>>();
+    let parents = commit.parent_ids().map(|id| CommitRef::new(id.to_string())).collect::<Vec<_>>();
     Ok(Commit {
         sha: CommitRef::new(commit.id.to_string()),
         committed_at,
@@ -179,9 +162,7 @@ fn build_commit(commit: &gix::Commit<'_>) -> Result<Commit, VcsError> {
 }
 
 fn commit_message_string(commit: &gix::Commit<'_>) -> String {
-    commit
-        .message_raw_sloppy()
-        .to_string()
+    commit.message_raw_sloppy().to_string()
 }
 
 fn split_subject_body(message: &str) -> (String, String) {

@@ -15,21 +15,36 @@ use knotch_testing::InMemoryRepository;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum Ph { A, B }
+pub enum Ph {
+    A,
+    B,
+}
 impl PhaseKind for Ph {
     fn id(&self) -> Cow<'_, str> {
-        Cow::Borrowed(match self { Ph::A => "a", Ph::B => "b" })
+        Cow::Borrowed(match self {
+            Ph::A => "a",
+            Ph::B => "b",
+        })
     }
-    fn is_skippable(&self, _: &SkipKind) -> bool { false }
+    fn is_skippable(&self, _: &SkipKind) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(rename_all = "snake_case")]
-pub enum Ms { Alpha, Beta }
+pub enum Ms {
+    Alpha,
+    Beta,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum G {}
-impl knotch_kernel::GateKind for G { fn id(&self) -> Cow<'_, str> { Cow::Borrowed("") } }
+impl knotch_kernel::GateKind for G {
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("")
+    }
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Wf;
@@ -39,9 +54,15 @@ impl WorkflowKind for Wf {
     type Milestone = Ms;
     type Gate = G;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("query-test") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("query-test")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
 }
 
 fn causation() -> Causation {
@@ -61,46 +82,50 @@ async fn seed_unit(repo: &InMemoryRepository<Wf>, id: &str, steps: Vec<EventBody
 #[tokio::test]
 async fn where_phase_filters_units_at_that_phase() {
     let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_unit(&repo, "only-created", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-    ]).await;
-    seed_unit(&repo, "past-a", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() },
-    ]).await;
+    seed_unit(&repo, "only-created", vec![EventBody::UnitCreated { scope: Scope::Standard }]).await;
+    seed_unit(
+        &repo,
+        "past-a",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() },
+        ],
+    )
+    .await;
 
-    let units = QueryBuilder::<Wf>::new()
-        .where_phase(Ph::A)
-        .execute(&Wf, &repo)
-        .await
-        .expect("execute");
-    assert_eq!(units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
-               vec!["only-created".to_owned()]);
+    let units =
+        QueryBuilder::<Wf>::new().where_phase(Ph::A).execute(&Wf, &repo).await.expect("execute");
+    assert_eq!(
+        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        vec!["only-created".to_owned()]
+    );
 
-    let units = QueryBuilder::<Wf>::new()
-        .where_phase(Ph::B)
-        .execute(&Wf, &repo)
-        .await
-        .expect("execute");
-    assert_eq!(units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
-               vec!["past-a".to_owned()]);
+    let units =
+        QueryBuilder::<Wf>::new().where_phase(Ph::B).execute(&Wf, &repo).await.expect("execute");
+    assert_eq!(
+        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        vec!["past-a".to_owned()]
+    );
 }
 
 #[tokio::test]
 async fn where_milestone_shipped_matches_shipped_units() {
     let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_unit(&repo, "alpha-shipped", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::MilestoneShipped {
-            milestone: Ms::Alpha,
-            commit: CommitRef::new("abc"),
-            commit_kind: CommitKind::Feat,
-            status: knotch_kernel::CommitStatus::Verified,
-        },
-    ]).await;
-    seed_unit(&repo, "nothing", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-    ]).await;
+    seed_unit(
+        &repo,
+        "alpha-shipped",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::MilestoneShipped {
+                milestone: Ms::Alpha,
+                commit: CommitRef::new("abc"),
+                commit_kind: CommitKind::Feat,
+                status: knotch_kernel::CommitStatus::Verified,
+            },
+        ],
+    )
+    .await;
+    seed_unit(&repo, "nothing", vec![EventBody::UnitCreated { scope: Scope::Standard }]).await;
 
     let units = QueryBuilder::<Wf>::new()
         .where_milestone_shipped(Ms::Alpha)
@@ -114,17 +139,20 @@ async fn where_milestone_shipped_matches_shipped_units() {
 #[tokio::test]
 async fn where_status_matches_transitioned_units() {
     let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_unit(&repo, "in-review", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::StatusTransitioned {
-            target: StatusId::new("in_review"),
-            forced: false,
-            rationale: None,
-        },
-    ]).await;
-    seed_unit(&repo, "draft", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-    ]).await;
+    seed_unit(
+        &repo,
+        "in-review",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::StatusTransitioned {
+                target: StatusId::new("in_review"),
+                forced: false,
+                rationale: None,
+            },
+        ],
+    )
+    .await;
+    seed_unit(&repo, "draft", vec![EventBody::UnitCreated { scope: Scope::Standard }]).await;
 
     let units = QueryBuilder::<Wf>::new()
         .where_status(StatusId::new("in_review"))
@@ -139,44 +167,53 @@ async fn where_status_matches_transitioned_units() {
 async fn limit_caps_result_size() {
     let repo = InMemoryRepository::<Wf>::new(Wf);
     for i in 0..5 {
-        seed_unit(&repo, &format!("u-{i}"), vec![
-            EventBody::UnitCreated { scope: Scope::Standard },
-        ]).await;
+        seed_unit(
+            &repo,
+            &format!("u-{i}"),
+            vec![EventBody::UnitCreated { scope: Scope::Standard }],
+        )
+        .await;
     }
 
-    let units = QueryBuilder::<Wf>::new()
-        .limit(3)
-        .execute(&Wf, &repo)
-        .await
-        .expect("execute");
+    let units = QueryBuilder::<Wf>::new().limit(3).execute(&Wf, &repo).await.expect("execute");
     assert_eq!(units.len(), 3);
 }
 
 #[tokio::test]
 async fn composed_filters_are_anded() {
     let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_unit(&repo, "match", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::MilestoneShipped {
-            milestone: Ms::Alpha,
-            commit: CommitRef::new("abc"),
-            commit_kind: CommitKind::Feat,
-            status: knotch_kernel::CommitStatus::Verified,
-        },
-        EventBody::StatusTransitioned {
-            target: StatusId::new("in_review"),
-            forced: false,
-            rationale: None,
-        },
-    ]).await;
-    seed_unit(&repo, "no-milestone", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::StatusTransitioned {
-            target: StatusId::new("in_review"),
-            forced: false,
-            rationale: None,
-        },
-    ]).await;
+    seed_unit(
+        &repo,
+        "match",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::MilestoneShipped {
+                milestone: Ms::Alpha,
+                commit: CommitRef::new("abc"),
+                commit_kind: CommitKind::Feat,
+                status: knotch_kernel::CommitStatus::Verified,
+            },
+            EventBody::StatusTransitioned {
+                target: StatusId::new("in_review"),
+                forced: false,
+                rationale: None,
+            },
+        ],
+    )
+    .await;
+    seed_unit(
+        &repo,
+        "no-milestone",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::StatusTransitioned {
+                target: StatusId::new("in_review"),
+                forced: false,
+                rationale: None,
+            },
+        ],
+    )
+    .await;
 
     let units = Arc::new(
         QueryBuilder::<Wf>::new()
@@ -198,9 +235,7 @@ where
 {
     let unit = UnitId::new(id);
     let proposals: Vec<_> = steps.into_iter().map(p).collect();
-    repo.append(&unit, proposals, AppendMode::BestEffort)
-        .await
-        .expect("seed");
+    repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("seed");
 }
 
 #[tokio::test]
@@ -210,37 +245,33 @@ async fn query_result_parity_between_in_memory_and_file_backed() {
     let file = knotch_storage::FileRepository::<Wf>::new(dir.path(), Wf);
 
     let seed = async |name: &'static str, body: EventBody<Wf>| {
-        seed_adapter(&memory, name, vec![EventBody::UnitCreated {
-            scope: Scope::Standard,
-        }, body.clone()]).await;
-        seed_adapter(&file, name, vec![EventBody::UnitCreated {
-            scope: Scope::Standard,
-        }, body]).await;
+        seed_adapter(
+            &memory,
+            name,
+            vec![EventBody::UnitCreated { scope: Scope::Standard }, body.clone()],
+        )
+        .await;
+        seed_adapter(&file, name, vec![EventBody::UnitCreated { scope: Scope::Standard }, body])
+            .await;
     };
-    seed("phase-a", EventBody::PhaseCompleted {
-        phase: Ph::A,
-        artifacts: Default::default(),
-    }).await;
-    seed("phase-b", EventBody::PhaseCompleted {
-        phase: Ph::A,
-        artifacts: Default::default(),
-    }).await;
-    seed("in-review", EventBody::StatusTransitioned {
-        target: StatusId::new("in_review"),
-        forced: false,
-        rationale: None,
-    }).await;
+    seed("phase-a", EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() })
+        .await;
+    seed("phase-b", EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() })
+        .await;
+    seed(
+        "in-review",
+        EventBody::StatusTransitioned {
+            target: StatusId::new("in_review"),
+            forced: false,
+            rationale: None,
+        },
+    )
+    .await;
 
-    let mem_at_b = QueryBuilder::<Wf>::new()
-        .where_phase(Ph::B)
-        .execute(&Wf, &memory)
-        .await
-        .expect("mem");
-    let file_at_b = QueryBuilder::<Wf>::new()
-        .where_phase(Ph::B)
-        .execute(&Wf, &file)
-        .await
-        .expect("file");
+    let mem_at_b =
+        QueryBuilder::<Wf>::new().where_phase(Ph::B).execute(&Wf, &memory).await.expect("mem");
+    let file_at_b =
+        QueryBuilder::<Wf>::new().where_phase(Ph::B).execute(&Wf, &file).await.expect("file");
     let mut mem_ids: Vec<_> = mem_at_b.iter().map(|u| u.as_str().to_owned()).collect();
     let mut file_ids: Vec<_> = file_at_b.iter().map(|u| u.as_str().to_owned()).collect();
     mem_ids.sort();
@@ -259,14 +290,8 @@ async fn query_result_parity_between_in_memory_and_file_backed() {
         .expect("file");
     assert_eq!(mem_in_review.len(), file_in_review.len());
     assert_eq!(
-        mem_in_review
-            .iter()
-            .map(|u| u.as_str().to_owned())
-            .collect::<Vec<_>>(),
-        file_in_review
-            .iter()
-            .map(|u| u.as_str().to_owned())
-            .collect::<Vec<_>>(),
+        mem_in_review.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
+        file_in_review.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
         "where_status results diverged across adapters",
     );
 }
@@ -279,17 +304,25 @@ async fn group_units_by_current_phase() {
     use std::collections::BTreeMap;
 
     let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_unit(&repo, "u1", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-    ]).await;
-    seed_unit(&repo, "u2", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() },
-    ]).await;
-    seed_unit(&repo, "u3", vec![
-        EventBody::UnitCreated { scope: Scope::Standard },
-        EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() },
-    ]).await;
+    seed_unit(&repo, "u1", vec![EventBody::UnitCreated { scope: Scope::Standard }]).await;
+    seed_unit(
+        &repo,
+        "u2",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() },
+        ],
+    )
+    .await;
+    seed_unit(
+        &repo,
+        "u3",
+        vec![
+            EventBody::UnitCreated { scope: Scope::Standard },
+            EventBody::PhaseCompleted { phase: Ph::A, artifacts: Default::default() },
+        ],
+    )
+    .await;
 
     // Group via list_units + load + current_phase — this is the
     // exact pattern a dashboard composition sketch uses.

@@ -20,9 +20,7 @@ use knotch_workflow::KnotchGate;
 fn causation() -> Causation {
     Causation::new(
         Source::Cli,
-        Principal::System {
-            service: "batch-append-example".into(),
-        },
+        Principal::System { service: "batch-append-example".into() },
         Trigger::Manual,
     )
 }
@@ -39,9 +37,7 @@ async fn main() -> anyhow::Result<()> {
         vec![Proposal {
             causation: causation(),
             extension: (),
-            body: EventBody::UnitCreated {
-                scope: Scope::Standard,
-            },
+            body: EventBody::UnitCreated { scope: Scope::Standard },
             supersedes: None,
         }],
         AppendMode::BestEffort,

@@ -3,12 +3,12 @@
 //! The adapter enforces the kernel-level invariants that all concrete
 //! repositories share:
 //!
-//! - Fingerprint dedup (replayed proposals surface as
-//!   `AppendReport::rejected` with reason "duplicate").
+//! - Fingerprint dedup (replayed proposals surface as `AppendReport::rejected` with
+//!   reason "duplicate").
 //! - Monotonic event timestamps.
 //! - Single-writer discipline via a `tokio::sync::Mutex` per unit.
-//! - Subscribe streams via `tokio::sync::broadcast` — backpressure
-//!   surfaces as `SubscribeEvent::Lagged` rather than silent loss.
+//! - Subscribe streams via `tokio::sync::broadcast` — backpressure surfaces as
+//!   `SubscribeEvent::Lagged` rather than silent loss.
 //!
 //! Adapter-level concerns (atomic-write, cross-process locking,
 //! corruption recovery) belong to the file-system repository.
@@ -21,8 +21,9 @@ use futures::{StreamExt as _, stream};
 use jiff::Timestamp;
 use knotch_kernel::{
     AppendMode, AppendReport, Event, EventId, ExtensionKind as _, Fingerprint, Log, Proposal,
-    RepositoryError, UnitId, WorkflowKind, fingerprint_proposal,
+    RepositoryError, UnitId, WorkflowKind,
     event::{RejectedProposal, SubscribeEvent, SubscribeMode},
+    fingerprint_proposal,
     repository::{PinStream, Repository, ResumeCache},
 };
 use tokio::sync::{Mutex as AsyncMutex, broadcast};
@@ -43,7 +44,12 @@ struct UnitStateInner<W: WorkflowKind> {
 impl<W: WorkflowKind> UnitStateInner<W> {
     fn new(capacity: usize) -> Self {
         let (tx, _) = broadcast::channel(capacity);
-        Self { events: Vec::new(), cache: ResumeCache::new(), fingerprints: Vec::new(), broadcast: tx }
+        Self {
+            events: Vec::new(),
+            cache: ResumeCache::new(),
+            fingerprints: Vec::new(),
+            broadcast: tx,
+        }
     }
 }
 
@@ -81,11 +87,7 @@ impl<W: WorkflowKind> InMemoryRepository<W> {
     /// Construct with a custom broadcast buffer size.
     #[must_use]
     pub fn with_capacity(workflow: W, capacity: usize) -> Self {
-        Self {
-            workflow,
-            units: Arc::new(DashMap::new()),
-            broadcast_capacity: capacity.max(1),
-        }
+        Self { workflow, units: Arc::new(DashMap::new()), broadcast_capacity: capacity.max(1) }
     }
 
     /// Borrow the workflow instance this repository was built with.
@@ -121,26 +123,23 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
         let mut rejected = Vec::new();
 
         for proposal in proposals {
-            let fingerprint = fingerprint_proposal(&self.workflow, &proposal)
-                .map_err(RepositoryError::Codec)?;
+            let fingerprint =
+                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if inner.fingerprints.contains(&fingerprint) {
                 rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
                 continue;
             }
             // Body + extension preconditions against the working log.
-            let working_log =
-                knotch_kernel::Log::from_events(unit.clone(), inner.events.clone());
-            let ctx = knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
+            let working_log = knotch_kernel::Log::from_events(unit.clone(), inner.events.clone());
+            let ctx =
+                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
             if let Err(err) = proposal.body.check_precondition(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     inner.events.truncate(accepted_before);
                     inner.fingerprints.truncate(accepted_before);
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal {
-                    proposal,
-                    reason: err.to_string().into(),
-                });
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
             if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
@@ -149,10 +148,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                     inner.fingerprints.truncate(accepted_before);
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal {
-                    proposal,
-                    reason: err.to_string().into(),
-                });
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
             let at = Timestamp::now();
@@ -215,11 +211,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                 SubscribeMode::LiveOnly => Vec::new(),
                 SubscribeMode::FromBeginning => inner.events.clone(),
                 SubscribeMode::FromEventId(anchor) => {
-                    let idx = inner
-                        .events
-                        .iter()
-                        .position(|e| e.id == anchor)
-                        .map_or(0, |i| i + 1);
+                    let idx = inner.events.iter().position(|e| e.id == anchor).map_or(0, |i| i + 1);
                     inner.events[idx..].to_vec()
                 }
                 _ => Vec::new(),
@@ -287,15 +279,15 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
         let mut accepted = Vec::new();
         let mut rejected = Vec::new();
         for proposal in proposals {
-            let fingerprint = fingerprint_proposal(&self.workflow, &proposal)
-                .map_err(RepositoryError::Codec)?;
+            let fingerprint =
+                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if inner.fingerprints.contains(&fingerprint) {
                 rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
                 continue;
             }
-            let working_log =
-                knotch_kernel::Log::from_events(unit.clone(), inner.events.clone());
-            let ctx = knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
+            let working_log = knotch_kernel::Log::from_events(unit.clone(), inner.events.clone());
+            let ctx =
+                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
             if let Err(err) = proposal.body.check_precondition(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     inner.events.truncate(accepted_before);
@@ -360,4 +352,3 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
         Ok(AppendReport { accepted, rejected })
     }
 }
-

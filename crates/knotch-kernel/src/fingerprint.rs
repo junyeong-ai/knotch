@@ -119,10 +119,7 @@ fn fingerprint_parts<W: crate::WorkflowKind>(
     supersedes: Option<crate::EventId>,
 ) -> Result<Fingerprint, serde_json::Error> {
     let mut key = serde_json::Map::new();
-    key.insert(
-        "workflow".into(),
-        serde_json::Value::String(workflow.name().into_owned()),
-    );
+    key.insert("workflow".into(), serde_json::Value::String(workflow.name().into_owned()));
     key.insert("body".into(), serde_json::to_value(body)?);
     if let Some(target) = supersedes {
         key.insert("supersedes".into(), serde_json::to_value(target)?);

@@ -77,7 +77,6 @@ const PUBLISHABLE_CRATES: &[&str] = &[
     "knotch-adr",
 ];
 
-
 fn public_api() -> anyhow::Result<()> {
     for c in PUBLISHABLE_CRATES {
         let out = std::fs::File::create(format!("docs/public_api/{c}.baseline"))?;
@@ -166,19 +165,12 @@ fn extract_citations(line: &str) -> Vec<String> {
 }
 
 fn verify_citation(citation: &str) -> Result<(), String> {
-    let (path, line_s) = citation
-        .rsplit_once(':')
-        .ok_or_else(|| "malformed citation".to_owned())?;
-    let line: usize = line_s
-        .parse()
-        .map_err(|_| "line is not a number".to_owned())?;
-    let body = std::fs::read_to_string(path)
-        .map_err(|e| format!("cannot read {path}: {e}"))?;
+    let (path, line_s) =
+        citation.rsplit_once(':').ok_or_else(|| "malformed citation".to_owned())?;
+    let line: usize = line_s.parse().map_err(|_| "line is not a number".to_owned())?;
+    let body = std::fs::read_to_string(path).map_err(|e| format!("cannot read {path}: {e}"))?;
     if body.lines().count() < line {
-        return Err(format!(
-            "{path} has {} lines; citation points past EOF",
-            body.lines().count()
-        ));
+        return Err(format!("{path} has {} lines; citation points past EOF", body.lines().count()));
     }
     Ok(())
 }
@@ -192,16 +184,12 @@ fn plugin_sync(dry_run: bool) -> anyhow::Result<()> {
     // 1. Manifest must already exist — `plugin-sync` never fabricates it.
     let manifest = plugin_root.join(".claude-plugin").join("plugin.json");
     if !manifest.exists() {
-        anyhow::bail!(
-            "{} missing — create the plugin manifest before syncing",
-            manifest.display()
-        );
+        anyhow::bail!("{} missing — create the plugin manifest before syncing", manifest.display());
     }
 
-    // 2. Plan the skill sync. Each `.claude/skills/knotch-<name>/`
-    //    maps to `plugins/knotch/skills/<name>/` — the `knotch-`
-    //    prefix is stripped so plugin-mode invocation uses the
-    //    clean namespaced name `/knotch:<name>`.
+    // 2. Plan the skill sync. Each `.claude/skills/knotch-<name>/` maps to
+    //    `plugins/knotch/skills/<name>/` — the `knotch-` prefix is stripped so plugin-mode
+    //    invocation uses the clean namespaced name `/knotch:<name>`.
     let skills_src = Path::new(".claude/skills");
     let skills_dst = plugin_root.join("skills");
     let plan = plan_skill_rename(skills_src)?;
@@ -219,8 +207,8 @@ fn plugin_sync(dry_run: bool) -> anyhow::Result<()> {
         return Ok(());
     }
 
-    // 3. Rebuild the destination. `plugins/knotch/skills/` is a
-    //    derived artifact — hand-edits are lost by design.
+    // 3. Rebuild the destination. `plugins/knotch/skills/` is a derived artifact — hand-edits
+    //    are lost by design.
     rebuild_dir(&skills_dst)?;
     std::fs::write(
         skills_dst.join("README.md"),
@@ -235,11 +223,7 @@ fn plugin_sync(dry_run: bool) -> anyhow::Result<()> {
         copy_dir_recursive(&src, &dst)?;
     }
 
-    println!(
-        "plugin synced: {} skill(s) → {}",
-        plan.len(),
-        skills_dst.display()
-    );
+    println!("plugin synced: {} skill(s) → {}", plan.len(), skills_dst.display());
     Ok(())
 }
 
@@ -253,10 +237,7 @@ fn plan_skill_rename(src: &Path) -> anyhow::Result<Vec<(String, String)>> {
             continue;
         }
         let src_name = entry.file_name().to_string_lossy().into_owned();
-        let dst_name = src_name
-            .strip_prefix("knotch-")
-            .unwrap_or(&src_name)
-            .to_owned();
+        let dst_name = src_name.strip_prefix("knotch-").unwrap_or(&src_name).to_owned();
         plan.push((src_name, dst_name));
     }
     plan.sort();

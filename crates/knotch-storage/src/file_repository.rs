@@ -11,15 +11,16 @@ use async_stream::try_stream;
 use dashmap::DashMap;
 use futures::StreamExt as _;
 use jiff::Timestamp;
-use tokio::sync::broadcast;
 use knotch_kernel::{
     AppendMode, AppendReport, Event, EventId, ExtensionKind as _, Fingerprint, Log, Proposal,
-    RepositoryError, UnitId, WorkflowKind, fingerprint_event, fingerprint_proposal,
+    RepositoryError, UnitId, WorkflowKind,
     event::{RejectedProposal, SubscribeEvent, SubscribeMode},
+    fingerprint_event, fingerprint_proposal,
     repository::{CacheMutator, PinStream, Repository, ResumeCache},
 };
 use knotch_lock::{FileLock, Lock};
 use knotch_proto::header::Header;
+use tokio::sync::broadcast;
 
 use crate::{FileSystemStorage, LoadReport, Storage, StorageError};
 
@@ -121,19 +122,17 @@ impl<W: WorkflowKind> FileRepository<W> {
         let mut header = None;
         let mut events = Vec::with_capacity(lines.len());
         for (idx, raw) in lines.iter().enumerate() {
-            let value: serde_json::Value =
-                serde_json::from_str(raw).map_err(|_| RepositoryError::Corrupted {
-                    line: (idx + 1) as u64,
-                })?;
+            let value: serde_json::Value = serde_json::from_str(raw)
+                .map_err(|_| RepositoryError::Corrupted { line: (idx + 1) as u64 })?;
             let is_header = value.get("kind").and_then(|v| v.as_str()) == Some("__header__");
             if is_header {
-                header = Some(serde_json::from_value::<Header>(value).map_err(|_| {
-                    RepositoryError::Corrupted { line: (idx + 1) as u64 }
-                })?);
+                header = Some(
+                    serde_json::from_value::<Header>(value)
+                        .map_err(|_| RepositoryError::Corrupted { line: (idx + 1) as u64 })?,
+                );
                 continue;
             }
-            let event: Event<W> =
-                serde_json::from_value(value).map_err(RepositoryError::Codec)?;
+            let event: Event<W> = serde_json::from_value(value).map_err(RepositoryError::Codec)?;
             events.push(event);
         }
         Ok((header, events))
@@ -160,10 +159,7 @@ impl<W: WorkflowKind> FileRepository<W> {
         if h.fingerprint_salt.as_str() == current.as_str() {
             Ok(())
         } else {
-            Err(RepositoryError::SaltMismatch {
-                stored: h.fingerprint_salt.to_string(),
-                current,
-            })
+            Err(RepositoryError::SaltMismatch { stored: h.fingerprint_salt.to_string(), current })
         }
     }
 }
@@ -176,8 +172,7 @@ fn base64_of(bytes: &[u8]) -> String {
 /// Tiny inline base64 encoder (stdlib doesn't ship one and pulling
 /// `base64` for a single header field would inflate the dep graph).
 mod base64_of {
-    const TABLE: &[u8; 64] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     pub(super) fn encode(input: &[u8]) -> String {
         let mut out = String::with_capacity(input.len().div_ceil(3) * 4);
@@ -231,11 +226,8 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         proposals: Vec<Proposal<W>>,
         mode: AppendMode,
     ) -> Result<AppendReport<W>, RepositoryError> {
-        let _guard = self
-            .lock
-            .acquire(unit, self.lock_timeout, self.lock_lease)
-            .await
-            .map_err(lock_err)?;
+        let _guard =
+            self.lock.acquire(unit, self.lock_timeout, self.lock_lease).await.map_err(lock_err)?;
 
         let (lines, report) = self.storage.load(unit).await.map_err(storage_err)?;
         let (existing_header, events) = Self::parse_lines(&lines, &report)?;
@@ -254,8 +246,8 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
 
         for proposal in proposals {
             // 1. Dedup — idempotent replay is silent.
-            let fp = fingerprint_proposal(&self.workflow, &proposal)
-                .map_err(RepositoryError::Codec)?;
+            let fp =
+                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if used.contains(&fp) {
                 rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
                 continue;
@@ -263,27 +255,21 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
             // 2. Precondition — body-per-variant invariant check against
             // the working log (i.e. including earlier accepts in this
             // same batch).
-            let working_log =
-                knotch_kernel::Log::from_events(unit.clone(), working_events.clone());
-            let ctx = knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
+            let working_log = knotch_kernel::Log::from_events(unit.clone(), working_events.clone());
+            let ctx =
+                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
             if let Err(err) = proposal.body.check_precondition(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal {
-                    proposal,
-                    reason: err.to_string().into(),
-                });
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
             if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal {
-                    proposal,
-                    reason: err.to_string().into(),
-                });
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
             // 3. Monotonic timestamp.
@@ -291,15 +277,9 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
             if let Some(prev) = last_at {
                 if at < prev {
                     if matches!(mode, AppendMode::AllOrNothing) {
-                        return Err(RepositoryError::NonMonotonic {
-                            attempted: at,
-                            last: prev,
-                        });
+                        return Err(RepositoryError::NonMonotonic { attempted: at, last: prev });
                     }
-                    rejected.push(RejectedProposal {
-                        proposal,
-                        reason: "non-monotonic".into(),
-                    });
+                    rejected.push(RejectedProposal { proposal, reason: "non-monotonic".into() });
                     continue;
                 }
             }
@@ -328,10 +308,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         if header_missing {
             out_lines.insert(0, self.header_line()?);
         }
-        self.storage
-            .append(unit, expected_len, out_lines)
-            .await
-            .map_err(storage_err)?;
+        self.storage.append(unit, expected_len, out_lines).await.map_err(storage_err)?;
 
         // Fanout to in-process subscribers. `send` returning Err means
         // no receivers — fine.
@@ -369,11 +346,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
             }
             SubscribeMode::FromEventId(anchor) => {
                 let log = Repository::load(self, unit).await?;
-                let idx = log
-                    .events()
-                    .iter()
-                    .position(|e| e.id == anchor)
-                    .map_or(0, |i| i + 1);
+                let idx = log.events().iter().position(|e| e.id == anchor).map_or(0, |i| i + 1);
                 log.events()[idx..].to_vec()
             }
             _ => Vec::new(),
@@ -419,11 +392,8 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         mode: AppendMode,
         mutate_cache: CacheMutator,
     ) -> Result<AppendReport<W>, RepositoryError> {
-        let _guard = self
-            .lock
-            .acquire(unit, self.lock_timeout, self.lock_lease)
-            .await
-            .map_err(lock_err)?;
+        let _guard =
+            self.lock.acquire(unit, self.lock_timeout, self.lock_lease).await.map_err(lock_err)?;
 
         // Load cache + lines under the lock so the mutation commits
         // atomically with the event append.
@@ -447,48 +417,36 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         let mut last_at: Option<Timestamp> = working_events.last().map(|e| e.at);
 
         for proposal in proposals {
-            let fp = fingerprint_proposal(&self.workflow, &proposal)
-                .map_err(RepositoryError::Codec)?;
+            let fp =
+                fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if used.contains(&fp) {
                 rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
                 continue;
             }
-            let working_log =
-                knotch_kernel::Log::from_events(unit.clone(), working_events.clone());
-            let ctx = knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
+            let working_log = knotch_kernel::Log::from_events(unit.clone(), working_events.clone());
+            let ctx =
+                knotch_kernel::precondition::AppendContext::<W>::new(&self.workflow, &working_log);
             if let Err(err) = proposal.body.check_precondition(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal {
-                    proposal,
-                    reason: err.to_string().into(),
-                });
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
             if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal {
-                    proposal,
-                    reason: err.to_string().into(),
-                });
+                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
                 continue;
             }
             let at = Timestamp::now();
             if let Some(prev) = last_at {
                 if at < prev {
                     if matches!(mode, AppendMode::AllOrNothing) {
-                        return Err(RepositoryError::NonMonotonic {
-                            attempted: at,
-                            last: prev,
-                        });
+                        return Err(RepositoryError::NonMonotonic { attempted: at, last: prev });
                     }
-                    rejected.push(RejectedProposal {
-                        proposal,
-                        reason: "non-monotonic".into(),
-                    });
+                    rejected.push(RejectedProposal { proposal, reason: "non-monotonic".into() });
                     continue;
                 }
             }
@@ -517,10 +475,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         if header_missing {
             out_lines.insert(0, self.header_line()?);
         }
-        self.storage
-            .append(unit, expected_len, out_lines)
-            .await
-            .map_err(storage_err)?;
+        self.storage.append(unit, expected_len, out_lines).await.map_err(storage_err)?;
 
         // The log is the sole source of truth (constitution §I); the
         // resume-cache is a checkpoint that can safely lag or be
@@ -531,11 +486,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         // and the observer re-processes the window it had already
         // advanced past — safe because fingerprint dedup turns the
         // repeat into idempotent no-ops.
-        if let Err(err) = self
-            .storage
-            .write_cache(unit, cache.as_map().clone())
-            .await
-        {
+        if let Err(err) = self.storage.write_cache(unit, cache.as_map().clone()).await {
             tracing::warn!(
                 unit = unit.as_str(),
                 error = %err,
@@ -552,4 +503,3 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         Ok(AppendReport { accepted, rejected })
     }
 }
-

@@ -83,4 +83,3 @@ pub struct ObserveContext<'a, W: WorkflowKind> {
     /// Per-observer budget.
     pub budget: ObserveBudget,
 }
-

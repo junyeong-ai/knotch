@@ -48,11 +48,7 @@ pub(crate) struct SkippedArgs {
     pub reason: String,
 }
 
-pub(crate) async fn run(
-    config: &Config,
-    out: OutputMode,
-    cmd: MarkCommand,
-) -> anyhow::Result<()> {
+pub(crate) async fn run(config: &Config, out: OutputMode, cmd: MarkCommand) -> anyhow::Result<()> {
     let unit = active_unit_or_bail(&config.root)?;
     let causation = Causation::cli("mark");
     let repo = config.build_repository()?;
@@ -79,20 +75,17 @@ where
     R: Repository<W>,
     Proposal<W>: Serialize,
 {
-    let phase = repo.workflow().parse_phase(&args.phase)
-        .ok_or_else(|| anyhow!("unknown phase `{}` for preset `{}`", args.phase, repo.workflow().name()))?;
-    let artifacts = ArtifactList(
-        args.artifact.into_iter().map(CompactString::from).collect(),
-    );
+    let phase = repo.workflow().parse_phase(&args.phase).ok_or_else(|| {
+        anyhow!("unknown phase `{}` for preset `{}`", args.phase, repo.workflow().name())
+    })?;
+    let artifacts = ArtifactList(args.artifact.into_iter().map(CompactString::from).collect());
     let proposal = Proposal {
         causation,
         extension: <W::Extension as Default>::default(),
         body: EventBody::PhaseCompleted { phase, artifacts },
         supersedes: None,
     };
-    let report = repo
-        .append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    let report = repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     emit_report(out, "phase_completed", &args.phase, &report);
     Ok(())
 }
@@ -110,19 +103,17 @@ where
     R: Repository<W>,
     Proposal<W>: Serialize,
 {
-    let phase = repo.workflow().parse_phase(&args.phase)
-        .ok_or_else(|| anyhow!("unknown phase `{}` for preset `{}`", args.phase, repo.workflow().name()))?;
-    let reason = SkipKind::from_str(&args.reason)
-        .expect("SkipKind::from_str is infallible");
+    let phase = repo.workflow().parse_phase(&args.phase).ok_or_else(|| {
+        anyhow!("unknown phase `{}` for preset `{}`", args.phase, repo.workflow().name())
+    })?;
+    let reason = SkipKind::from_str(&args.reason).expect("SkipKind::from_str is infallible");
     let proposal = Proposal {
         causation,
         extension: <W::Extension as Default>::default(),
         body: EventBody::PhaseSkipped { phase, reason },
         supersedes: None,
     };
-    let report = repo
-        .append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    let report = repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     emit_report(out, "phase_skipped", &args.phase, &report);
     Ok(())
 }
@@ -137,12 +128,8 @@ pub(crate) fn active_unit_or_bail(root: &Path) -> anyhow::Result<UnitId> {
     }
 }
 
-pub(crate) fn emit_report<W>(
-    out: OutputMode,
-    event: &str,
-    subject: &str,
-    report: &AppendReport<W>,
-) where
+pub(crate) fn emit_report<W>(out: OutputMode, event: &str, subject: &str, report: &AppendReport<W>)
+where
     W: WorkflowKind,
 {
     match out {

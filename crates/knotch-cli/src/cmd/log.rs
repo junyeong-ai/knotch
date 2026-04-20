@@ -74,7 +74,8 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
 }
 
 fn print_human_event(index: usize, value: &Value) {
-    let kind = value.get("body")
+    let kind = value
+        .get("body")
         .and_then(|b| b.get("type"))
         .and_then(Value::as_str)
         .unwrap_or("<unknown>");

@@ -3,12 +3,11 @@
 //! Two responsibilities:
 //!
 //! 1. **Garbage-collect** the per-session active-unit pointer at
-//!    `.knotch/sessions/<session_id>.toml` so the directory does not
-//!    grow unboundedly. The pointer is preserved when the session is
-//!    about to resume (`reason = "resume"`) so the next restart
-//!    reuses the same target.
-//! 2. **Surface residual queue size** so operators notice drain
-//!    failures that SessionStart auto-drain could not handle.
+//!    `.knotch/sessions/<session_id>.toml` so the directory does not grow unboundedly.
+//!    The pointer is preserved when the session is about to resume (`reason = "resume"`)
+//!    so the next restart reuses the same target.
+//! 2. **Surface residual queue size** so operators notice drain failures that
+//!    SessionStart auto-drain could not handle.
 
 use std::path::Path;
 

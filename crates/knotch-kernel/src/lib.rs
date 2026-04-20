@@ -21,8 +21,8 @@ pub mod id;
 pub mod log;
 pub mod precondition;
 pub mod project;
-pub mod repository;
 pub mod rationale;
+pub mod repository;
 pub mod scope;
 pub mod status;
 pub mod time;
@@ -30,8 +30,8 @@ pub mod workflow;
 
 pub use self::{
     causation::{
-        AgentId, Causation, Cost, Harness, ModelId, Person, Principal, SessionId, Source,
-        TraceId, Trigger,
+        AgentId, Causation, Cost, Harness, ModelId, Person, Principal, SessionId, Source, TraceId,
+        Trigger,
     },
     error::{PreconditionError, RepositoryError},
     event::{

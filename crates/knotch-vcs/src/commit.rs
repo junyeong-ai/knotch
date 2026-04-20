@@ -2,11 +2,11 @@
 
 use compact_str::CompactString;
 use jiff::Timestamp;
-use knotch_kernel::event::{CommitKind, CommitRef};
 // `CommitStatus` is owned by the kernel (it ships on
 // `EventBody::MilestoneShipped`); re-exported for ergonomics so VCS
 // callers don't cross into a second crate for one enum.
 pub use knotch_kernel::event::CommitStatus;
+use knotch_kernel::event::{CommitKind, CommitRef};
 
 /// A raw commit as returned by a `Vcs::log_since` walk.
 #[derive(Debug, Clone, PartialEq, Eq)]

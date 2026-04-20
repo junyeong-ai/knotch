@@ -8,29 +8,42 @@ use std::{borrow::Cow, sync::Arc};
 use knotch_derive::MilestoneKind;
 use knotch_kernel::{
     AppendMode, Causation, Fingerprint, PhaseKind, Proposal, Repository, Scope, UnitId,
-    WorkflowKind, fingerprint_event, fingerprint_proposal,
+    WorkflowKind,
     causation::{Principal, Source, Trigger},
     event::{CommitKind, CommitRef, CommitStatus, EventBody, SkipKind},
+    fingerprint_event, fingerprint_proposal,
 };
 use knotch_storage::FileRepository;
 use knotch_testing::InMemoryRepository;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-enum Phase { Only }
+enum Phase {
+    Only,
+}
 impl PhaseKind for Phase {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("only") }
-    fn is_skippable(&self, _: &SkipKind) -> bool { false }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("only")
+    }
+    fn is_skippable(&self, _: &SkipKind) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(rename_all = "snake_case")]
-enum Milestone { Alpha, Beta, Gamma }
+enum Milestone {
+    Alpha,
+    Beta,
+    Gamma,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 enum Gate {}
 impl knotch_kernel::GateKind for Gate {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("") }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("")
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,9 +54,15 @@ impl WorkflowKind for Wf {
     type Milestone = Milestone;
     type Gate = Gate;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("parity") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("parity")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
 }
 
 fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
@@ -125,16 +144,10 @@ async fn fingerprint_matches_between_in_memory_and_file_repositories() {
 
     assert_eq!(file_report.accepted.len(), mem_report.accepted.len());
 
-    let file_fps: Vec<Fingerprint> = file_report
-        .accepted
-        .iter()
-        .map(|e| fingerprint_event(&Wf, e).unwrap())
-        .collect();
-    let mem_fps: Vec<Fingerprint> = mem_report
-        .accepted
-        .iter()
-        .map(|e| fingerprint_event(&Wf, e).unwrap())
-        .collect();
+    let file_fps: Vec<Fingerprint> =
+        file_report.accepted.iter().map(|e| fingerprint_event(&Wf, e).unwrap()).collect();
+    let mem_fps: Vec<Fingerprint> =
+        mem_report.accepted.iter().map(|e| fingerprint_event(&Wf, e).unwrap()).collect();
     assert_eq!(
         file_fps, mem_fps,
         "fingerprints diverged between FileRepository and InMemoryRepository",

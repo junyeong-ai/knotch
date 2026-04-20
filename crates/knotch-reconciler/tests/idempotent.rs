@@ -21,21 +21,32 @@ use serde::{Deserialize, Serialize};
 // --- Minimal workflow for this test ----------------------------------
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum TestPhase { Only }
+pub enum TestPhase {
+    Only,
+}
 
 impl PhaseKind for TestPhase {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("only") }
-    fn is_skippable(&self, _: &SkipKind) -> bool { false }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("only")
+    }
+    fn is_skippable(&self, _: &SkipKind) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
 #[serde(rename_all = "snake_case")]
-pub enum TestMilestone { ShipSignup, FixPayments }
+pub enum TestMilestone {
+    ShipSignup,
+    FixPayments,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TestGate {}
 impl knotch_kernel::GateKind for TestGate {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("none") }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("none")
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -47,9 +58,15 @@ impl WorkflowKind for TestWorkflow {
     type Milestone = TestMilestone;
     type Gate = TestGate;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("test-workflow") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("test-workflow")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
 }
 
 // --- Fixture builder -------------------------------------------------
@@ -73,9 +90,7 @@ fn build_vcs() -> Arc<InMemoryVcs> {
         )
         .with_kind(CommitKind::Fix),
     );
-    vcs.set_head(knotch_kernel::event::CommitRef::new(
-        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    ));
+    vcs.set_head(knotch_kernel::event::CommitRef::new("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"));
     Arc::new(vcs)
 }
 
@@ -108,18 +123,13 @@ async fn ten_reconcile_passes_produce_zero_new_events_after_the_first() {
     let unit = UnitId::new("test-unit");
 
     // Seed the log with a UnitCreated event so phase-invariants pass.
-    repo.append(&unit, vec![unit_created_proposal()], AppendMode::BestEffort)
-        .await
-        .expect("seed");
+    repo.append(&unit, vec![unit_created_proposal()], AppendMode::BestEffort).await.expect("seed");
 
     let vcs = build_vcs();
-    let observer = Arc::new(GitLogObserver::<InMemoryVcs, TestWorkflow>::new(
-        vcs.clone(),
-        resolver(),
-    ));
-    let reconciler = Reconciler::<TestWorkflow, _>::builder(repo.clone())
-        .observer(observer)
-        .build();
+    let observer =
+        Arc::new(GitLogObserver::<InMemoryVcs, TestWorkflow>::new(vcs.clone(), resolver()));
+    let reconciler =
+        Reconciler::<TestWorkflow, _>::builder(repo.clone()).observer(observer).build();
 
     let first = reconciler.reconcile(&unit).await.expect("first");
     assert!(first.accepted_any(), "first pass must accept MilestoneShipped events");
@@ -146,9 +156,7 @@ async fn ten_reconcile_passes_produce_zero_new_events_after_the_first() {
     let log = repo.load(&unit).await.expect("load");
     let effective = effective_events(&log);
     assert_eq!(effective.len(), 3);
-    let shipped: Vec<_> = effective
-        .iter()
-        .filter(|e| matches!(e.body, EventBody::MilestoneShipped { .. }))
-        .collect();
+    let shipped: Vec<_> =
+        effective.iter().filter(|e| matches!(e.body, EventBody::MilestoneShipped { .. })).collect();
     assert_eq!(shipped.len(), 2);
 }

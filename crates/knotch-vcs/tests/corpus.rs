@@ -47,17 +47,10 @@ fn build_fixture_repo(root: &Path) {
 }
 
 fn snapshot(vcs: &GixVcs) -> Vec<String> {
-    tokio::runtime::Runtime::new()
-        .expect("rt")
-        .block_on(async {
-            let log = vcs
-                .log_since(None, &CommitFilter::default())
-                .await
-                .expect("log_since");
-            log.into_iter()
-                .map(|c| format!("{} | {}", c.sha, c.subject))
-                .collect()
-        })
+    tokio::runtime::Runtime::new().expect("rt").block_on(async {
+        let log = vcs.log_since(None, &CommitFilter::default()).await.expect("log_since");
+        log.into_iter().map(|c| format!("{} | {}", c.sha, c.subject)).collect()
+    })
 }
 
 #[test]
@@ -102,17 +95,11 @@ async fn log_since_skips_prior_commits() {
     let dir = tempfile::tempdir().expect("tempdir");
     build_fixture_repo(dir.path());
     let vcs = GixVcs::open(dir.path()).expect("open");
-    let full = vcs
-        .log_since(None, &CommitFilter::default())
-        .await
-        .expect("full");
+    let full = vcs.log_since(None, &CommitFilter::default()).await.expect("full");
     assert_eq!(full.len(), 4);
 
     let cutoff = full[2].sha.clone();
-    let partial = vcs
-        .log_since(Some(&cutoff), &CommitFilter::default())
-        .await
-        .expect("partial");
+    let partial = vcs.log_since(Some(&cutoff), &CommitFilter::default()).await.expect("partial");
     assert_eq!(partial.len(), 2, "expected 2 newer commits than cutoff");
 }
 
@@ -121,10 +108,7 @@ async fn parser_recognizes_fixture_kinds() {
     let dir = tempfile::tempdir().expect("tempdir");
     build_fixture_repo(dir.path());
     let vcs = GixVcs::open(dir.path()).expect("open");
-    let log = vcs
-        .log_since(None, &CommitFilter::default())
-        .await
-        .expect("log");
+    let log = vcs.log_since(None, &CommitFilter::default()).await.expect("log");
 
     let mut breaking_seen = false;
     let mut scope_seen = false;

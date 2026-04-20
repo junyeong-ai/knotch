@@ -10,9 +10,5 @@ pub(crate) async fn run(_config: &Config, input: HookInput) -> anyhow::Result<Ho
         _ => None,
     };
     let root = project_root(&input.cwd);
-    Ok(knotch_agent::session_end::finalize(
-        &root,
-        input.session_id.as_str(),
-        reason,
-    )?)
+    Ok(knotch_agent::session_end::finalize(&root, input.session_id.as_str(), reason)?)
 }

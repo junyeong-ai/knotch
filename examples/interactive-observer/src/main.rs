@@ -11,10 +11,9 @@
 //!
 //! This example walks through:
 //!
-//! 1. An observer that "asks for input" by polling a
-//!    [`tokio::sync::watch`] channel between cancellation checks.
-//! 2. What happens when the reconciler-side timeout fires before the
-//!    answer arrives.
+//! 1. An observer that "asks for input" by polling a [`tokio::sync::watch`] channel
+//!    between cancellation checks.
+//! 2. What happens when the reconciler-side timeout fires before the answer arrives.
 //! 3. What happens when the answer lands in time.
 //!
 //! Run with `cargo run -p knotch-example-interactive-observer`.
@@ -26,11 +25,7 @@ use knotch_kernel::{
     causation::{Principal, Source, Trigger},
     event::{ArtifactList, EventBody},
 };
-use knotch_observer::{
-    Observer,
-    context::ObserveContext,
-    error::ObserverError,
-};
+use knotch_observer::{Observer, context::ObserveContext, error::ObserverError};
 use knotch_workflow::{Knotch, KnotchPhase};
 use tokio_util::sync::CancellationToken;
 
@@ -54,21 +49,14 @@ impl Observer<Knotch> for AwaitInput {
         let mut rx = self.rx.clone();
         loop {
             if ctx.cancel.is_cancelled() {
-                return Err(ObserverError::Cancelled {
-                    name: self.name().into(),
-                    elapsed_ms: 0,
-                });
+                return Err(ObserverError::Cancelled { name: self.name().into(), elapsed_ms: 0 });
             }
             if let Some(_rationale) = rx.borrow().clone() {
                 return Ok(vec![Proposal {
                     causation: Causation::new(
                         Source::Hook,
-                        Principal::System {
-                            service: "interactive-observer".into(),
-                        },
-                        Trigger::Observer {
-                            name: self.name().into(),
-                        },
+                        Principal::System { service: "interactive-observer".into() },
+                        Trigger::Observer { name: self.name().into() },
                     ),
                     extension: (),
                     body: EventBody::PhaseCompleted {
@@ -148,9 +136,6 @@ async fn main() -> anyhow::Result<()> {
         let _ = tx.send(Some("user approved".into()));
     });
     let proposals = observe_fut.await?;
-    println!(
-        "run 2: observer returned {} proposal(s) after input arrived",
-        proposals.len(),
-    );
+    println!("run 2: observer returned {} proposal(s) after input arrived", proposals.len(),);
     Ok(())
 }

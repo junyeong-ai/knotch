@@ -58,8 +58,12 @@ impl WorkflowKind for Minimal {
     type Gate = MiniGate;
     type Extension = ();
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("minimal") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("minimal")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, _scope: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
         std::borrow::Cow::Borrowed(&PHASES)
@@ -80,10 +84,7 @@ async fn main() -> anyhow::Result<()> {
     append(
         &repo,
         &unit,
-        EventBody::PhaseCompleted {
-            phase: MiniPhase::Start,
-            artifacts: ArtifactList::default(),
-        },
+        EventBody::PhaseCompleted { phase: MiniPhase::Start, artifacts: ArtifactList::default() },
     )
     .await?;
 
@@ -104,7 +105,6 @@ where
         body,
         supersedes: None,
     };
-    repo.append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     Ok(())
 }

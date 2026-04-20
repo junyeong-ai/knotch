@@ -101,10 +101,7 @@ pub(crate) async fn run(config: &Config, cmd: HookCommand) -> ExitCode {
     let input = match read_input().await {
         Ok(i) => i,
         Err(e) => {
-            return emit_error(
-                &anyhow::anyhow!("stdin parse failed: {e}"),
-                kind,
-            );
+            return emit_error(&anyhow::anyhow!("stdin parse failed: {e}"), kind);
         }
     };
 

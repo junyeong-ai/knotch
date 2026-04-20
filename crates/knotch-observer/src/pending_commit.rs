@@ -17,7 +17,7 @@ use knotch_kernel::{
 };
 use knotch_vcs::Vcs;
 
-use crate::{Observer, ObserveContext, ObserverError};
+use crate::{ObserveContext, Observer, ObserverError};
 
 /// Observer that promotes pending ships.
 pub struct PendingCommitObserver<V, W: WorkflowKind> {
@@ -57,7 +57,10 @@ where
         for evt in &effective {
             match &evt.body {
                 EventBody::MilestoneShipped {
-                    milestone, commit, status: CommitStatus::Pending, ..
+                    milestone,
+                    commit,
+                    status: CommitStatus::Pending,
+                    ..
                 } => {
                     pending.push((milestone.clone(), commit.clone()));
                 }
@@ -111,4 +114,3 @@ where
         Ok(out)
     }
 }
-

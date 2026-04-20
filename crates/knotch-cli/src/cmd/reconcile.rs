@@ -66,9 +66,7 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
 
     // 3. Optional prune — removes JSON files the drain left behind.
     let (pruned, pruned_mode) = if args.prune || args.prune_older.is_some() {
-        let age = args
-            .prune_older
-            .map(|h| Duration::from_secs(u64::from(h) * 3600));
+        let age = args.prune_older.map(|h| Duration::from_secs(u64::from(h) * 3600));
         let count = prune_queue(&queue_dir, age)?;
         let mode = match age {
             None => "all-remaining",
@@ -157,13 +155,7 @@ impl ObserverReport {
             Self::Skipped => json!({ "status": "skipped" }),
             Self::NoUnit => json!({ "status": "no_unit" }),
             Self::NoObservers => json!({ "status": "no_observers" }),
-            Self::Ran {
-                unit,
-                observer_count,
-                accepted,
-                rejected,
-                observer_errors,
-            } => json!({
+            Self::Ran { unit, observer_count, accepted, rejected, observer_errors } => json!({
                 "status": "ran",
                 "unit": unit,
                 "observer_count": observer_count,
@@ -210,11 +202,8 @@ async fn run_observers(
         .await
         .with_context(|| format!("reconcile unit `{}`", unit.as_str()))?;
 
-    let observer_errors: Vec<String> = report
-        .observer_errors
-        .iter()
-        .map(|f| format!("{}: {}", f.observer, f.source))
-        .collect();
+    let observer_errors: Vec<String> =
+        report.observer_errors.iter().map(|f| format!("{}: {}", f.observer, f.source)).collect();
 
     Ok(ObserverReport::Ran {
         unit: unit.as_str().to_owned(),
@@ -227,19 +216,15 @@ async fn run_observers(
 
 /// Remove JSON queue entries.
 ///
-/// - `older_than = Some(dur)` → only entries whose mtime is older
-///   than `now - dur`.
-/// - `older_than = None` → every JSON entry (caller opted into
-///   `--prune` with no age filter).
+/// - `older_than = Some(dur)` → only entries whose mtime is older than `now - dur`.
+/// - `older_than = None` → every JSON entry (caller opted into `--prune` with no age
+///   filter).
 fn prune_queue(queue_dir: &Path, older_than: Option<Duration>) -> anyhow::Result<usize> {
     if !queue_dir.exists() {
         return Ok(0);
     }
-    let cutoff = older_than.map(|dur| {
-        SystemTime::now()
-            .checked_sub(dur)
-            .unwrap_or(SystemTime::UNIX_EPOCH)
-    });
+    let cutoff =
+        older_than.map(|dur| SystemTime::now().checked_sub(dur).unwrap_or(SystemTime::UNIX_EPOCH));
     let mut pruned = 0usize;
     for entry in std::fs::read_dir(queue_dir).context("read queue dir")? {
         let entry = entry.context("queue entry")?;

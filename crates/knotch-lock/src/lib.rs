@@ -11,15 +11,15 @@ pub mod metadata;
 mod error;
 mod file_lock;
 
+use std::{future::Future, time::Duration};
+
+use knotch_kernel::UnitId;
+
 pub use self::{
     error::LockError,
     file_lock::{FileLock, LockGuard},
     metadata::{LockMetadata, LockOwner},
 };
-
-use std::{future::Future, time::Duration};
-
-use knotch_kernel::UnitId;
 
 /// Port for per-unit advisory locks. Implementations provide a lease
 /// + stale-reclaim semantic so orphaned locks cannot block forever.

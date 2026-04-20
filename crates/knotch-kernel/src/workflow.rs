@@ -23,7 +23,7 @@ use crate::{event::SkipKind, scope::Scope};
 #[diagnostic::on_unimplemented(
     message = "`{Self}` is not a knotch WorkflowKind",
     note = "derive `#[workflow]` on your workflow marker type or implement \
-            `WorkflowKind` manually",
+            `WorkflowKind` manually"
 )]
 pub trait WorkflowKind: Clone + core::fmt::Debug + Send + Sync + 'static {
     /// The set of phases this workflow recognizes.
@@ -117,10 +117,7 @@ pub trait WorkflowKind: Clone + core::fmt::Debug + Send + Sync + 'static {
     ///
     /// The lifetime parameter `'a` lets either source — `&self` or
     /// `&gate` — own the returned slice.
-    fn prerequisites_for<'a>(
-        &'a self,
-        gate: &'a Self::Gate,
-    ) -> Cow<'a, [Self::Gate]> {
+    fn prerequisites_for<'a>(&'a self, gate: &'a Self::Gate) -> Cow<'a, [Self::Gate]> {
         GateKind::prerequisites(gate)
     }
 
@@ -129,11 +126,7 @@ pub trait WorkflowKind: Clone + core::fmt::Debug + Send + Sync + 'static {
     /// `PhaseSkipped`. Default delegates to
     /// [`PhaseKind::is_skippable`]; ConfigWorkflow overrides to
     /// consult the `accepts_skips` list declared in config.
-    fn accepts_skip_for(
-        &self,
-        phase: &Self::Phase,
-        reason: &crate::event::SkipKind,
-    ) -> bool {
+    fn accepts_skip_for(&self, phase: &Self::Phase, reason: &crate::event::SkipKind) -> bool {
         phase.is_skippable(reason)
     }
 

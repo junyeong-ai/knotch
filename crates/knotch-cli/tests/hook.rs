@@ -92,10 +92,7 @@ fn check_commit_without_active_unit_continues() {
         .arg("--root")
         .arg(tmp.path())
         .args(["hook", "check-commit"])
-        .write_stdin(pretool_bash_input(
-            tmp.path(),
-            "git commit -m \"feat: add sso\"",
-        ))
+        .write_stdin(pretool_bash_input(tmp.path(), "git commit -m \"feat: add sso\""))
         .assert()
         .success();
 }

@@ -3,18 +3,16 @@
 //! This crate ships one opinionated workflow (the [`Knotch`] marker
 //! type) plus the helpers every adopter-defined `WorkflowKind` needs:
 //!
-//! - [`Knotch`] — the canonical workflow: phases
-//!   `Specify → Plan → Build → Review → Ship`, gates `G0..G4`,
-//!   free-form [`TaskId`] milestones.
-//! - [`PhaseOrdering`] — declarative ordering used by enum-backed
-//!   phases and by runtime-defined [`DynamicPhase`] values.
-//! - [`DynamicPhase`] / [`DynamicGate`] / [`DynamicMilestone`] — types
-//!   that carry their name + spec at runtime; use when phases must be
-//!   configurable rather than hard-coded.
-//! - [`validate_ordering`] — acyclicity + uniqueness check, called by
-//!   derived `WorkflowKind` impls.
-//! - [`SkipPolicy`] — a reusable predicate describing which
-//!   `SkipKind` values each phase accepts.
+//! - [`Knotch`] — the canonical workflow: phases `Specify → Plan → Build → Review →
+//!   Ship`, gates `G0..G4`, free-form [`TaskId`] milestones.
+//! - [`PhaseOrdering`] — declarative ordering used by enum-backed phases and by
+//!   runtime-defined [`DynamicPhase`] values.
+//! - [`DynamicPhase`] / [`DynamicGate`] / [`DynamicMilestone`] — types that carry their
+//!   name + spec at runtime; use when phases must be configurable rather than hard-coded.
+//! - [`validate_ordering`] — acyclicity + uniqueness check, called by derived
+//!   `WorkflowKind` impls.
+//! - [`SkipPolicy`] — a reusable predicate describing which `SkipKind` values each phase
+//!   accepts.
 
 pub mod config;
 pub mod dynamic;

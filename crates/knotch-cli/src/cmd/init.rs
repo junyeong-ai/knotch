@@ -2,10 +2,10 @@
 //!
 //! Creates `knotch.toml`, `state/`, and `.knotch/`. Optional flags:
 //!
-//! - `--with-hooks` merges the knotch hook block into a Claude Code
-//!   settings file chosen by `--hook-target`.
-//! - `--demo` pre-populates a sample `demo` unit and makes it active
-//!   so a new user can run `knotch show demo` immediately.
+//! - `--with-hooks` merges the knotch hook block into a Claude Code settings file chosen
+//!   by `--hook-target`.
+//! - `--demo` pre-populates a sample `demo` unit and makes it active so a new user can
+//!   run `knotch show demo` immediately.
 
 use std::path::{Path, PathBuf};
 
@@ -65,10 +65,7 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
     let cfg_path = config.config_path();
     let existed = cfg_path.exists();
     if existed && !args.force {
-        return Err(anyhow!(
-            "{} already exists — pass --force to overwrite",
-            cfg_path.display()
-        ));
+        return Err(anyhow!("{} already exists — pass --force to overwrite", cfg_path.display()));
     }
 
     tokio::fs::create_dir_all(&config.state_dir)
@@ -88,11 +85,8 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
     } else {
         None
     };
-    let example_written = if args.with_hooks {
-        Some(write_optional_example(&config.root).await?)
-    } else {
-        None
-    };
+    let example_written =
+        if args.with_hooks { Some(write_optional_example(&config.root).await?) } else { None };
 
     // Always wire the `.knotch/` runtime dir into .gitignore and
     // ship a README explaining its role. Idempotent — re-runs don't
@@ -150,10 +144,7 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
 }
 
 fn relative_state_dir(root: &Path, state_dir: &Path) -> PathBuf {
-    state_dir
-        .strip_prefix(root)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|_| state_dir.to_path_buf())
+    state_dir.strip_prefix(root).map(Path::to_path_buf).unwrap_or_else(|_| state_dir.to_path_buf())
 }
 
 fn default_config_toml(state_dir: &Path) -> String {
@@ -274,10 +265,7 @@ async fn populate_demo(config: &Config) -> anyhow::Result<()> {
     append_body::<ConfigWorkflow, _>(
         &repo,
         &unit,
-        EventBody::PhaseCompleted {
-            phase: specify,
-            artifacts: ArtifactList::default(),
-        },
+        EventBody::PhaseCompleted { phase: specify, artifacts: ArtifactList::default() },
     )
     .await?;
     write_active(&config.root, Some(&unit), "init-demo")
@@ -285,11 +273,7 @@ async fn populate_demo(config: &Config) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn append_body<W, R>(
-    repo: &R,
-    unit: &UnitId,
-    body: EventBody<W>,
-) -> anyhow::Result<()>
+async fn append_body<W, R>(repo: &R, unit: &UnitId, body: EventBody<W>) -> anyhow::Result<()>
 where
     W: knotch_kernel::WorkflowKind,
     W::Extension: Default,
@@ -301,8 +285,7 @@ where
         body,
         supersedes: None,
     };
-    repo.append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     Ok(())
 }
 
@@ -334,9 +317,7 @@ async fn install_hooks(
         merged = merge_hooks(merged, knotch_optional_hook_block());
     }
     let body = serde_json::to_string_pretty(&merged)?;
-    tokio::fs::write(&path, body)
-        .await
-        .with_context(|| format!("write {}", path.display()))?;
+    tokio::fs::write(&path, body).await.with_context(|| format!("write {}", path.display()))?;
     Ok(Some(path))
 }
 
@@ -403,7 +384,10 @@ async fn ensure_gitignored_knotch(root: &Path) -> anyhow::Result<()> {
     let existing = tokio::fs::read_to_string(&path).await.unwrap_or_default();
     let already_ignored = existing.lines().any(|line| {
         let trimmed = line.trim();
-        trimmed == ".knotch" || trimmed == ".knotch/" || trimmed == "/.knotch" || trimmed == "/.knotch/"
+        trimmed == ".knotch"
+            || trimmed == ".knotch/"
+            || trimmed == "/.knotch"
+            || trimmed == "/.knotch/"
     });
     if already_ignored {
         return Ok(());
@@ -525,9 +509,9 @@ fn knotch_optional_hook_block() -> Value {
 ///
 /// This is a **signature-based replace**, not a diff:
 ///
-/// 1. Every entry in `existing.hooks.*[].hooks` whose `command`
-///    starts with `"knotch hook "` or `"knotch "` is removed. Empty
-///    hook_entry groups and empty event arrays collapse.
+/// 1. Every entry in `existing.hooks.*[].hooks` whose `command` starts with `"knotch hook
+///    "` or `"knotch "` is removed. Empty hook_entry groups and empty event arrays
+///    collapse.
 /// 2. The fresh knotch block is appended verbatim.
 ///
 /// Consequence: re-running `knotch init --with-hooks` after editing
@@ -561,9 +545,7 @@ fn strip_knotch_managed(value: Value) -> Value {
         }
         // Drop hook_entrys whose hooks array ended up empty.
         arr.retain(|h| {
-            h.get("hooks")
-                .and_then(Value::as_array)
-                .is_none_or(|list| !list.is_empty())
+            h.get("hooks").and_then(Value::as_array).is_none_or(|list| !list.is_empty())
         });
         // Drop events whose hook_entry array is empty.
         if arr.is_empty() {

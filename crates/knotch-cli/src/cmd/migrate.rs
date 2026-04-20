@@ -46,9 +46,7 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
 
     let mismatches: Vec<&Finding> = findings
         .iter()
-        .filter(|f| {
-            f.schema_version.is_some() && f.schema_version != Some(target)
-        })
+        .filter(|f| f.schema_version.is_some() && f.schema_version != Some(target))
         .collect();
 
     match out {
@@ -69,10 +67,7 @@ pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow:
             if mismatches.is_empty() {
                 println!("all units at target version");
             } else {
-                println!(
-                    "{} unit(s) require a preset-specific migration",
-                    mismatches.len()
-                );
+                println!("{} unit(s) require a preset-specific migration", mismatches.len());
             }
         }
         OutputMode::Json => {
@@ -138,9 +133,5 @@ async fn inspect_unit(config: &Config, unit: &str) -> anyhow::Result<Finding> {
         .filter(|v| v.get("kind").and_then(Value::as_str) == Some("__header__"))
         .and_then(|v| v.get("schema_version").and_then(Value::as_u64))
         .and_then(|n| u32::try_from(n).ok());
-    Ok(Finding {
-        unit: unit.to_owned(),
-        schema_version: header_version,
-        log_path,
-    })
+    Ok(Finding { unit: unit.to_owned(), schema_version: header_version, log_path })
 }

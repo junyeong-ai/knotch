@@ -8,18 +8,27 @@ use knotch_derive::{GateKind, PhaseKind, workflow};
 use knotch_kernel::{Scope, WorkflowKind};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize, PhaseKind)]
-pub enum FlowPhase { Draft, Review }
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize, PhaseKind,
+)]
+pub enum FlowPhase {
+    Draft,
+    Review,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct FlowTask(pub String);
 impl knotch_kernel::MilestoneKind for FlowTask {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed(&self.0) }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed(&self.0)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, GateKind)]
-pub enum FlowGate { Approve }
+pub enum FlowGate {
+    Approve,
+}
 
 fn phases(_: &Scope) -> &'static [FlowPhase] {
     &[FlowPhase::Draft, FlowPhase::Review]

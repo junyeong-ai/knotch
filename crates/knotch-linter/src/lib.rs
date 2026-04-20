@@ -5,12 +5,10 @@
 //!
 //! Rules currently enforced:
 //!
-//! - `R1 DirectLogWrite` — blocks direct writes to knotch log files
-//!   (anything writing `log.jsonl` or `.resume-cache.json`) from
-//!   outside the allowlisted adapter crates.
-//! - `R2 ForbiddenName` — rejects identifiers ending in
-//!   `Helper`, `Util`, `Manager`, `Handler`, `Processor`, or `Impl`
-//!   (per `knotch-v1-final-plan.md §16.5`).
+//! - `R1 DirectLogWrite` — blocks direct writes to knotch log files (anything writing
+//!   `log.jsonl` or `.resume-cache.json`) from outside the allowlisted adapter crates.
+//! - `R2 ForbiddenName` — rejects identifiers ending in `Helper`, `Util`, `Manager`,
+//!   `Handler`, `Processor`, or `Impl` (per `knotch-v1-final-plan.md §16.5`).
 
 pub mod report;
 pub mod rules;
@@ -46,16 +44,11 @@ pub trait Rule: Send + Sync {
 /// Returns `LintError::Parse` when the source is not valid Rust;
 /// `LintError::Io` on read failure.
 pub fn lint_file(path: &Path, rules: &[Box<dyn Rule>]) -> Result<Vec<Violation>, LintError> {
-    let source =
-        std::fs::read_to_string(path).map_err(|e| LintError::Io { path: path.into(), source: e })?;
-    let file = syn::parse_file(&source).map_err(|e| LintError::Parse {
-        path: path.into(),
-        source: e,
-    })?;
-    let ctx = LintContext {
-        path: path.to_path_buf(),
-        crate_name: detect_crate_name(path),
-    };
+    let source = std::fs::read_to_string(path)
+        .map_err(|e| LintError::Io { path: path.into(), source: e })?;
+    let file =
+        syn::parse_file(&source).map_err(|e| LintError::Parse { path: path.into(), source: e })?;
+    let ctx = LintContext { path: path.to_path_buf(), crate_name: detect_crate_name(path) };
     let mut all = Vec::new();
     for rule in rules {
         all.extend(rule.check(&ctx, &file));

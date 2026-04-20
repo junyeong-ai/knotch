@@ -57,8 +57,12 @@ impl WorkflowKind for PrWorkflow {
     type Gate = PrGate;
     type Extension = ();
 
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("pr-workflow") }
-    fn schema_version(&self) -> u32 { 1 }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("pr-workflow")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
 
     fn required_phases(&self, _scope: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
         std::borrow::Cow::Borrowed(&PHASES)
@@ -84,10 +88,7 @@ async fn main() -> anyhow::Result<()> {
     append(
         &repo,
         &unit,
-        EventBody::PhaseCompleted {
-            phase: PrPhase::Draft,
-            artifacts: ArtifactList::default(),
-        },
+        EventBody::PhaseCompleted { phase: PrPhase::Draft, artifacts: ArtifactList::default() },
     )
     .await?;
     append(
@@ -113,19 +114,13 @@ async fn main() -> anyhow::Result<()> {
     append(
         &repo,
         &unit,
-        EventBody::PhaseCompleted {
-            phase: PrPhase::Review,
-            artifacts: ArtifactList::default(),
-        },
+        EventBody::PhaseCompleted { phase: PrPhase::Review, artifacts: ArtifactList::default() },
     )
     .await?;
     append(
         &repo,
         &unit,
-        EventBody::PhaseCompleted {
-            phase: PrPhase::Merged,
-            artifacts: ArtifactList::default(),
-        },
+        EventBody::PhaseCompleted { phase: PrPhase::Merged, artifacts: ArtifactList::default() },
     )
     .await?;
     append(
@@ -141,10 +136,7 @@ async fn main() -> anyhow::Result<()> {
 
     let log = repo.load(&unit).await?;
     println!("pr:     {}", unit.as_str());
-    println!(
-        "status: {:?}",
-        knotch_kernel::project::current_status(&log)
-    );
+    println!("status: {:?}", knotch_kernel::project::current_status(&log));
     println!("events: {}", log.events().len());
     Ok(())
 }
@@ -159,7 +151,6 @@ where
         body,
         supersedes: None,
     };
-    repo.append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     Ok(())
 }

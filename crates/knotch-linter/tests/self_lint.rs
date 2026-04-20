@@ -1,7 +1,6 @@
 //! Phase 7 exit criterion:
 //!
-//! - Running the linter on its own sources produces zero findings
-//!   (workspace self-lint).
+//! - Running the linter on its own sources produces zero findings (workspace self-lint).
 //! - Intentional violation fixtures produce ≥ 1 finding.
 
 use std::path::{Path, PathBuf};
@@ -21,9 +20,7 @@ fn walk(root: &Path) -> Vec<PathBuf> {
             }
             match entry.file_type() {
                 Ok(t) if t.is_dir() => rec(&path, out),
-                Ok(t) if t.is_file()
-                    && path.extension().and_then(|e| e.to_str()) == Some("rs") =>
-                {
+                Ok(t) if t.is_file() && path.extension().and_then(|e| e.to_str()) == Some("rs") => {
                     out.push(path);
                 }
                 _ => {}
@@ -35,10 +32,7 @@ fn walk(root: &Path) -> Vec<PathBuf> {
 }
 
 fn fixture(name: &str) -> String {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("fixtures")
-        .join(name);
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests").join("fixtures").join(name);
     std::fs::read_to_string(path).expect("fixture present")
 }
 

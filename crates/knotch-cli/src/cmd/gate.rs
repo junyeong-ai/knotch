@@ -12,7 +12,10 @@ use knotch_kernel::{
 use knotch_workflow::ConfigWorkflow;
 use serde::Serialize;
 
-use crate::{cmd::{OutputMode, mark}, config::Config};
+use crate::{
+    cmd::{OutputMode, mark},
+    config::Config,
+};
 
 #[derive(Debug, ClapArgs)]
 pub(crate) struct Args {
@@ -25,11 +28,7 @@ pub(crate) struct Args {
     pub rationale: String,
 }
 
-pub(crate) async fn run(
-    config: &Config,
-    out: OutputMode,
-    args: Args,
-) -> anyhow::Result<()> {
+pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow::Result<()> {
     let unit = mark::active_unit_or_bail(&config.root)?;
     let decision = Decision::from_str(&args.decision).map_err(|e| anyhow!(e))?;
     let causation = Causation::cli("gate");
@@ -51,23 +50,18 @@ where
     R: Repository<W>,
     Proposal<W>: Serialize,
 {
-    let gate = repo.workflow().parse_gate(&args.gate)
-        .ok_or_else(|| anyhow!("unknown gate `{}` for preset `{}`", args.gate, repo.workflow().name()))?;
+    let gate = repo.workflow().parse_gate(&args.gate).ok_or_else(|| {
+        anyhow!("unknown gate `{}` for preset `{}`", args.gate, repo.workflow().name())
+    })?;
     let rationale = Rationale::with_min(args.rationale, repo.workflow().min_rationale_chars())
         .map_err(|e| anyhow!(e))?;
     let proposal = Proposal {
         causation,
         extension: <W::Extension as Default>::default(),
-        body: EventBody::GateRecorded {
-            gate,
-            decision,
-            rationale,
-        },
+        body: EventBody::GateRecorded { gate, decision, rationale },
         supersedes: None,
     };
-    let report = repo
-        .append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    let report = repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     mark::emit_report(out, "gate_recorded", &args.gate, &report);
     Ok(())
 }

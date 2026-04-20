@@ -40,10 +40,7 @@ impl Registry {
     /// # Errors
     /// Returns [`MigrationError::Overlap`] if a migrator with the same
     /// `from` is already registered.
-    pub fn register(
-        &mut self,
-        migrator: Box<dyn SchemaMigrator>,
-    ) -> Result<(), MigrationError> {
+    pub fn register(&mut self, migrator: Box<dyn SchemaMigrator>) -> Result<(), MigrationError> {
         if self.migrators.iter().any(|m| m.from() == migrator.from()) {
             return Err(MigrationError::Overlap { from: migrator.from() });
         }

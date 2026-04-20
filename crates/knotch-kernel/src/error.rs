@@ -178,7 +178,9 @@ pub enum PreconditionError {
     /// (per `W::is_terminal_status`). Terminal units are immutable
     /// except via supersede; use `knotch supersede <event-id>` to
     /// undo the transition first.
-    #[error("cannot append against unit in terminal status `{status}` — use EventSuperseded to roll back first")]
+    #[error(
+        "cannot append against unit in terminal status `{status}` — use EventSuperseded to roll back first"
+    )]
     AppendAgainstTerminalUnit {
         /// The terminal status identifier reached by the unit.
         status: String,

@@ -64,8 +64,7 @@ async fn observer_returning_empty_proposals_succeeds() {
         deterministic: true,
         timeout_ms: 10_000,
     };
-    let observer =
-        SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
+    let observer = SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
 
     let unit = UnitId::new("u");
     let log = Arc::new(Log::<ConfigWorkflow>::from_events(unit.clone(), vec![]));
@@ -81,11 +80,8 @@ async fn observer_returning_empty_proposals_succeeds() {
 async fn observer_non_zero_exit_surfaces_as_backend_error() {
     let dir = TempDir::new().unwrap();
     let path = dir.path().join("fail.sh");
-    std::fs::write(
-        &path,
-        "#!/bin/sh\ncat >/dev/null\necho 'something broke' >&2\nexit 1\n",
-    )
-    .unwrap();
+    std::fs::write(&path, "#!/bin/sh\ncat >/dev/null\necho 'something broke' >&2\nexit 1\n")
+        .unwrap();
     use std::os::unix::fs::PermissionsExt as _;
     let mut perms = std::fs::metadata(&path).unwrap().permissions();
     perms.set_mode(0o755);
@@ -99,8 +95,7 @@ async fn observer_non_zero_exit_surfaces_as_backend_error() {
         deterministic: true,
         timeout_ms: 10_000,
     };
-    let observer =
-        SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
+    let observer = SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
 
     let unit = UnitId::new("u");
     let log = Arc::new(Log::<ConfigWorkflow>::from_events(unit.clone(), vec![]));
@@ -142,8 +137,7 @@ async fn observer_receives_events_filtered_by_subscription() {
         deterministic: true,
         timeout_ms: 10_000,
     };
-    let observer =
-        SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
+    let observer = SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
 
     // Build a log with UnitCreated + one PhaseCompleted + one
     // MilestoneShipped-unrelated event. Subscription filter should
@@ -154,9 +148,7 @@ async fn observer_receives_events_filtered_by_subscription() {
         knotch_kernel::causation::Principal::System { service: "test".into() },
         knotch_kernel::causation::Trigger::Manual,
     );
-    let specify = ConfigWorkflow::canonical()
-        .parse_phase("specify")
-        .expect("specify phase");
+    let specify = ConfigWorkflow::canonical().parse_phase("specify").expect("specify phase");
     let events = vec![
         knotch_kernel::Event {
             id: knotch_kernel::EventId::new_v7(),
@@ -185,15 +177,8 @@ async fn observer_receives_events_filtered_by_subscription() {
     let raw = std::fs::read_to_string(&sidechannel).expect("sidechannel populated");
     let seen: serde_json::Value = serde_json::from_str(&raw).expect("valid JSON");
     let events_out = seen.get("events").and_then(|v| v.as_array()).expect("events array");
-    assert_eq!(
-        events_out.len(),
-        1,
-        "subscription filter must drop non-phase-completed events"
-    );
+    assert_eq!(events_out.len(), 1, "subscription filter must drop non-phase-completed events");
     let first = &events_out[0];
-    let kind = first
-        .pointer("/body/type")
-        .and_then(|v| v.as_str())
-        .expect("body.type");
+    let kind = first.pointer("/body/type").and_then(|v| v.as_str()).expect("body.type");
     assert_eq!(kind, "phase_completed");
 }

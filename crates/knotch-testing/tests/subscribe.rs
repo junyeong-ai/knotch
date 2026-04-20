@@ -14,19 +14,33 @@ use knotch_testing::InMemoryRepository;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum P { Only }
+pub enum P {
+    Only,
+}
 impl PhaseKind for P {
-    fn id(&self) -> Cow<'_, str> { Cow::Borrowed("only") }
-    fn is_skippable(&self, _: &SkipKind) -> bool { false }
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("only")
+    }
+    fn is_skippable(&self, _: &SkipKind) -> bool {
+        false
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum M {}
-impl knotch_kernel::MilestoneKind for M { fn id(&self) -> Cow<'_, str> { Cow::Borrowed("") } }
+impl knotch_kernel::MilestoneKind for M {
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("")
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum G {}
-impl knotch_kernel::GateKind for G { fn id(&self) -> Cow<'_, str> { Cow::Borrowed("") } }
+impl knotch_kernel::GateKind for G {
+    fn id(&self) -> Cow<'_, str> {
+        Cow::Borrowed("")
+    }
+}
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct W;
@@ -36,9 +50,15 @@ impl WorkflowKind for W {
     type Milestone = M;
     type Gate = G;
     type Extension = ();
-    fn name(&self) -> std::borrow::Cow<'_, str> { std::borrow::Cow::Borrowed("subscribe-test") }
-    fn schema_version(&self) -> u32 { 1 }
-    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> { std::borrow::Cow::Borrowed(&PHASES) }
+    fn name(&self) -> std::borrow::Cow<'_, str> {
+        std::borrow::Cow::Borrowed("subscribe-test")
+    }
+    fn schema_version(&self) -> u32 {
+        1
+    }
+    fn required_phases(&self, _: &Scope) -> std::borrow::Cow<'_, [Self::Phase]> {
+        std::borrow::Cow::Borrowed(&PHASES)
+    }
 }
 
 fn seed() -> Proposal<W> {
@@ -77,14 +97,9 @@ async fn live_only_misses_events_before_subscribe() {
 
     repo.append(&unit, vec![seed()], AppendMode::BestEffort).await.expect("seed");
 
-    let mut stream = repo
-        .subscribe(&unit, SubscribeMode::LiveOnly)
-        .await
-        .expect("subscribe");
+    let mut stream = repo.subscribe(&unit, SubscribeMode::LiveOnly).await.expect("subscribe");
 
-    repo.append(&unit, vec![phase_done()], AppendMode::BestEffort)
-        .await
-        .expect("append");
+    repo.append(&unit, vec![phase_done()], AppendMode::BestEffort).await.expect("append");
 
     let first = stream.next().await.expect("one");
     match first {
@@ -102,10 +117,7 @@ async fn from_beginning_replays_history_then_goes_live() {
 
     repo.append(&unit, vec![seed()], AppendMode::BestEffort).await.expect("seed");
 
-    let mut stream = repo
-        .subscribe(&unit, SubscribeMode::FromBeginning)
-        .await
-        .expect("subscribe");
+    let mut stream = repo.subscribe(&unit, SubscribeMode::FromBeginning).await.expect("subscribe");
 
     // Historical frame first.
     let historical = stream.next().await.expect("historical");
@@ -115,9 +127,7 @@ async fn from_beginning_replays_history_then_goes_live() {
     }
 
     // Then live.
-    repo.append(&unit, vec![phase_done()], AppendMode::BestEffort)
-        .await
-        .expect("append");
+    repo.append(&unit, vec![phase_done()], AppendMode::BestEffort).await.expect("append");
     let live = stream.next().await.expect("live");
     match live {
         SubscribeEvent::Event(e) => assert!(matches!(e.body, EventBody::PhaseCompleted { .. })),
@@ -136,10 +146,8 @@ async fn from_event_id_skips_up_to_and_including_anchor() {
         .expect("append");
     let first_id = r.accepted[0].id;
 
-    let mut stream = repo
-        .subscribe(&unit, SubscribeMode::FromEventId(first_id))
-        .await
-        .expect("subscribe");
+    let mut stream =
+        repo.subscribe(&unit, SubscribeMode::FromEventId(first_id)).await.expect("subscribe");
 
     // Only phase_done should replay.
     let evt = stream.next().await.expect("replayed");

@@ -10,7 +10,10 @@ use knotch_kernel::{
 use knotch_workflow::ConfigWorkflow;
 use serde::Serialize;
 
-use crate::{cmd::{OutputMode, mark}, config::Config};
+use crate::{
+    cmd::{OutputMode, mark},
+    config::Config,
+};
 
 #[derive(Debug, ClapArgs)]
 pub(crate) struct Args {
@@ -25,11 +28,7 @@ pub(crate) struct Args {
     pub reason: Option<String>,
 }
 
-pub(crate) async fn run(
-    config: &Config,
-    out: OutputMode,
-    args: Args,
-) -> anyhow::Result<()> {
+pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow::Result<()> {
     let unit = mark::active_unit_or_bail(&config.root)?;
     let causation = Causation::cli("transition");
     let target = StatusId::new(args.target.clone());
@@ -47,17 +46,12 @@ fn warn_unknown_status<W: knotch_kernel::WorkflowKind>(workflow: &W, target: &st
     if known.is_empty() || known.iter().any(|s| s.as_ref() == target) {
         return;
     }
-    eprintln!(
-        "warning: `{target}` is not a canonical status for workflow `{}`",
-        workflow.name()
-    );
-    let joined = known
-        .iter()
-        .map(|s| s.as_ref())
-        .collect::<Vec<_>>()
-        .join(", ");
+    eprintln!("warning: `{target}` is not a canonical status for workflow `{}`", workflow.name());
+    let joined = known.iter().map(|s| s.as_ref()).collect::<Vec<_>>().join(", ");
     eprintln!("  canonical: {joined}");
-    eprintln!("  proceeding — StatusId accepts any string. Use --forced with a rationale for custom statuses.");
+    eprintln!(
+        "  proceeding — StatusId accepts any string. Use --forced with a rationale for custom statuses."
+    );
 }
 
 async fn append_transition<W, R>(
@@ -92,9 +86,7 @@ where
         },
         supersedes: None,
     };
-    let report = repo
-        .append(unit, vec![proposal], AppendMode::AllOrNothing)
-        .await?;
+    let report = repo.append(unit, vec![proposal], AppendMode::AllOrNothing).await?;
     mark::emit_report(out, "status_transitioned", target.as_str(), &report);
     Ok(())
 }

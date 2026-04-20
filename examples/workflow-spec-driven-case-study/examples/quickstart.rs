@@ -18,9 +18,7 @@ use knotch_kernel::{
     event::{ArtifactList, CommitKind, CommitRef},
     project::{current_phase, current_status, shipped_milestones},
 };
-use workflow_spec_driven_case_study::{
-    SpecDriven, SpecPhase, StoryId, build_repository, events,
-};
+use workflow_spec_driven_case_study::{SpecDriven, SpecPhase, StoryId, build_repository, events};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -61,10 +59,8 @@ async fn main() -> anyhow::Result<()> {
     println!("events stored: {}", log.events().len());
     println!("current phase: {:?}", current_phase(&SpecDriven, &log));
     println!("current status: {:?}", current_status(&log));
-    let shipped: Vec<String> = shipped_milestones::<SpecDriven>(&log)
-        .into_iter()
-        .map(|s| s.0.to_string())
-        .collect();
+    let shipped: Vec<String> =
+        shipped_milestones::<SpecDriven>(&log).into_iter().map(|s| s.0.to_string()).collect();
     println!("shipped milestones: {shipped:?}");
     println!("state dir: {}", root.display());
 

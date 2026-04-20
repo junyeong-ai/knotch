@@ -32,10 +32,7 @@ use crate::commit::ParsedCommit;
 /// Returns `ParseError` if the header does not conform to the
 /// conventional-commits grammar and is not a recognized synthetic
 /// revert shape.
-pub fn parse_commit_message(
-    sha: CommitRef,
-    message: &str,
-) -> Result<ParsedCommit, ParseError> {
+pub fn parse_commit_message(sha: CommitRef, message: &str) -> Result<ParsedCommit, ParseError> {
     let (subject, body) = split_subject_body(message);
     let header = ParsedHeader::try_parse(subject)?;
 
@@ -74,11 +71,7 @@ impl ParsedHeader {
         // Try a synthetic revert header first.
         if let Some(stripped) = subject.strip_prefix("Revert \"") {
             if stripped.ends_with('"') {
-                return Ok(Self {
-                    kind: CommitKind::Revert,
-                    scope: None,
-                    breaking: false,
-                });
+                return Ok(Self { kind: CommitKind::Revert, scope: None, breaking: false });
             }
         }
 
@@ -98,12 +91,8 @@ impl ParsedHeader {
 }
 
 fn conventional_header(input: &mut &str) -> ModalResult<ParsedHeader> {
-    let kind = parse_kind
-        .context(StrContext::Label("kind"))
-        .parse_next(input)?;
-    let scope = opt(parse_scope)
-        .context(StrContext::Label("scope"))
-        .parse_next(input)?;
+    let kind = parse_kind.context(StrContext::Label("kind")).parse_next(input)?;
+    let scope = opt(parse_scope).context(StrContext::Label("scope")).parse_next(input)?;
     let breaking = opt('!').parse_next(input)?.is_some();
     ':'.parse_next(input)?;
     space0.parse_next(input)?;
@@ -135,9 +124,9 @@ fn parse_scope(input: &mut &str) -> ModalResult<CompactString> {
 }
 
 fn scope_body_close(input: &mut &str) -> ModalResult<CompactString> {
-    let inner = take_while(0.., |c: char| c != ')')
-        .parse_next(input)?;
-    ')'.parse_next(input).map_err(|_: ErrMode<ContextError>| ErrMode::Backtrack(ContextError::new()))?;
+    let inner = take_while(0.., |c: char| c != ')').parse_next(input)?;
+    ')'.parse_next(input)
+        .map_err(|_: ErrMode<ContextError>| ErrMode::Backtrack(ContextError::new()))?;
     Ok(CompactString::from(inner))
 }
 
@@ -216,20 +205,22 @@ mod tests {
         )
         .expect("parse");
         assert_eq!(parsed.kind, CommitKind::Revert);
-        assert_eq!(parsed.reverts.as_ref().map(|s| s.as_str().to_owned()),
-                   Some("0123456".to_owned()));
+        assert_eq!(
+            parsed.reverts.as_ref().map(|s| s.as_str().to_owned()),
+            Some("0123456".to_owned())
+        );
     }
 
     #[test]
     fn detects_manual_revert_body() {
-        let parsed = parse_commit_message(
-            sha(),
-            "fix: undo buggy change\n\nThis reverts commit deadbee.\n",
-        )
-        .expect("parse");
+        let parsed =
+            parse_commit_message(sha(), "fix: undo buggy change\n\nThis reverts commit deadbee.\n")
+                .expect("parse");
         assert_eq!(parsed.kind, CommitKind::Fix);
-        assert_eq!(parsed.reverts.as_ref().map(|s| s.as_str().to_owned()),
-                   Some("deadbee".to_owned()));
+        assert_eq!(
+            parsed.reverts.as_ref().map(|s| s.as_str().to_owned()),
+            Some("deadbee".to_owned())
+        );
     }
 
     #[test]

@@ -122,13 +122,8 @@ impl InMemoryVcs {
 impl Vcs for InMemoryVcs {
     async fn verify_commit(&self, sha: &CommitRef) -> Result<CommitStatus, VcsError> {
         let key = sha.as_str();
-        let status = self
-            .state
-            .by_sha
-            .load()
-            .get(key)
-            .map(|f| f.status)
-            .unwrap_or(CommitStatus::Missing);
+        let status =
+            self.state.by_sha.load().get(key).map(|f| f.status).unwrap_or(CommitStatus::Missing);
         Ok(status)
     }
 
@@ -162,16 +157,11 @@ impl Vcs for InMemoryVcs {
     }
 
     async fn current_head(&self) -> Result<CommitRef, VcsError> {
-        self.state
-            .head
-            .load()
-            .as_ref()
-            .clone()
-            .ok_or_else(|| VcsError::HeadUnresolvable {
-                source: Box::<dyn std::error::Error + Send + Sync + 'static>::from(
-                    "in-memory VCS has no HEAD",
-                ),
-            })
+        self.state.head.load().as_ref().clone().ok_or_else(|| VcsError::HeadUnresolvable {
+            source: Box::<dyn std::error::Error + Send + Sync + 'static>::from(
+                "in-memory VCS has no HEAD",
+            ),
+        })
     }
 
     async fn log_watermark(&self) -> Result<Watermark, VcsError> {
@@ -199,10 +189,7 @@ mod tests {
             "feat: add thing",
             Timestamp::from_second(1_700_000_000).expect("ts"),
         ));
-        let status = vcs
-            .verify_commit(&CommitRef::new("abc1234"))
-            .await
-            .expect("verify");
+        let status = vcs.verify_commit(&CommitRef::new("abc1234")).await.expect("verify");
         assert_eq!(status, CommitStatus::Verified);
     }
 
@@ -241,17 +228,10 @@ mod tests {
     async fn log_since_respects_kind_filter() {
         let vcs = InMemoryVcs::new();
         let t = Timestamp::from_second(1_700_000_000).expect("ts");
-        vcs.push_commit(
-            VcsFixture::verified("aaa", "feat: a", t).with_kind(CommitKind::Feat),
-        );
-        vcs.push_commit(
-            VcsFixture::verified("bbb", "docs: b", t).with_kind(CommitKind::Docs),
-        );
+        vcs.push_commit(VcsFixture::verified("aaa", "feat: a", t).with_kind(CommitKind::Feat));
+        vcs.push_commit(VcsFixture::verified("bbb", "docs: b", t).with_kind(CommitKind::Docs));
         let log = vcs
-            .log_since(
-                None,
-                &CommitFilter { kinds: vec![CommitKind::Feat], limit: None },
-            )
+            .log_since(None, &CommitFilter { kinds: vec![CommitKind::Feat], limit: None })
             .await
             .expect("log");
         assert_eq!(log.len(), 1);

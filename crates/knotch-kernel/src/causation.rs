@@ -61,11 +61,7 @@ impl Causation {
     /// is `#[non_exhaustive]` and therefore cannot be built with a
     /// struct literal outside this crate.
     #[must_use]
-    pub fn new(
-        source: Source,
-        principal: Principal,
-        trigger: Trigger,
-    ) -> Self {
+    pub fn new(source: Source, principal: Principal, trigger: Trigger) -> Self {
         Self {
             source,
             principal,
@@ -229,9 +225,7 @@ impl SessionId {
     /// back to [`SessionId::Opaque`].
     #[must_use]
     pub fn parse(s: &str) -> Self {
-        uuid::Uuid::parse_str(s)
-            .map(Self::Uuid)
-            .unwrap_or_else(|_| Self::Opaque(s.into()))
+        uuid::Uuid::parse_str(s).map(Self::Uuid).unwrap_or_else(|_| Self::Opaque(s.into()))
     }
 
     /// Deterministic 128-bit representation for OpenTelemetry

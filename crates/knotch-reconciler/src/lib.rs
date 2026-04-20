@@ -3,15 +3,14 @@
 //! Flow:
 //!
 //! 1. Acquire a snapshot of the unit's log via `Repository::load`.
-//! 2. Run every registered `Observer` against an `ObserveContext`
-//!    built from that snapshot. Observers execute on a shared
-//!    `tokio::task::JoinSet` so I/O-bound observers overlap.
-//! 3. Collect proposals, sort them deterministically by
-//!    `(observer_name, body_kind_tag, fingerprint)`.
-//! 4. Submit the sorted batch to `Repository::append` with
-//!    `AppendMode::BestEffort` so rejections (duplicates, ordering)
-//!    don't block the batch. `AllOrNothing` is reserved for
-//!    preset-level reconciles that need atomicity.
+//! 2. Run every registered `Observer` against an `ObserveContext` built from that
+//!    snapshot. Observers execute on a shared `tokio::task::JoinSet` so I/O-bound
+//!    observers overlap.
+//! 3. Collect proposals, sort them deterministically by `(observer_name, body_kind_tag,
+//!    fingerprint)`.
+//! 4. Submit the sorted batch to `Repository::append` with `AppendMode::BestEffort` so
+//!    rejections (duplicates, ordering) don't block the batch. `AllOrNothing` is reserved
+//!    for preset-level reconciles that need atomicity.
 
 use std::sync::Arc;
 
@@ -106,16 +105,12 @@ impl<W: WorkflowKind, R: Repository<W>> Reconciler<W, R> {
                         all_proposals.push((name.clone(), p));
                     }
                 }
-                Ok(Err(err)) => observer_errors.push(ObserverFailure {
-                    observer: name,
-                    source: err,
-                }),
+                Ok(Err(err)) => {
+                    observer_errors.push(ObserverFailure { observer: name, source: err })
+                }
                 Err(_elapsed) => observer_errors.push(ObserverFailure {
                     observer: name.clone(),
-                    source: ObserverError::Cancelled {
-                        name: name.into(),
-                        elapsed_ms: 0,
-                    },
+                    source: ObserverError::Cancelled { name: name.into(), elapsed_ms: 0 },
                 }),
             }
         }
@@ -128,12 +123,10 @@ impl<W: WorkflowKind, R: Repository<W>> Reconciler<W, R> {
         // body-debug tertiary is required. Cf. constitution §IX and
         // `.claude/rules/fingerprint.md`.
         all_proposals.sort_by(|(an, ap), (bn, bp)| {
-            an.cmp(bn)
-                .then_with(|| kind_tag(&ap.body).cmp(&kind_tag(&bp.body)))
+            an.cmp(bn).then_with(|| kind_tag(&ap.body).cmp(&kind_tag(&bp.body)))
         });
 
-        let proposals: Vec<Proposal<W>> =
-            all_proposals.into_iter().map(|(_, p)| p).collect();
+        let proposals: Vec<Proposal<W>> = all_proposals.into_iter().map(|(_, p)| p).collect();
 
         let append_report = self
             .repo

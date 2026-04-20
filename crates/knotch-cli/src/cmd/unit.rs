@@ -33,11 +33,7 @@ pub(crate) struct UseArgs {
     pub slug: String,
 }
 
-pub(crate) async fn run(
-    config: &Config,
-    out: OutputMode,
-    cmd: UnitCommand,
-) -> anyhow::Result<()> {
+pub(crate) async fn run(config: &Config, out: OutputMode, cmd: UnitCommand) -> anyhow::Result<()> {
     match cmd {
         UnitCommand::Init(args) => run_init(config, out, args).await,
         UnitCommand::Use(args) => run_use(config, out, args).await,
@@ -49,11 +45,7 @@ pub(crate) async fn run(
 async fn run_init(config: &Config, out: OutputMode, args: InitArgs) -> anyhow::Result<()> {
     let unit_dir = config.unit_dir(&args.slug);
     if unit_dir.exists() {
-        return Err(anyhow!(
-            "unit `{}` already exists at {}",
-            args.slug,
-            unit_dir.display()
-        ));
+        return Err(anyhow!("unit `{}` already exists at {}", args.slug, unit_dir.display()));
     }
     tokio::fs::create_dir_all(&unit_dir)
         .await
@@ -103,10 +95,7 @@ async fn run_list(config: &Config, out: OutputMode) -> anyhow::Result<()> {
                     Ok(())
                 }
                 OutputMode::Json => {
-                    println!(
-                        "{}",
-                        json!({"event": "unit_list", "units": Vec::<String>::new()})
-                    );
+                    println!("{}", json!({"event": "unit_list", "units": Vec::<String>::new()}));
                     Ok(())
                 }
             };
@@ -137,8 +126,7 @@ async fn run_list(config: &Config, out: OutputMode) -> anyhow::Result<()> {
 }
 
 async fn run_current(config: &Config, out: OutputMode) -> anyhow::Result<()> {
-    let active =
-        resolve_active(&config.root).map_err(|e| anyhow!("resolve active.toml: {e}"))?;
+    let active = resolve_active(&config.root).map_err(|e| anyhow!("resolve active.toml: {e}"))?;
     match (active, out) {
         (ActiveUnit::Active(u), OutputMode::Human) => println!("{}", u.as_str()),
         (ActiveUnit::Active(u), OutputMode::Json) => {
@@ -153,10 +141,7 @@ async fn run_current(config: &Config, out: OutputMode) -> anyhow::Result<()> {
         }
         (ActiveUnit::NoProject, OutputMode::Human) => println!("(not in a knotch project)"),
         (ActiveUnit::NoProject, OutputMode::Json) => {
-            println!(
-                "{}",
-                json!({"event": "unit_current", "slug": null, "state": "no_project"})
-            );
+            println!("{}", json!({"event": "unit_current", "slug": null, "state": "no_project"}));
         }
     }
     Ok(())

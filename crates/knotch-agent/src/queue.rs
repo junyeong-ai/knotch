@@ -136,10 +136,7 @@ pub fn queue_size(queue_dir: &Path) -> Result<usize, HookError> {
 /// I/O errors during directory listing bubble up. Individual entry
 /// failures are logged and skipped (the queue is advisory; one bad
 /// entry must not stall the rest).
-pub async fn drain<W, R>(
-    queue_dir: &Path,
-    repo: &R,
-) -> Result<usize, HookError>
+pub async fn drain<W, R>(queue_dir: &Path, repo: &R) -> Result<usize, HookError>
 where
     W: WorkflowKind,
     R: Repository<W>,
@@ -188,10 +185,7 @@ where
                 continue;
             }
         };
-        match repo
-            .append(&unit, vec![proposal], AppendMode::BestEffort)
-            .await
-        {
+        match repo.append(&unit, vec![proposal], AppendMode::BestEffort).await {
             Ok(_) => {
                 let _ = std::fs::remove_file(&path);
                 drained += 1;

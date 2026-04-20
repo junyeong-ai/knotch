@@ -15,15 +15,15 @@ pub mod parse;
 
 mod gix_vcs;
 
+use std::future::Future;
+
+use knotch_kernel::event::{CommitKind, CommitRef};
+
 pub use self::{
     commit::{Commit, CommitStatus, ParsedCommit, RevertLink, Watermark},
     error::VcsError,
     gix_vcs::GixVcs,
 };
-
-use std::future::Future;
-
-use knotch_kernel::event::{CommitKind, CommitRef};
 
 /// Filter applied by `Vcs::log_since`.
 #[derive(Debug, Clone, Default)]
@@ -77,9 +77,9 @@ pub trait Vcs: Send + Sync + 'static {
     /// Detect revert linkage for a commit. Default implementation
     /// reads the `reverts` hint produced by the parser.
     fn detect_revert(&self, commit: &ParsedCommit) -> Option<RevertLink> {
-        commit.reverts.as_ref().map(|target| RevertLink {
-            original: target.clone(),
-            revert: commit.sha.clone(),
-        })
+        commit
+            .reverts
+            .as_ref()
+            .map(|target| RevertLink { original: target.clone(), revert: commit.sha.clone() })
     }
 }

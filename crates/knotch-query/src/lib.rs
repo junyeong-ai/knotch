@@ -145,4 +145,3 @@ impl<W: WorkflowKind> Filter<W> {
 fn milestone_id<M: knotch_kernel::MilestoneKind>(m: &M) -> Cow<'_, str> {
     m.id()
 }
-

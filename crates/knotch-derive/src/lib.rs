@@ -1,14 +1,13 @@
 //! Procedural macros for knotch.
 //!
-//! - `#[derive(PhaseKind)]` — emits `knotch_kernel::PhaseKind` impls
-//!   for enums whose variants represent ordered phases.
-//! - `#[derive(MilestoneKind)]` — emits `MilestoneKind` for simple
-//!   unit-variant enums or newtype wrappers.
+//! - `#[derive(PhaseKind)]` — emits `knotch_kernel::PhaseKind` impls for enums whose
+//!   variants represent ordered phases.
+//! - `#[derive(MilestoneKind)]` — emits `MilestoneKind` for simple unit-variant enums or
+//!   newtype wrappers.
 //! - `#[derive(GateKind)]` — same shape as milestone.
 //! - `#[derive(Sensitive)]` — marker trait for PII redaction.
-//! - `#[workflow(name = …, phase = …, milestone = …, gate = …)]` —
-//!   attribute macro on a marker struct that emits the full
-//!   `WorkflowKind` impl.
+//! - `#[workflow(name = …, phase = …, milestone = …, gate = …)]` — attribute macro on a
+//!   marker struct that emits the full `WorkflowKind` impl.
 //!
 //! Ergonomics prioritize the common case: unit-variant enums whose
 //! id is the kebab-case of the variant name. Attribute
@@ -148,10 +147,7 @@ fn expect_unit_enum<'a>(
             require_unit_variants(e, trait_name)?;
             Ok(e)
         }
-        _ => Err(syn::Error::new_spanned(
-            input,
-            format!("`{trait_name}` derive requires an enum"),
-        )),
+        _ => Err(syn::Error::new_spanned(input, format!("`{trait_name}` derive requires an enum"))),
     }
 }
 
@@ -207,8 +203,7 @@ struct WorkflowArgs {
 
 impl Parse for WorkflowArgs {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let pairs: Punctuated<syn::MetaNameValue, Token![,]> =
-            Punctuated::parse_terminated(input)?;
+        let pairs: Punctuated<syn::MetaNameValue, Token![,]> = Punctuated::parse_terminated(input)?;
         let mut name = None;
         let mut schema_version = None;
         let mut phase = None;
@@ -217,26 +212,23 @@ impl Parse for WorkflowArgs {
         let mut extension = None;
         let mut required_phases = None;
         for pair in pairs {
-            let ident = pair.path.get_ident().ok_or_else(|| {
-                syn::Error::new_spanned(&pair.path, "expected identifier key")
-            })?;
+            let ident = pair
+                .path
+                .get_ident()
+                .ok_or_else(|| syn::Error::new_spanned(&pair.path, "expected identifier key"))?;
             let key = ident.to_string();
             match key.as_str() {
                 "name" => name = Some(syn::parse2::<LitStr>(pair.value.to_token_stream())?),
-                "schema_version" => schema_version = Some(
-                    syn::parse2::<LitInt>(pair.value.to_token_stream())?,
-                ),
+                "schema_version" => {
+                    schema_version = Some(syn::parse2::<LitInt>(pair.value.to_token_stream())?)
+                }
                 "phase" => phase = Some(syn::parse2::<Path>(pair.value.to_token_stream())?),
-                "milestone" => milestone = Some(
-                    syn::parse2::<Path>(pair.value.to_token_stream())?,
-                ),
+                "milestone" => milestone = Some(syn::parse2::<Path>(pair.value.to_token_stream())?),
                 "gate" => gate = Some(syn::parse2::<Path>(pair.value.to_token_stream())?),
-                "extension" => extension = Some(
-                    syn::parse2::<Path>(pair.value.to_token_stream())?,
-                ),
-                "required_phases" => required_phases = Some(
-                    syn::parse2::<Path>(pair.value.to_token_stream())?,
-                ),
+                "extension" => extension = Some(syn::parse2::<Path>(pair.value.to_token_stream())?),
+                "required_phases" => {
+                    required_phases = Some(syn::parse2::<Path>(pair.value.to_token_stream())?)
+                }
                 other => {
                     return Err(syn::Error::new_spanned(
                         &pair.path,
@@ -250,23 +242,31 @@ impl Parse for WorkflowArgs {
             }
         }
         Ok(Self {
-            name: name.ok_or_else(|| syn::Error::new(
-                proc_macro2::Span::call_site(),
-                "#[workflow] requires `name = \"...\"`",
-            ))?,
+            name: name.ok_or_else(|| {
+                syn::Error::new(
+                    proc_macro2::Span::call_site(),
+                    "#[workflow] requires `name = \"...\"`",
+                )
+            })?,
             schema_version,
-            phase: phase.ok_or_else(|| syn::Error::new(
-                proc_macro2::Span::call_site(),
-                "#[workflow] requires `phase = <PhaseType>`",
-            ))?,
-            milestone: milestone.ok_or_else(|| syn::Error::new(
-                proc_macro2::Span::call_site(),
-                "#[workflow] requires `milestone = <MilestoneType>`",
-            ))?,
-            gate: gate.ok_or_else(|| syn::Error::new(
-                proc_macro2::Span::call_site(),
-                "#[workflow] requires `gate = <GateType>`",
-            ))?,
+            phase: phase.ok_or_else(|| {
+                syn::Error::new(
+                    proc_macro2::Span::call_site(),
+                    "#[workflow] requires `phase = <PhaseType>`",
+                )
+            })?,
+            milestone: milestone.ok_or_else(|| {
+                syn::Error::new(
+                    proc_macro2::Span::call_site(),
+                    "#[workflow] requires `milestone = <MilestoneType>`",
+                )
+            })?,
+            gate: gate.ok_or_else(|| {
+                syn::Error::new(
+                    proc_macro2::Span::call_site(),
+                    "#[workflow] requires `gate = <GateType>`",
+                )
+            })?,
             extension,
             required_phases,
         })

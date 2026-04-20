@@ -69,7 +69,9 @@ pub struct Proposal<W: WorkflowKind> {
 
 /// Event body — the sealed taxonomy of knotch mutations.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case",
+#[serde(
+    tag = "type",
+    rename_all = "snake_case",
     bound(
         serialize = "W: WorkflowKind, W::Phase: Serialize, W::Milestone: Serialize, \
                      W::Gate: Serialize, W::Extension: Serialize",
@@ -242,9 +244,11 @@ impl<W: WorkflowKind> EventBody<W> {
         &self,
         ctx: &crate::precondition::AppendContext<'_, W>,
     ) -> Result<(), crate::error::PreconditionError> {
-        use crate::error::PreconditionError as E;
-        use crate::project::{current_status, effective_events, shipped_milestones};
-        use crate::workflow::{MilestoneKind as _, PhaseKind as _};
+        use crate::{
+            error::PreconditionError as E,
+            project::{current_status, effective_events, shipped_milestones},
+            workflow::{MilestoneKind as _, PhaseKind as _},
+        };
 
         // A unit that has reached a terminal status (per
         // `W::is_terminal_status`) accepts no further mutations
@@ -318,9 +322,7 @@ impl<W: WorkflowKind> EventBody<W> {
                 // rejected.
                 let shipped = shipped_milestones::<W>(ctx.log);
                 if shipped.iter().any(|m| m.id() == milestone.id()) {
-                    return Err(E::MilestoneAlreadyShipped(
-                        milestone.id().into_owned(),
-                    ));
+                    return Err(E::MilestoneAlreadyShipped(milestone.id().into_owned()));
                 }
                 if let Some(vcs) = ctx.vcs {
                     let observed = vcs.verify(commit)?;
@@ -380,10 +382,7 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::GateRecorded { gate, rationale, .. } => {
                 let min = ctx.workflow.min_rationale_chars();
                 if rationale.char_len() < min {
-                    return Err(E::RationaleTooShort {
-                        min,
-                        actual: rationale.char_len(),
-                    });
+                    return Err(E::RationaleTooShort { min, actual: rationale.char_len() });
                 }
                 let required = ctx.workflow.prerequisites_for(gate);
                 if !required.is_empty() {
@@ -431,17 +430,16 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::ReconcileFailed { anchor, attempt, .. } => {
                 let prior = max_attempt_for_anchor(ctx.log, anchor);
                 if attempt.get() <= prior {
-                    return Err(E::NonMonotonicAttempt {
-                        attempt: attempt.get(),
-                        prior,
-                    });
+                    return Err(E::NonMonotonicAttempt { attempt: attempt.get(), prior });
                 }
             }
             EventBody::ReconcileRecovered { anchor, .. } => {
-                let has_prior = ctx.log.events().iter().any(|evt| matches!(
-                    &evt.body,
-                    EventBody::ReconcileFailed { anchor: prior, .. } if prior == anchor
-                ));
+                let has_prior = ctx.log.events().iter().any(|evt| {
+                    matches!(
+                        &evt.body,
+                        EventBody::ReconcileFailed { anchor: prior, .. } if prior == anchor
+                    )
+                });
                 if !has_prior {
                     return Err(E::NoPriorFailure);
                 }
@@ -467,10 +465,7 @@ impl<W: WorkflowKind> EventBody<W> {
     }
 }
 
-fn max_attempt_for_anchor<W: WorkflowKind>(
-    log: &crate::log::Log<W>,
-    anchor: &RetryAnchor,
-) -> u32 {
+fn max_attempt_for_anchor<W: WorkflowKind>(log: &crate::log::Log<W>, anchor: &RetryAnchor) -> u32 {
     let mut max = 0;
     for evt in log.events() {
         if let EventBody::ReconcileFailed { anchor: prior, attempt, .. } = &evt.body {
@@ -496,8 +491,9 @@ fn phases_resolved<W: WorkflowKind>(effective: &[crate::Event<W>]) -> Vec<W::Pha
     effective
         .iter()
         .filter_map(|evt| match &evt.body {
-            EventBody::PhaseCompleted { phase, .. }
-            | EventBody::PhaseSkipped { phase, .. } => Some(phase.clone()),
+            EventBody::PhaseCompleted { phase, .. } | EventBody::PhaseSkipped { phase, .. } => {
+                Some(phase.clone())
+            }
             _ => None,
         })
         .collect()

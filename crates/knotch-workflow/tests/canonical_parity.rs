@@ -21,11 +21,7 @@ fn required_phases_match_on_standard_scope() {
     let t = typed.required_phases(&Scope::Standard);
     assert_eq!(c.len(), t.len());
     for (c_ph, t_ph) in c.iter().zip(t.iter()) {
-        assert_eq!(
-            c_ph.0,
-            knotch_kernel::PhaseKind::id(t_ph).as_ref(),
-            "phase ids diverge",
-        );
+        assert_eq!(c_ph.0, knotch_kernel::PhaseKind::id(t_ph).as_ref(), "phase ids diverge",);
     }
 }
 
@@ -37,10 +33,7 @@ fn required_phases_match_on_tiny_scope() {
     let t = typed.required_phases(&Scope::Tiny);
     assert_eq!(c.len(), t.len());
     for (c_ph, t_ph) in c.iter().zip(t.iter()) {
-        assert_eq!(
-            c_ph.0,
-            knotch_kernel::PhaseKind::id(t_ph).as_ref(),
-        );
+        assert_eq!(c_ph.0, knotch_kernel::PhaseKind::id(t_ph).as_ref(),);
     }
 }
 
@@ -64,25 +57,14 @@ fn terminal_status_set_matches() {
 fn known_statuses_match() {
     let config = ConfigWorkflow::canonical();
     let typed = Knotch;
-    let c: Vec<String> = config
-        .known_statuses()
-        .iter()
-        .map(|s| s.as_ref().to_owned())
-        .collect();
-    let t: Vec<String> = typed
-        .known_statuses()
-        .iter()
-        .map(|s| s.as_ref().to_owned())
-        .collect();
+    let c: Vec<String> = config.known_statuses().iter().map(|s| s.as_ref().to_owned()).collect();
+    let t: Vec<String> = typed.known_statuses().iter().map(|s| s.as_ref().to_owned()).collect();
     assert_eq!(c, t);
 }
 
 #[test]
 fn min_rationale_chars_match() {
-    assert_eq!(
-        ConfigWorkflow::canonical().min_rationale_chars(),
-        Knotch.min_rationale_chars(),
-    );
+    assert_eq!(ConfigWorkflow::canonical().min_rationale_chars(), Knotch.min_rationale_chars(),);
 }
 
 #[test]
@@ -91,42 +73,21 @@ fn gate_prereq_graph_matches() {
     let cases: [(KnotchGate, &[KnotchGate]); 5] = [
         (KnotchGate::G0Scope, &[]),
         (KnotchGate::G1Clarify, &[KnotchGate::G0Scope]),
-        (
-            KnotchGate::G2Plan,
-            &[KnotchGate::G0Scope, KnotchGate::G1Clarify],
-        ),
-        (
-            KnotchGate::G3Review,
-            &[
-                KnotchGate::G0Scope,
-                KnotchGate::G1Clarify,
-                KnotchGate::G2Plan,
-            ],
-        ),
+        (KnotchGate::G2Plan, &[KnotchGate::G0Scope, KnotchGate::G1Clarify]),
+        (KnotchGate::G3Review, &[KnotchGate::G0Scope, KnotchGate::G1Clarify, KnotchGate::G2Plan]),
         (
             KnotchGate::G4Drift,
-            &[
-                KnotchGate::G0Scope,
-                KnotchGate::G1Clarify,
-                KnotchGate::G2Plan,
-                KnotchGate::G3Review,
-            ],
+            &[KnotchGate::G0Scope, KnotchGate::G1Clarify, KnotchGate::G2Plan, KnotchGate::G3Review],
         ),
     ];
     for (gate, typed_prereqs) in cases {
-        let typed_ids: Vec<String> = typed_prereqs
-            .iter()
-            .map(|g| knotch_kernel::GateKind::id(g).into_owned())
-            .collect();
+        let typed_ids: Vec<String> =
+            typed_prereqs.iter().map(|g| knotch_kernel::GateKind::id(g).into_owned()).collect();
         let gate_id = knotch_kernel::GateKind::id(&gate).into_owned();
         let dyn_gate = config.gate(&gate_id).expect("gate in config");
         let via_trait = config.prerequisites_for(dyn_gate);
-        let config_ids: Vec<String> =
-            via_trait.iter().map(|g| g.0.to_string()).collect();
-        assert_eq!(
-            config_ids, typed_ids,
-            "prereqs diverge for {gate_id}",
-        );
+        let config_ids: Vec<String> = via_trait.iter().map(|g| g.0.to_string()).collect();
+        assert_eq!(config_ids, typed_ids, "prereqs diverge for {gate_id}",);
     }
 }
 
@@ -153,11 +114,7 @@ fn fingerprint_salts_are_disjoint_between_canonical_and_named_config() {
 #[test]
 fn fingerprint_bit_identical_between_typed_and_config_canonical() {
     fn causation() -> Causation {
-        Causation::new(
-            Source::Cli,
-            Principal::System { service: "parity".into() },
-            Trigger::Manual,
-        )
+        Causation::new(Source::Cli, Principal::System { service: "parity".into() }, Trigger::Manual)
     }
 
     // --- UnitCreated ---
@@ -355,8 +312,9 @@ fn fingerprint_bit_identical_between_typed_and_config_canonical() {
     assert_eq!(fp_typed, fp_config, "StatusTransitioned fingerprint diverges");
 
     // --- ReconcileFailed ---
-    use knotch_kernel::event::{FailureKind, RetryAnchor};
     use std::num::NonZeroU32;
+
+    use knotch_kernel::event::{FailureKind, RetryAnchor};
     let anchor = RetryAnchor::Observer { name: "git-log".into() };
     let typed_rf = Proposal::<Knotch> {
         causation: causation(),
@@ -395,10 +353,7 @@ fn fingerprint_bit_identical_between_typed_and_config_canonical() {
     let config_rr = Proposal::<ConfigWorkflow> {
         causation: causation(),
         extension: Default::default(),
-        body: EventBody::ReconcileRecovered {
-            anchor,
-            attempts_total: NonZeroU32::new(2).unwrap(),
-        },
+        body: EventBody::ReconcileRecovered { anchor, attempts_total: NonZeroU32::new(2).unwrap() },
         supersedes: None,
     };
     let fp_typed = fingerprint_proposal(&Knotch, &typed_rr).unwrap();

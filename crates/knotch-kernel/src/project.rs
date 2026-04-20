@@ -36,11 +36,7 @@ pub fn current_phase<W: WorkflowKind>(workflow: &W, log: &Log<W>) -> Option<W::P
         _ => None,
     })?;
 
-    workflow
-        .required_phases(&scope)
-        .iter()
-        .find(|p| !resolved.contains(*p))
-        .cloned()
+    workflow.required_phases(&scope).iter().find(|p| !resolved.contains(*p)).cloned()
 }
 
 /// Effective events — replay order minus every event that any later
@@ -75,11 +71,7 @@ pub fn effective_events<W: WorkflowKind>(log: &Log<W>) -> Vec<Event<W>> {
         })
         .collect();
 
-    log.events()
-        .iter()
-        .filter(|evt| !superseded.contains(&evt.id))
-        .cloned()
-        .collect()
+    log.events().iter().filter(|evt| !superseded.contains(&evt.id)).cloned().collect()
 }
 
 /// Sum of every `Causation::cost` value on effective events.

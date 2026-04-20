@@ -7,8 +7,8 @@
 //! - [`AppendContext`] — the read-only snapshot observers get.
 //! - [`VerifyCommit`] — optional VCS probe (for `MilestoneShipped` /
 //!   `MilestoneReverted`); pass `None` in pure-kernel tests.
-//! - [`ArtifactCheck`] — optional filesystem probe (for
-//!   `PhaseCompleted`'s artifact contract).
+//! - [`ArtifactCheck`] — optional filesystem probe (for `PhaseCompleted`'s artifact
+//!   contract).
 //!
 //! Per-body dispatch is implemented as an **inherent method** on
 //! `EventBody<W>` in `event.rs` — extension-contributed preconditions
@@ -16,12 +16,7 @@
 
 use std::path::Path;
 
-use crate::{
-    error::PreconditionError,
-    event::CommitStatus,
-    log::Log,
-    workflow::WorkflowKind,
-};
+use crate::{error::PreconditionError, event::CommitStatus, log::Log, workflow::WorkflowKind};
 
 /// Read-only snapshot handed to every precondition evaluation.
 ///
@@ -82,10 +77,7 @@ pub trait VerifyCommit: Send + Sync {
     /// # Errors
     /// Return `PreconditionError::CommitUnverifiable` when the VCS
     /// backend fails in a way that should block the append.
-    fn verify(
-        &self,
-        sha: &crate::event::CommitRef,
-    ) -> Result<CommitStatus, PreconditionError>;
+    fn verify(&self, sha: &crate::event::CommitRef) -> Result<CommitStatus, PreconditionError>;
 }
 
 /// Synchronous filesystem probe — used by `PhaseCompleted` to verify

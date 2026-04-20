@@ -139,9 +139,7 @@ impl HookEvent {
     #[must_use]
     pub fn bash_response_stdout(&self) -> Option<&str> {
         match self {
-            Self::PostToolUse { tool_name, tool_response, .. }
-                if tool_name.as_str() == "Bash" =>
-            {
+            Self::PostToolUse { tool_name, tool_response, .. } if tool_name.as_str() == "Bash" => {
                 tool_response.as_ref()?.get("stdout")?.as_str()
             }
             _ => None,

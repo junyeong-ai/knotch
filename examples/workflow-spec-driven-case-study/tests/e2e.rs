@@ -16,11 +16,7 @@ use workflow_spec_driven_case_study::{
 };
 
 fn causation() -> Causation {
-    Causation::new(
-        Source::Cli,
-        Principal::System { service: "e2e".into() },
-        Trigger::Manual,
-    )
+    Causation::new(Source::Cli, Principal::System { service: "e2e".into() }, Trigger::Manual)
 }
 
 #[tokio::test]
@@ -33,12 +29,7 @@ async fn full_lifecycle_round_trip() {
     // The case-study workflow's gate ladder is kernel-enforced via
     // `SpecGate::prerequisites`: G5Review requires G0..G3.
     let gate = |g, r: &str| {
-        events::gate_recorded(
-            causation(),
-            g,
-            Decision::Approved,
-            Rationale::new(r).unwrap(),
-        )
+        events::gate_recorded(causation(), g, Decision::Approved, Rationale::new(r).unwrap())
     };
     let proposals = vec![
         events::unit_created(causation(), Scope::Standard),
@@ -58,32 +49,19 @@ async fn full_lifecycle_round_trip() {
         gate(SpecGate::G5Review, "reviewer approved on channel #review"),
         events::phase_completed(causation(), SpecPhase::Review, ArtifactList::default()),
         events::phase_completed(causation(), SpecPhase::Wrapup, ArtifactList::default()),
-        events::status_transitioned(
-            causation(),
-            StatusId::new("archived"),
-            false,
-            None,
-        ),
+        events::status_transitioned(causation(), StatusId::new("archived"), false, None),
     ];
 
-    let report = repo
-        .append(&unit, proposals, AppendMode::BestEffort)
-        .await
-        .expect("append");
+    let report = repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("append");
     assert_eq!(report.accepted.len(), 13);
     assert!(report.rejected.is_empty());
 
     let log = repo.load(&unit).await.expect("load");
     assert_eq!(log.events().len(), 13);
     assert_eq!(current_phase(&SpecDriven, &log), None); // all required phases resolved
-    assert_eq!(
-        current_status(&log).as_ref().map(StatusId::as_str),
-        Some("archived"),
-    );
-    let shipped: Vec<String> = shipped_milestones::<SpecDriven>(&log)
-        .into_iter()
-        .map(|s| s.0.to_string())
-        .collect();
+    assert_eq!(current_status(&log).as_ref().map(StatusId::as_str), Some("archived"),);
+    let shipped: Vec<String> =
+        shipped_milestones::<SpecDriven>(&log).into_iter().map(|s| s.0.to_string()).collect();
     assert_eq!(shipped, vec!["us1".to_string()]);
 }
 
@@ -98,16 +76,9 @@ async fn tiny_scope_allows_skipping_review() {
 
     let mut proposals = vec![events::unit_created(causation(), Scope::Tiny)];
     for phase in phases {
-        proposals.push(events::phase_completed(
-            causation(),
-            phase,
-            ArtifactList::default(),
-        ));
+        proposals.push(events::phase_completed(causation(), phase, ArtifactList::default()));
     }
-    let report = repo
-        .append(&unit, proposals, AppendMode::BestEffort)
-        .await
-        .expect("append");
+    let report = repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("append");
     assert!(report.rejected.is_empty());
 
     let log = repo.load(&unit).await.expect("load");

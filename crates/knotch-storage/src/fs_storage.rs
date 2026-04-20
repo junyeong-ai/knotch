@@ -25,8 +25,7 @@ use knotch_kernel::UnitId;
 use tokio::io::{AsyncReadExt as _, BufReader};
 
 use crate::{
-    Storage,
-    atomic,
+    Storage, atomic,
     error::StorageError,
     load_report::{CorruptionSpan, LoadReport},
 };
@@ -65,22 +64,18 @@ impl FileSystemStorage {
 }
 
 impl Storage for FileSystemStorage {
-    async fn load(
-        &self,
-        unit: &UnitId,
-    ) -> Result<(Vec<String>, LoadReport), StorageError> {
+    async fn load(&self, unit: &UnitId) -> Result<(Vec<String>, LoadReport), StorageError> {
         let path = self.log_path(unit);
         match tokio::fs::File::open(&path).await {
             Ok(file) => {
                 let mut buf = String::new();
                 let mut reader = BufReader::new(file);
-                let bytes = reader.read_to_string(&mut buf).await
+                let bytes = reader
+                    .read_to_string(&mut buf)
+                    .await
                     .map_err(|e| StorageError::io(path.clone(), e))?;
                 let (lines, corrupted) = split_lines(&buf);
-                Ok((
-                    lines,
-                    LoadReport { corrupted, bytes_read: bytes as u64 },
-                ))
+                Ok((lines, LoadReport { corrupted, bytes_read: bytes as u64 }))
             }
             Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
                 Ok((Vec::new(), LoadReport::default()))
@@ -116,9 +111,7 @@ impl Storage for FileSystemStorage {
             combined.push(b'\n');
         }
 
-        atomic::write(&path, &combined)
-            .await
-            .map_err(|e| StorageError::io(path, e))?;
+        atomic::write(&path, &combined).await.map_err(|e| StorageError::io(path, e))?;
         Ok(())
     }
 
@@ -126,8 +119,7 @@ impl Storage for FileSystemStorage {
         &self,
     ) -> Pin<Box<dyn Stream<Item = Result<UnitId, StorageError>> + Send + 'static>> {
         let root = self.root.clone();
-        Box::pin(stream::once(async move { collect_units(root).await })
-            .flat_map(stream::iter))
+        Box::pin(stream::once(async move { collect_units(root).await }).flat_map(stream::iter))
     }
 
     async fn read_cache(
@@ -140,9 +132,7 @@ impl Storage for FileSystemStorage {
                 Ok(serde_json::Value::Object(map)) => Ok(map),
                 Ok(_) | Err(_) => Ok(serde_json::Map::new()),
             },
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
-                Ok(serde_json::Map::new())
-            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(serde_json::Map::new()),
             Err(err) => Err(StorageError::io(path, err)),
         }
     }
@@ -153,14 +143,10 @@ impl Storage for FileSystemStorage {
         cache: serde_json::Map<String, serde_json::Value>,
     ) -> Result<(), StorageError> {
         let path = self.cache_path(unit);
-        let bytes = serde_json::to_vec(&serde_json::Value::Object(cache))
-            .map_err(|e| StorageError::io_bare(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                e,
-            )))?;
-        atomic::write(&path, &bytes)
-            .await
-            .map_err(|e| StorageError::io(path, e))?;
+        let bytes = serde_json::to_vec(&serde_json::Value::Object(cache)).map_err(|e| {
+            StorageError::io_bare(std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+        })?;
+        atomic::write(&path, &bytes).await.map_err(|e| StorageError::io(path, e))?;
         Ok(())
     }
 }

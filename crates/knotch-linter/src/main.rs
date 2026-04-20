@@ -46,12 +46,10 @@ fn main() -> ExitCode {
     let exclude: Vec<String> = cli.exclude;
 
     for root in &cli.paths {
-        if let Err(err) = walk(root, &exclude, &mut |path| {
-            match lint_file(path, &rules) {
-                Ok(findings) => report.extend(findings),
-                Err(err) => {
-                    eprintln!("knotch-linter: {err}");
-                }
+        if let Err(err) = walk(root, &exclude, &mut |path| match lint_file(path, &rules) {
+            Ok(findings) => report.extend(findings),
+            Err(err) => {
+                eprintln!("knotch-linter: {err}");
             }
         }) {
             eprintln!("knotch-linter: walk failed at {}: {err}", root.display());
@@ -61,18 +59,10 @@ fn main() -> ExitCode {
 
     print!("{report}");
 
-    if cli.no_fail || report.error_count() == 0 {
-        ExitCode::SUCCESS
-    } else {
-        ExitCode::FAILURE
-    }
+    if cli.no_fail || report.error_count() == 0 { ExitCode::SUCCESS } else { ExitCode::FAILURE }
 }
 
-fn walk(
-    root: &Path,
-    exclude: &[String],
-    visit: &mut dyn FnMut(&Path),
-) -> std::io::Result<()> {
+fn walk(root: &Path, exclude: &[String], visit: &mut dyn FnMut(&Path)) -> std::io::Result<()> {
     if root.is_file() {
         if is_rust_source(root) {
             visit(root);

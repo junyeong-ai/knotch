@@ -35,11 +35,7 @@ impl SkipPolicy {
     /// A policy that accepts every variant.
     #[must_use]
     pub fn accept_all() -> Self {
-        Self {
-            scope_too_narrow: true,
-            amnesty: Some(Vec::new()),
-            custom: Some(Vec::new()),
-        }
+        Self { scope_too_narrow: true, amnesty: Some(Vec::new()), custom: Some(Vec::new()) }
     }
 
     /// Accept scope-narrowing skips.
@@ -53,9 +49,7 @@ impl SkipPolicy {
     /// to whitelist more codes.
     #[must_use]
     pub fn accept_amnesty(mut self, code: impl Into<CompactString>) -> Self {
-        self.amnesty
-            .get_or_insert_with(Vec::new)
-            .push(code.into());
+        self.amnesty.get_or_insert_with(Vec::new).push(code.into());
         self
     }
 
@@ -69,9 +63,7 @@ impl SkipPolicy {
     /// Accept a specific custom code.
     #[must_use]
     pub fn accept_custom(mut self, code: impl Into<CompactString>) -> Self {
-        self.custom
-            .get_or_insert_with(Vec::new)
-            .push(code.into());
+        self.custom.get_or_insert_with(Vec::new).push(code.into());
         self
     }
 

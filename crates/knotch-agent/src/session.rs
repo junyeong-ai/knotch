@@ -37,9 +37,7 @@ where
     R: Repository<W>,
     Proposal<W>: DeserializeOwned,
 {
-    let root = project_root_override
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| project_root(cwd));
+    let root = project_root_override.map(Path::to_path_buf).unwrap_or_else(|| project_root(cwd));
 
     let active = resolve_active_for_hook(&root, session_id)?;
 
@@ -84,9 +82,8 @@ fn format_context<W: WorkflowKind>(
     status: Option<&knotch_kernel::StatusId>,
     shipped_count: usize,
 ) -> String {
-    let phase_str: std::borrow::Cow<'_, str> = phase
-        .map(knotch_kernel::PhaseKind::id)
-        .unwrap_or(std::borrow::Cow::Borrowed("(none)"));
+    let phase_str: std::borrow::Cow<'_, str> =
+        phase.map(knotch_kernel::PhaseKind::id).unwrap_or(std::borrow::Cow::Borrowed("(none)"));
     let status_str = status.map(knotch_kernel::StatusId::as_str).unwrap_or("(none)");
     format!(
         "knotch:\n  active unit: {}\n  current phase: {phase_str}\n  current status: {status_str}\n  shipped milestones: {shipped_count}\n  emit events via: /knotch-mark, /knotch-gate, /knotch-transition",

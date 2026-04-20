@@ -2,16 +2,13 @@
 //!
 //! Three resolution layers, highest priority first:
 //!
-//! 1. **`KNOTCH_UNIT` env var** — explicit override for single-shot
-//!    invocations and for shells where a session pointer is not
-//!    available.
-//! 2. **`.knotch/sessions/<session_id>.toml`** — per-session pointer.
-//!    A Claude Code session forks from the global pointer at
-//!    `SessionStart` time; subsequent `knotch unit use` CLI calls
-//!    elsewhere do not disturb it.
-//! 3. **`.knotch/active.toml`** — project-global pointer. Used by
-//!    the CLI by default and as the fallback when no session pointer
-//!    exists.
+//! 1. **`KNOTCH_UNIT` env var** — explicit override for single-shot invocations and for
+//!    shells where a session pointer is not available.
+//! 2. **`.knotch/sessions/<session_id>.toml`** — per-session pointer. A Claude Code
+//!    session forks from the global pointer at `SessionStart` time; subsequent `knotch
+//!    unit use` CLI calls elsewhere do not disturb it.
+//! 3. **`.knotch/active.toml`** — project-global pointer. Used by the CLI by default and
+//!    as the fallback when no session pointer exists.
 //!
 //! Schema (both files):
 //!
@@ -153,10 +150,7 @@ pub fn project_root(cwd: &Path) -> PathBuf {
 }
 
 fn env_override() -> Option<UnitId> {
-    std::env::var(UNIT_ENV_VAR)
-        .ok()
-        .filter(|v| !v.is_empty())
-        .map(UnitId::new)
+    std::env::var(UNIT_ENV_VAR).ok().filter(|v| !v.is_empty()).map(UnitId::new)
 }
 
 fn global_path(project_root: &Path) -> PathBuf {
@@ -184,8 +178,7 @@ fn read_pointer(path: &Path) -> Result<ActiveUnit, HookError> {
         return Ok(ActiveUnit::Uninitialized);
     }
     let raw = std::fs::read_to_string(path)?;
-    let parsed: ActiveToml =
-        toml::from_str(&raw).map_err(|e| HookError::Toml(e.to_string()))?;
+    let parsed: ActiveToml = toml::from_str(&raw).map_err(|e| HookError::Toml(e.to_string()))?;
     if parsed.unit.is_empty() {
         Ok(ActiveUnit::Uninitialized)
     } else {
@@ -193,11 +186,7 @@ fn read_pointer(path: &Path) -> Result<ActiveUnit, HookError> {
     }
 }
 
-fn write_pointer(
-    path: &Path,
-    unit: Option<&UnitId>,
-    source: &str,
-) -> Result<(), HookError> {
+fn write_pointer(path: &Path, unit: Option<&UnitId>, source: &str) -> Result<(), HookError> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
     }

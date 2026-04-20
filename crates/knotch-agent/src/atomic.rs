@@ -10,10 +10,10 @@
 //! ## Sequence
 //!
 //! 1. Create `<path>.tmp`, write every byte, `fsync` the file.
-//! 2. `rename(<path>.tmp, <path>)` — POSIX-atomic, but the dirent
-//!    change still lives in the kernel's pending-writes queue.
-//! 3. Open the parent directory and `fsync` it. This commits the
-//!    dirent change, so after a crash the rename is durable.
+//! 2. `rename(<path>.tmp, <path>)` — POSIX-atomic, but the dirent change still lives in
+//!    the kernel's pending-writes queue.
+//! 3. Open the parent directory and `fsync` it. This commits the dirent change, so after
+//!    a crash the rename is durable.
 //!
 //! The parent-fsync step is why bare `std::fs::write` + `rename` is
 //! **not** crash-safe despite rename being "atomic" — atomicity is
@@ -22,15 +22,15 @@
 //!
 //! ## Platform notes
 //!
-//! - **Unix**: `File::open(parent).sync_all()` is the standard
-//!   durability barrier.
-//! - **Windows**: directory handles do not support `FlushFileBuffers`
-//!   the same way; NTFS flushes dirent changes eagerly enough that
-//!   the file sync is typically sufficient. The parent fsync is
-//!   gated behind `cfg(unix)` for now.
+//! - **Unix**: `File::open(parent).sync_all()` is the standard durability barrier.
+//! - **Windows**: directory handles do not support `FlushFileBuffers` the same way; NTFS
+//!   flushes dirent changes eagerly enough that the file sync is typically sufficient.
+//!   The parent fsync is gated behind `cfg(unix)` for now.
 
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 /// Atomically write `bytes` to `path`. See module docs for the
 /// durability contract.

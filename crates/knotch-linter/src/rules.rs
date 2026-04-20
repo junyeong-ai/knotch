@@ -63,11 +63,8 @@ impl Rule for DirectLogWriteRule {
                 return Vec::new();
             }
         }
-        let mut v = DirectLogWriteVisitor {
-            ctx,
-            path_needles: &self.path_needles,
-            findings: Vec::new(),
-        };
+        let mut v =
+            DirectLogWriteVisitor { ctx, path_needles: &self.path_needles, findings: Vec::new() };
         v.visit_file(file);
         v.findings
     }
@@ -156,15 +153,7 @@ pub struct ForbiddenNameRule {
 impl Default for ForbiddenNameRule {
     fn default() -> Self {
         Self {
-            suffixes: vec![
-                "Helper",
-                "Util",
-                "Utils",
-                "Manager",
-                "Handler",
-                "Processor",
-                "Impl",
-            ],
+            suffixes: vec!["Helper", "Util", "Utils", "Manager", "Handler", "Processor", "Impl"],
         }
     }
 }
@@ -179,11 +168,7 @@ impl Rule for ForbiddenNameRule {
     }
 
     fn check(&self, ctx: &LintContext, file: &syn::File) -> Vec<Violation> {
-        let mut v = ForbiddenNameVisitor {
-            ctx,
-            suffixes: &self.suffixes,
-            findings: Vec::new(),
-        };
+        let mut v = ForbiddenNameVisitor { ctx, suffixes: &self.suffixes, findings: Vec::new() };
         v.visit_file(file);
         v.findings
     }
@@ -287,19 +272,13 @@ impl Rule for KernelNoIoRule {
     }
 
     fn check(&self, ctx: &LintContext, file: &syn::File) -> Vec<Violation> {
-        let active = ctx
-            .crate_name
-            .as_deref()
-            .map(|n| self.active_in.contains(&n))
-            .unwrap_or(false);
+        let active =
+            ctx.crate_name.as_deref().map(|n| self.active_in.contains(&n)).unwrap_or(false);
         if !active {
             return Vec::new();
         }
-        let mut v = KernelNoIoVisitor {
-            ctx,
-            forbidden: &self.forbidden_prefixes,
-            findings: Vec::new(),
-        };
+        let mut v =
+            KernelNoIoVisitor { ctx, forbidden: &self.forbidden_prefixes, findings: Vec::new() };
         v.visit_file(file);
         v.findings
     }
@@ -372,10 +351,7 @@ mod tests {
     }
 
     fn ctx(name: Option<&str>) -> LintContext {
-        LintContext {
-            path: PathBuf::from("<memory>"),
-            crate_name: name.map(ToOwned::to_owned),
-        }
+        LintContext { path: PathBuf::from("<memory>"), crate_name: name.map(ToOwned::to_owned) }
     }
 
     #[test]

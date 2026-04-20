@@ -31,10 +31,8 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
     let causation = hook_causation(&input, "verify-commit");
     let commit_ref = CommitRef::new(compact_str::CompactString::from(sha));
     let repo = config.build_repository()?;
-    Ok(knotch_agent::commit::verify::<ConfigWorkflow, _>(
-        &repo, &unit, &msg, commit_ref, causation,
-    )
-    .await?)
+    Ok(knotch_agent::commit::verify::<ConfigWorkflow, _>(&repo, &unit, &msg, commit_ref, causation)
+        .await?)
 }
 
 /// Extract the commit SHA from `git commit` stdout.
@@ -143,21 +141,14 @@ mod tests {
     fn extracts_sha_from_ansi_coloured_header() {
         // `git -c color.ui=always commit ...` wraps tokens in CSI
         // escape sequences. Strip them before the header scan.
-        let coloured =
-            "\x1b[32m[\x1b[33mmain\x1b[0m \x1b[1;36mabc1234\x1b[0m] feat: add login\n";
-        assert_eq!(
-            extract_sha_from_stdout(coloured).as_deref(),
-            Some("abc1234")
-        );
+        let coloured = "\x1b[32m[\x1b[33mmain\x1b[0m \x1b[1;36mabc1234\x1b[0m] feat: add login\n";
+        assert_eq!(extract_sha_from_stdout(coloured).as_deref(), Some("abc1234"));
     }
 
     #[test]
     fn ansi_stripper_is_noop_for_plain_input() {
         // Regression — the ANSI pass must not eat normal brackets
         // or spaces.
-        assert_eq!(
-            extract_sha_from_stdout("[main abc1234] subject\n").as_deref(),
-            Some("abc1234")
-        );
+        assert_eq!(extract_sha_from_stdout("[main abc1234] subject\n").as_deref(), Some("abc1234"));
     }
 }

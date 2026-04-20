@@ -2,13 +2,12 @@
 //!
 //! The adapter layers two synchronization primitives:
 //!
-//! 1. A per-process async `Mutex` keyed by `UnitId`, ensuring that
-//!    concurrent tasks inside a single process never race. Required
-//!    because POSIX fcntl advisory locks are per-process, not
-//!    per-file-descriptor — opening a second fd inside the same
-//!    process would inherit the lock rather than contend with it.
-//! 2. A cross-process advisory lock via `fs4`, preventing two
-//!    separate processes from writing at once.
+//! 1. A per-process async `Mutex` keyed by `UnitId`, ensuring that concurrent tasks
+//!    inside a single process never race. Required because POSIX fcntl advisory locks are
+//!    per-process, not per-file-descriptor — opening a second fd inside the same process
+//!    would inherit the lock rather than contend with it.
+//! 2. A cross-process advisory lock via `fs4`, preventing two separate processes from
+//!    writing at once.
 //!
 //! A held `LockGuard` owns both the in-process mutex permit (as a
 //! `OwnedMutexGuard`) and the locked file handle. Dropping the guard
@@ -93,13 +92,10 @@ impl Lock for FileLock {
         let meta_path = self.meta_path(unit);
 
         if let Some(parent) = lock_path.parent() {
-            tokio::fs::create_dir_all(parent)
-                .await
-                .map_err(|e| LockError::io(parent, e))?;
+            tokio::fs::create_dir_all(parent).await.map_err(|e| LockError::io(parent, e))?;
         }
 
-        // 1. In-process serialization — wait for our turn among
-        //    concurrent tasks in this process.
+        // 1. In-process serialization — wait for our turn among concurrent tasks in this process.
         let mutex = self.mutex_for(unit);
         let permit = match tokio::time::timeout(timeout, mutex.lock_owned()).await {
             Ok(p) => p,
@@ -126,11 +122,7 @@ impl Lock for FileLock {
                 Ok(()) => {
                     let was_reclaimed = check_reclaimed_marker(&meta_path).await;
                     let owner = LockOwner::current();
-                    let meta = LockMetadata {
-                        owner,
-                        acquired_at: Timestamp::now(),
-                        lease,
-                    };
+                    let meta = LockMetadata { owner, acquired_at: Timestamp::now(), lease };
                     write_metadata(&meta_path, &meta).await?;
                     return Ok(LockGuard {
                         file: Some(file),

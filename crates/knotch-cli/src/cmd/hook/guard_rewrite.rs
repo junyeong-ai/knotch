@@ -41,8 +41,7 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
         _ => return Ok(HookOutput::Continue),
     };
     let repo = config.build_repository()?;
-    let raw =
-        knotch_agent::guard::rewrite::<ConfigWorkflow, _>(&repo, &unit, command).await?;
+    let raw = knotch_agent::guard::rewrite::<ConfigWorkflow, _>(&repo, &unit, command).await?;
 
     // Policy translates a `Block` into either a real block (exit 2)
     // or an advisory context injection.
@@ -81,9 +80,7 @@ fn split_into_git_fragments(cmd: &str) -> impl Iterator<Item = &str> {
     // Shell separators: `&&`, `||`, `;`, `|`. A naive split on any of
     // these characters is correct for the tokens we care about — git
     // arguments never contain them unquoted.
-    cmd.split([';', '|', '&'])
-        .map(str::trim)
-        .filter(|f| !f.is_empty())
+    cmd.split([';', '|', '&']).map(str::trim).filter(|f| !f.is_empty())
 }
 
 fn is_destructive_single(fragment: &str) -> bool {

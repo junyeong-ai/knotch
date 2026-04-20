@@ -15,18 +15,14 @@ use knotch_kernel::{
     project::effective_events,
 };
 
-use crate::{FsView, Observer, ObserveContext, ObserverError, StdFsView};
+use crate::{FsView, ObserveContext, Observer, ObserverError, StdFsView};
 
 /// Function producing the phases currently considered "artifacts
 /// present" for the supplied unit directory. Callers typically
 /// walk `<unit_dir>/<phase_id>/<required-file>` or consult a
 /// workflow-specific convention.
-pub type PhaseScanner<W> = Arc<
-    dyn Fn(&dyn FsView, &std::path::Path) -> Vec<ArtifactScan<W>>
-        + Send
-        + Sync
-        + 'static,
->;
+pub type PhaseScanner<W> =
+    Arc<dyn Fn(&dyn FsView, &std::path::Path) -> Vec<ArtifactScan<W>> + Send + Sync + 'static>;
 
 /// One scan result — a phase whose artifacts are present along with
 /// the actual paths they resolved to.
@@ -73,8 +69,9 @@ impl<W: WorkflowKind> Observer<W> for ArtifactObserver<W> {
         let already: Vec<W::Phase> = effective_events(&ctx.log)
             .iter()
             .filter_map(|evt| match &evt.body {
-                EventBody::PhaseCompleted { phase, .. }
-                | EventBody::PhaseSkipped { phase, .. } => Some(phase.clone()),
+                EventBody::PhaseCompleted { phase, .. } | EventBody::PhaseSkipped { phase, .. } => {
+                    Some(phase.clone())
+                }
                 _ => None,
             })
             .collect();
@@ -96,10 +93,7 @@ impl<W: WorkflowKind> Observer<W> for ArtifactObserver<W> {
                 Trigger::Observer { name: CompactString::from("artifact") },
             );
             out.push(Proposal {
-                body: EventBody::PhaseCompleted {
-                    phase: scan.phase,
-                    artifacts: scan.artifacts,
-                },
+                body: EventBody::PhaseCompleted { phase: scan.phase, artifacts: scan.artifacts },
                 causation,
                 extension: serde_json::from_value(serde_json::Value::Null)
                     .expect("extension must deserialize from null"),
