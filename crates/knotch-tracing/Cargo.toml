@@ -1,6 +1,6 @@
 [package]
 name = "knotch-tracing"
-description = "Tracing attribute schema, OpenTelemetry bridge, and cost attribution helpers for knotch."
+description = "Tracing attribute schema + span helpers for knotch."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -16,7 +16,6 @@ workspace = true
 knotch-kernel.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
-blake3.workspace = true
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true, features = ["std", "fmt"] }

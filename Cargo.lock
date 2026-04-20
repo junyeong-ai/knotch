@@ -1921,7 +1921,6 @@ dependencies = [
 name = "knotch-tracing"
 version = "0.2.5"
 dependencies = [
- "blake3",
  "compact_str",
  "knotch-kernel",
  "tracing",
