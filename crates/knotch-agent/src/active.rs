@@ -154,10 +154,7 @@ fn env_override() -> Option<UnitId> {
     // override" rather than poison every subsequent hook call —
     // operators fix the typo and retry. `try_new` surfaces the
     // grammar violation; the `.ok()` drops it silently here.
-    std::env::var(UNIT_ENV_VAR)
-        .ok()
-        .filter(|v| !v.is_empty())
-        .and_then(|v| UnitId::try_new(v).ok())
+    std::env::var(UNIT_ENV_VAR).ok().filter(|v| !v.is_empty()).and_then(|v| UnitId::try_new(v).ok())
 }
 
 fn global_path(project_root: &Path) -> PathBuf {
@@ -190,10 +187,9 @@ fn read_pointer(path: &Path) -> Result<ActiveUnit, HookError> {
         Ok(ActiveUnit::Uninitialized)
     } else {
         let unit = UnitId::try_new(&parsed.unit).map_err(|e| {
-            HookError::Toml(format!(
-                "active.toml carries invalid unit slug {:?}: {e}",
-                parsed.unit,
-            ))
+            HookError::Toml(
+                format!("active.toml carries invalid unit slug {:?}: {e}", parsed.unit,),
+            )
         })?;
         Ok(ActiveUnit::Active(unit))
     }

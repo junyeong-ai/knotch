@@ -39,7 +39,7 @@ pub use self::{
         EventBody, FailureKind, Proposal, RetryAnchor, SkipKind, SubscribeEvent, SubscribeMode,
     },
     fingerprint::{Fingerprint, fingerprint_event, fingerprint_proposal},
-    id::{EventId, UnitId, UnitIdError, UNIT_ID_MAX_LEN},
+    id::{EventId, UNIT_ID_MAX_LEN, UnitId, UnitIdError},
     log::Log,
     rationale::Rationale,
     repository::{CacheError, CacheMutator, PinStream, Repository, ResumeCache},

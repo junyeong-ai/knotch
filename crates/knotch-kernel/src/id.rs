@@ -276,10 +276,7 @@ mod tests {
     #[test]
     fn rejects_nul_and_control_chars() {
         for slug in ["foo\0bar", "foo\nbar", "foo\tbar", "\x07beep"] {
-            assert!(
-                UnitId::try_new(slug).is_err(),
-                "control-char slug {slug:?} should reject",
-            );
+            assert!(UnitId::try_new(slug).is_err(), "control-char slug {slug:?} should reject",);
         }
     }
 
