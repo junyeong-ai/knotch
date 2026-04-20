@@ -487,8 +487,11 @@ impl<W: WorkflowKind> EventBody<W> {
                 }
                 let required = ctx.workflow.prerequisites_for(gate);
                 if !required.is_empty() {
+                    // Supersede-aware: a superseded `GateRecorded`
+                    // no longer satisfies the prerequisite chain.
+                    let effective = effective_events(ctx.log);
                     let mut recorded: Vec<&W::Gate> = Vec::new();
-                    for evt in ctx.log.events() {
+                    for evt in &effective {
                         if let EventBody::GateRecorded { gate: g, .. } = &evt.body {
                             recorded.push(g);
                         }
@@ -536,7 +539,11 @@ impl<W: WorkflowKind> EventBody<W> {
                 }
             }
             EventBody::ReconcileRecovered { anchor, .. } => {
-                let has_prior = ctx.log.events().iter().any(|evt| {
+                // Supersede-aware: a superseded `ReconcileFailed`
+                // is retroactively "not a failure" — recovering
+                // from a failure that never effectively happened
+                // is meaningless.
+                let has_prior = effective_events(ctx.log).iter().any(|evt| {
                     matches!(
                         &evt.body,
                         EventBody::ReconcileFailed { anchor: prior, .. } if prior == anchor
@@ -614,15 +621,18 @@ impl<W: WorkflowKind> EventBody<W> {
                 }
             }
             EventBody::ApprovalRecorded { target, approver, .. } => {
-                // Target must exist in the log.
-                let target_present = ctx.log.events().iter().any(|e| e.id == *target);
+                // Supersede-aware: the target must be an effective
+                // event — approving a retracted event is
+                // meaningless (the "decision" no longer stands).
+                let effective = effective_events(ctx.log);
+                let target_present = effective.iter().any(|e| e.id == *target);
                 if !target_present {
                     return Err(E::ApprovalTargetMissing(target.to_string()));
                 }
                 // The same approver must not have already signed this
                 // target. Different approvers can each record their
                 // own approval.
-                let duplicate = effective_events(ctx.log).iter().any(|evt| {
+                let duplicate = effective.iter().any(|evt| {
                     matches!(
                         &evt.body,
                         EventBody::ApprovalRecorded { target: t, approver: a, .. }

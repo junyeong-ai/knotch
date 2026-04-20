@@ -32,6 +32,13 @@ for every downstream crate.
    match is in-crate and compilation enforces completeness.
 3. Extend `event.rs::EventBody::check_precondition` — write the
    invariant and cite the corresponding `PreconditionError` variant.
+   **Log iteration rule**: use `effective_events(ctx.log)` whenever
+   the check reasons about current *state* (e.g. "was this
+   milestone shipped", "is this gate's prerequisite present"). Use
+   the raw `ctx.log.events()` only when the check reasons about
+   *append history* — `UnitCreated` (log-is-empty),
+   `EventSuperseded` (dedup against prior supersedes). Mixing
+   these up silently admits events that should be refused.
 4. Extend `error.rs::PreconditionError` if the check surfaces a new
    failure mode.
 5. Add tests in `tests/preconditions.rs` (pass + fail per variant).

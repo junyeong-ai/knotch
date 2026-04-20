@@ -398,6 +398,60 @@ fn gate_recorded_out_of_order_reports_first_missing_prerequisite() {
     }
 }
 
+#[test]
+fn gate_recorded_prerequisite_supersede_retracts_the_gate() {
+    // A superseded GateRecorded must no longer satisfy a later
+    // gate's prerequisite. Structural guarantee: the precondition
+    // walks `effective_events`, not raw log.events().
+    let gate_a_id = EventId::new_v7();
+    let unit_id = UnitId::try_new("u").unwrap();
+    let events: Vec<knotch_kernel::Event<OrderedWf>> = vec![
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::UnitCreated { scope: Scope::Standard },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: gate_a_id,
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::GateRecorded {
+                gate: OG::A,
+                decision: Decision::Approved,
+                rationale: Rationale::new("record A first").unwrap(),
+            },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::EventSuperseded {
+                target: gate_a_id,
+                reason: Rationale::new("retract gate A").unwrap(),
+            },
+            supersedes: None,
+        },
+    ];
+    let l = Log::from_events(unit_id, events);
+    let body: EventBody<OrderedWf> = EventBody::GateRecorded {
+        gate: OG::B,
+        decision: Decision::Approved,
+        rationale: Rationale::new("B after A retracted").unwrap(),
+    };
+    match body.check_precondition(&octx(&l)).unwrap_err() {
+        PreconditionError::GateOutOfOrder { missing, .. } => {
+            assert!(missing.contains("A"), "expected A as missing prereq, got {missing}");
+        }
+        other => panic!("expected GateOutOfOrder after supersede, got {other:?}"),
+    }
+}
+
 // --- StatusTransitioned -----------------------------------------------
 
 #[test]
@@ -1040,4 +1094,89 @@ fn model_switched_rejects_noop_switch() {
     let body = model_switched("opus-4-7", "opus-4-7");
     let err = body.check_precondition(&ctx(&l)).unwrap_err();
     assert!(matches!(err, PreconditionError::NoOpModelSwitch { .. }), "got {err:?}");
+}
+
+// --- supersede-awareness regressions (C1 audit) ----------------------
+
+#[test]
+fn reconcile_recovered_rejected_when_prior_failure_was_superseded() {
+    let anchor = RetryAnchor::Observer { name: "obs".into() };
+    let failed_id = EventId::new_v7();
+    let events: Vec<knotch_kernel::Event<Wf>> = vec![
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::UnitCreated { scope: Scope::Standard },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: failed_id,
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::ReconcileFailed {
+                anchor: anchor.clone(),
+                attempt: NonZeroU32::new(1).unwrap(),
+                kind: FailureKind::ObserverFailed,
+            },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::EventSuperseded {
+                target: failed_id,
+                reason: Rationale::new("retract failure").unwrap(),
+            },
+            supersedes: None,
+        },
+    ];
+    let l = Log::from_events(UnitId::try_new("u").unwrap(), events);
+    let body: EventBody<Wf> = EventBody::ReconcileRecovered {
+        anchor,
+        attempts_total: NonZeroU32::new(2).unwrap(),
+    };
+    let err = body.check_precondition(&ctx(&l)).unwrap_err();
+    assert!(matches!(err, PreconditionError::NoPriorFailure), "got {err:?}");
+}
+
+#[test]
+fn approval_rejected_when_target_was_superseded() {
+    use compact_str::CompactString;
+    use knotch_kernel::causation::Person;
+    let unit_created_id = EventId::new_v7();
+    let events: Vec<knotch_kernel::Event<Wf>> = vec![
+        knotch_kernel::Event {
+            id: unit_created_id,
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::UnitCreated { scope: Scope::Standard },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::EventSuperseded {
+                target: unit_created_id,
+                reason: Rationale::new("retract unit").unwrap(),
+            },
+            supersedes: None,
+        },
+    ];
+    let l = Log::from_events(UnitId::try_new("u").unwrap(), events);
+    let body: EventBody<Wf> = EventBody::ApprovalRecorded {
+        target: unit_created_id,
+        approver: Person(CompactString::from("alice")),
+        decision: Decision::Approved,
+        rationale: Rationale::new("approving retracted event").unwrap(),
+    };
+    let err = body.check_precondition(&AppendContext::new(&WF, &l)).unwrap_err();
+    assert!(matches!(err, PreconditionError::ApprovalTargetMissing(_)), "got {err:?}");
 }
