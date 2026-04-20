@@ -129,6 +129,8 @@ impl core::convert::From<compact_str::CompactString> for knotch_kernel::causatio
 pub fn knotch_kernel::causation::AgentId::from(s: compact_str::CompactString) -> Self
 impl core::fmt::Debug for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::AgentId
+pub fn knotch_kernel::causation::AgentId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::AgentId
@@ -214,6 +216,8 @@ impl core::cmp::PartialEq for knotch_kernel::causation::Harness
 pub fn knotch_kernel::causation::Harness::eq(&self, other: &knotch_kernel::causation::Harness) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::Harness
 pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::Harness
+pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::Harness
 pub fn knotch_kernel::causation::Harness::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::Harness
@@ -236,6 +240,8 @@ impl core::cmp::PartialEq for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::eq(&self, other: &knotch_kernel::causation::ModelId) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::ModelId
+pub fn knotch_kernel::causation::ModelId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::ModelId
@@ -257,6 +263,8 @@ impl core::cmp::Eq for knotch_kernel::causation::Person
 impl core::cmp::PartialEq for knotch_kernel::causation::Person
 pub fn knotch_kernel::causation::Person::eq(&self, other: &knotch_kernel::causation::Person) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::Person
+pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::Person
 pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::Person
 pub fn knotch_kernel::causation::Person::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
@@ -306,12 +314,12 @@ impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::Person
 pub mod knotch_kernel::error
 #[non_exhaustive] pub enum knotch_kernel::error::PreconditionError
 pub knotch_kernel::error::PreconditionError::AlreadyCreated
-pub knotch_kernel::error::PreconditionError::AlreadySuperseded(alloc::string::String)
+pub knotch_kernel::error::PreconditionError::AlreadySuperseded(knotch_kernel::id::EventId)
 pub knotch_kernel::error::PreconditionError::AppendAgainstTerminalUnit
 pub knotch_kernel::error::PreconditionError::AppendAgainstTerminalUnit::status: alloc::string::String
 pub knotch_kernel::error::PreconditionError::ApprovalAlreadyRecorded
-pub knotch_kernel::error::PreconditionError::ApprovalAlreadyRecorded::target: alloc::string::String
-pub knotch_kernel::error::PreconditionError::ApprovalTargetMissing(alloc::string::String)
+pub knotch_kernel::error::PreconditionError::ApprovalAlreadyRecorded::target: knotch_kernel::id::EventId
+pub knotch_kernel::error::PreconditionError::ApprovalTargetMissing(knotch_kernel::id::EventId)
 pub knotch_kernel::error::PreconditionError::ArtifactMissing
 pub knotch_kernel::error::PreconditionError::ArtifactMissing::path: alloc::string::String
 pub knotch_kernel::error::PreconditionError::CommitKindNotImplementation
@@ -325,8 +333,8 @@ pub knotch_kernel::error::PreconditionError::GateOutOfOrder::missing: alloc::str
 pub knotch_kernel::error::PreconditionError::MilestoneAlreadyShipped(alloc::string::String)
 pub knotch_kernel::error::PreconditionError::MilestoneNotShipped(alloc::string::String)
 pub knotch_kernel::error::PreconditionError::NoOpModelSwitch
-pub knotch_kernel::error::PreconditionError::NoOpModelSwitch::model: alloc::string::String
-pub knotch_kernel::error::PreconditionError::NoOpStatusTransition(alloc::string::String)
+pub knotch_kernel::error::PreconditionError::NoOpModelSwitch::model: knotch_kernel::causation::ModelId
+pub knotch_kernel::error::PreconditionError::NoOpStatusTransition(knotch_kernel::status::StatusId)
 pub knotch_kernel::error::PreconditionError::NoPendingShip
 pub knotch_kernel::error::PreconditionError::NoPendingShip::commit: alloc::string::String
 pub knotch_kernel::error::PreconditionError::NoPendingShip::milestone: alloc::string::String
@@ -346,8 +354,8 @@ pub knotch_kernel::error::PreconditionError::SkipRejected::reason: alloc::string
 pub knotch_kernel::error::PreconditionError::StatusDowngrade
 pub knotch_kernel::error::PreconditionError::StatusDowngrade::claimed: alloc::string::String
 pub knotch_kernel::error::PreconditionError::StatusDowngrade::observed: alloc::string::String
-pub knotch_kernel::error::PreconditionError::SubagentAlreadyCompleted(alloc::string::String)
-pub knotch_kernel::error::PreconditionError::SupersedeTargetMissing(alloc::string::String)
+pub knotch_kernel::error::PreconditionError::SubagentAlreadyCompleted(knotch_kernel::causation::AgentId)
+pub knotch_kernel::error::PreconditionError::SupersedeTargetMissing(knotch_kernel::id::EventId)
 impl core::cmp::Eq for knotch_kernel::error::PreconditionError
 impl core::cmp::PartialEq for knotch_kernel::error::PreconditionError
 pub fn knotch_kernel::error::PreconditionError::eq(&self, other: &knotch_kernel::error::PreconditionError) -> bool
@@ -1627,12 +1635,12 @@ impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::FailureRe
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::FailureReason
 #[non_exhaustive] pub enum knotch_kernel::PreconditionError
 pub knotch_kernel::PreconditionError::AlreadyCreated
-pub knotch_kernel::PreconditionError::AlreadySuperseded(alloc::string::String)
+pub knotch_kernel::PreconditionError::AlreadySuperseded(knotch_kernel::id::EventId)
 pub knotch_kernel::PreconditionError::AppendAgainstTerminalUnit
 pub knotch_kernel::PreconditionError::AppendAgainstTerminalUnit::status: alloc::string::String
 pub knotch_kernel::PreconditionError::ApprovalAlreadyRecorded
-pub knotch_kernel::PreconditionError::ApprovalAlreadyRecorded::target: alloc::string::String
-pub knotch_kernel::PreconditionError::ApprovalTargetMissing(alloc::string::String)
+pub knotch_kernel::PreconditionError::ApprovalAlreadyRecorded::target: knotch_kernel::id::EventId
+pub knotch_kernel::PreconditionError::ApprovalTargetMissing(knotch_kernel::id::EventId)
 pub knotch_kernel::PreconditionError::ArtifactMissing
 pub knotch_kernel::PreconditionError::ArtifactMissing::path: alloc::string::String
 pub knotch_kernel::PreconditionError::CommitKindNotImplementation
@@ -1646,8 +1654,8 @@ pub knotch_kernel::PreconditionError::GateOutOfOrder::missing: alloc::string::St
 pub knotch_kernel::PreconditionError::MilestoneAlreadyShipped(alloc::string::String)
 pub knotch_kernel::PreconditionError::MilestoneNotShipped(alloc::string::String)
 pub knotch_kernel::PreconditionError::NoOpModelSwitch
-pub knotch_kernel::PreconditionError::NoOpModelSwitch::model: alloc::string::String
-pub knotch_kernel::PreconditionError::NoOpStatusTransition(alloc::string::String)
+pub knotch_kernel::PreconditionError::NoOpModelSwitch::model: knotch_kernel::causation::ModelId
+pub knotch_kernel::PreconditionError::NoOpStatusTransition(knotch_kernel::status::StatusId)
 pub knotch_kernel::PreconditionError::NoPendingShip
 pub knotch_kernel::PreconditionError::NoPendingShip::commit: alloc::string::String
 pub knotch_kernel::PreconditionError::NoPendingShip::milestone: alloc::string::String
@@ -1667,8 +1675,8 @@ pub knotch_kernel::PreconditionError::SkipRejected::reason: alloc::string::Strin
 pub knotch_kernel::PreconditionError::StatusDowngrade
 pub knotch_kernel::PreconditionError::StatusDowngrade::claimed: alloc::string::String
 pub knotch_kernel::PreconditionError::StatusDowngrade::observed: alloc::string::String
-pub knotch_kernel::PreconditionError::SubagentAlreadyCompleted(alloc::string::String)
-pub knotch_kernel::PreconditionError::SupersedeTargetMissing(alloc::string::String)
+pub knotch_kernel::PreconditionError::SubagentAlreadyCompleted(knotch_kernel::causation::AgentId)
+pub knotch_kernel::PreconditionError::SupersedeTargetMissing(knotch_kernel::id::EventId)
 impl core::cmp::Eq for knotch_kernel::error::PreconditionError
 impl core::cmp::PartialEq for knotch_kernel::error::PreconditionError
 pub fn knotch_kernel::error::PreconditionError::eq(&self, other: &knotch_kernel::error::PreconditionError) -> bool
@@ -1996,6 +2004,8 @@ impl core::convert::From<compact_str::CompactString> for knotch_kernel::causatio
 pub fn knotch_kernel::causation::AgentId::from(s: compact_str::CompactString) -> Self
 impl core::fmt::Debug for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::AgentId
+pub fn knotch_kernel::causation::AgentId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::AgentId
@@ -2239,6 +2249,8 @@ impl core::cmp::PartialEq for knotch_kernel::causation::Harness
 pub fn knotch_kernel::causation::Harness::eq(&self, other: &knotch_kernel::causation::Harness) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::Harness
 pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::Harness
+pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::Harness
 pub fn knotch_kernel::causation::Harness::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::Harness
@@ -2280,6 +2292,8 @@ impl core::cmp::PartialEq for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::eq(&self, other: &knotch_kernel::causation::ModelId) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::ModelId
+pub fn knotch_kernel::causation::ModelId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::ModelId
@@ -2301,6 +2315,8 @@ impl core::cmp::Eq for knotch_kernel::causation::Person
 impl core::cmp::PartialEq for knotch_kernel::causation::Person
 pub fn knotch_kernel::causation::Person::eq(&self, other: &knotch_kernel::causation::Person) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::Person
+pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::causation::Person
 pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::hash::Hash for knotch_kernel::causation::Person
 pub fn knotch_kernel::causation::Person::hash<__H: core::hash::Hasher>(&self, state: &mut __H)

@@ -317,6 +317,12 @@ pub struct Person(pub CompactString);
 
 impl Sensitive for Person {}
 
+impl core::fmt::Display for Person {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
+
 /// Sensitive agent instance identifier.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -344,16 +350,34 @@ impl AgentId {
     }
 }
 
+impl core::fmt::Display for AgentId {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
+
 /// Non-sensitive model identifier (e.g. `claude-opus-4-7`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct ModelId(pub CompactString);
+
+impl core::fmt::Display for ModelId {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
 
 /// Non-sensitive harness identifier (e.g. `claude-code/1.0`,
 /// `cursor/0.45`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct Harness(pub CompactString);
+
+impl core::fmt::Display for Harness {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
 
 #[cfg(test)]
 mod tests {

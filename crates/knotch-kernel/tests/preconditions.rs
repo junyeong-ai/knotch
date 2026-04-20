@@ -885,7 +885,7 @@ fn subagent_completed_rejects_duplicate_agent_id() {
     .check_precondition(&ctx)
     .expect_err("duplicate agent_id must reject");
     assert!(
-        matches!(err, PreconditionError::SubagentAlreadyCompleted(ref id) if id == "agent-abc")
+        matches!(err, PreconditionError::SubagentAlreadyCompleted(ref id) if id.as_str() == "agent-abc")
     );
 }
 

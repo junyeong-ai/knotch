@@ -135,7 +135,7 @@ pub enum PreconditionError {
     },
     /// `StatusTransitioned` to the current status is a no-op.
     #[error("no-op status transition to {0}")]
-    NoOpStatusTransition(String),
+    NoOpStatusTransition(crate::status::StatusId),
     /// A retry proposal's attempt counter is not strictly greater
     /// than the prior maximum for the same anchor.
     #[error("attempt {attempt} not greater than prior max {prior}")]
@@ -150,28 +150,28 @@ pub enum PreconditionError {
     NoPriorFailure,
     /// Attempted to supersede an event that is already superseded.
     #[error("event {0} is already superseded")]
-    AlreadySuperseded(String),
+    AlreadySuperseded(crate::id::EventId),
     /// Attempted to supersede an event id that is absent from the log.
     #[error("supersede target {0} not found in log")]
-    SupersedeTargetMissing(String),
+    SupersedeTargetMissing(crate::id::EventId),
     /// A `SubagentCompleted` event was proposed for an `agent_id`
     /// that already has a completion event in the effective log.
     /// Duplicate completions would produce competing `transcript_path`
     /// / `last_message` records under the same agent.
     #[error("subagent {0} already has a completion event")]
-    SubagentAlreadyCompleted(String),
+    SubagentAlreadyCompleted(crate::causation::AgentId),
     /// A `ModelSwitched { from, to }` event has `from == to`. A
     /// no-op switch would inflate the log without advancing the
     /// `model_timeline` projection.
-    #[error("model switch is a no-op: {model:?}")]
+    #[error("model switch is a no-op: {model}")]
     NoOpModelSwitch {
         /// The model repeated on both sides of the switch.
-        model: String,
+        model: crate::causation::ModelId,
     },
     /// `ApprovalRecorded` references an event id that is not in the
     /// log.
     #[error("approval target {0} not found in log")]
-    ApprovalTargetMissing(String),
+    ApprovalTargetMissing(crate::id::EventId),
     /// The same approver already has an `ApprovalRecorded` event
     /// against this target. A re-signature is meaningless — if the
     /// approver wants to change their mind they supersede the prior
@@ -179,7 +179,7 @@ pub enum PreconditionError {
     #[error("approval already recorded for target {target} by this approver")]
     ApprovalAlreadyRecorded {
         /// The targeted event id.
-        target: String,
+        target: crate::id::EventId,
     },
     /// Forced status transition without a supplied rationale.
     #[error("forced status transition requires a rationale")]

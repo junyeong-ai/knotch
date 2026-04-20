@@ -510,7 +510,7 @@ impl<W: WorkflowKind> EventBody<W> {
                 if let Some(current) = crate::project::current_status(ctx.log)
                     && &current == target
                 {
-                    return Err(E::NoOpStatusTransition(target.as_str().to_owned()));
+                    return Err(E::NoOpStatusTransition(target.clone()));
                 }
                 if *forced && rationale.is_none() {
                     return Err(E::ForcedWithoutRationale);
@@ -562,11 +562,11 @@ impl<W: WorkflowKind> EventBody<W> {
                     if let EventBody::EventSuperseded { target: prior, .. } = &evt.body
                         && prior == target
                     {
-                        return Err(E::AlreadySuperseded(target.to_string()));
+                        return Err(E::AlreadySuperseded(*target));
                     }
                 }
                 if !target_exists {
-                    return Err(E::SupersedeTargetMissing(target.to_string()));
+                    return Err(E::SupersedeTargetMissing(*target));
                 }
             }
             EventBody::SubagentCompleted { agent_id, .. } => {
@@ -582,7 +582,7 @@ impl<W: WorkflowKind> EventBody<W> {
                     )
                 });
                 if already_completed {
-                    return Err(E::SubagentAlreadyCompleted(agent_id.0.to_string()));
+                    return Err(E::SubagentAlreadyCompleted(agent_id.clone()));
                 }
             }
             EventBody::ToolCallFailed { tool, call_id, attempt, .. } => {
@@ -617,7 +617,7 @@ impl<W: WorkflowKind> EventBody<W> {
                 // projection because that projection is precisely
                 // what this event builds.
                 if from == to {
-                    return Err(E::NoOpModelSwitch { model: from.0.to_string() });
+                    return Err(E::NoOpModelSwitch { model: from.clone() });
                 }
             }
             EventBody::ApprovalRecorded { target, approver, .. } => {
@@ -627,7 +627,7 @@ impl<W: WorkflowKind> EventBody<W> {
                 let effective = effective_events(ctx.log);
                 let target_present = effective.iter().any(|e| e.id == *target);
                 if !target_present {
-                    return Err(E::ApprovalTargetMissing(target.to_string()));
+                    return Err(E::ApprovalTargetMissing(*target));
                 }
                 // The same approver must not have already signed this
                 // target. Different approvers can each record their
@@ -640,7 +640,7 @@ impl<W: WorkflowKind> EventBody<W> {
                     )
                 });
                 if duplicate {
-                    return Err(E::ApprovalAlreadyRecorded { target: target.to_string() });
+                    return Err(E::ApprovalAlreadyRecorded { target: *target });
                 }
             }
         }
