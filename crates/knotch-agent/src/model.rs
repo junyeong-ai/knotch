@@ -70,11 +70,10 @@ where
 ///
 /// Called by `knotch hook load-context`. Silent no-op when:
 ///
-/// - the active-unit resolver returns `NoProject` / `Uninitialized`
-///   (no log to compare against);
-/// - the log carries no prior model (first agent event will seed
-///   the `model_timeline` on its own — emitting `ModelSwitched`
-///   without a `from` value would be dishonest);
+/// - the active-unit resolver returns `NoProject` / `Uninitialized` (no log to compare
+///   against);
+/// - the log carries no prior model (first agent event will seed the `model_timeline` on
+///   its own — emitting `ModelSwitched` without a `from` value would be dishonest);
 /// - the prior model matches `current` (no change to record).
 ///
 /// # Errors

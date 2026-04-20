@@ -99,6 +99,7 @@ pub knotch_agent::input::HookEvent::PostToolUse
 pub knotch_agent::input::HookEvent::PostToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::input::HookEvent::PostToolUse::tool_name: compact_str::CompactString
 pub knotch_agent::input::HookEvent::PostToolUse::tool_response: core::option::Option<serde_json::value::Value>
+pub knotch_agent::input::HookEvent::PostToolUse::tool_use_id: core::option::Option<compact_str::CompactString>
 pub knotch_agent::input::HookEvent::PreToolUse
 pub knotch_agent::input::HookEvent::PreToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::input::HookEvent::PreToolUse::tool_name: compact_str::CompactString
@@ -153,6 +154,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookInput
 impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookInput
 pub mod knotch_agent::model
 pub async fn knotch_agent::model::record_switch<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, from: impl core::convert::Into<knotch_kernel::causation::ModelId>, to: impl core::convert::Into<knotch_kernel::causation::ModelId>, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
+pub async fn knotch_agent::model::record_switch_if_changed<W, R>(project_root: &std::path::Path, session_id: &str, repo: &R, current: knotch_kernel::causation::ModelId, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize + serde_core::de::DeserializeOwned
 pub mod knotch_agent::orphan
 pub fn knotch_agent::orphan::log_orphan(home: &std::path::Path, event: &str, cwd: &std::path::Path, reason: &str)
 pub mod knotch_agent::output
@@ -338,6 +340,7 @@ pub knotch_agent::HookEvent::PostToolUse
 pub knotch_agent::HookEvent::PostToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::HookEvent::PostToolUse::tool_name: compact_str::CompactString
 pub knotch_agent::HookEvent::PostToolUse::tool_response: core::option::Option<serde_json::value::Value>
+pub knotch_agent::HookEvent::PostToolUse::tool_use_id: core::option::Option<compact_str::CompactString>
 pub knotch_agent::HookEvent::PreToolUse
 pub knotch_agent::HookEvent::PreToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::HookEvent::PreToolUse::tool_name: compact_str::CompactString

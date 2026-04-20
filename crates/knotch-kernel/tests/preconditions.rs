@@ -10,7 +10,9 @@ use knotch_kernel::{
     RepositoryError, Scope, StatusId, UnitId, WorkflowKind,
     causation::{Principal, Source, Trigger},
     error::PreconditionError,
-    event::{ArtifactList, CommitKind, CommitRef, EventBody, ReconcileFailureKind, RetryAnchor, SkipKind},
+    event::{
+        ArtifactList, CommitKind, CommitRef, EventBody, ReconcileFailureKind, RetryAnchor, SkipKind,
+    },
     precondition::{AppendContext, ArtifactCheck, VerifyCommit},
 };
 use serde::{Deserialize, Serialize};
@@ -73,7 +75,11 @@ impl WorkflowKind for Wf {
 // --- Helpers ----------------------------------------------------------
 
 fn causation() -> Causation {
-    Causation::new(Source::Cli, Principal::System { service: "t".into() }, Trigger::Manual)
+    Causation::new(
+        Source::Cli,
+        Principal::System { service: "t".into() },
+        Trigger::Command { name: "test".into() },
+    )
 }
 
 fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {

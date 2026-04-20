@@ -114,7 +114,11 @@ fn fingerprint_salts_are_disjoint_between_canonical_and_named_config() {
 #[test]
 fn fingerprint_bit_identical_between_typed_and_config_canonical() {
     fn causation() -> Causation {
-        Causation::new(Source::Cli, Principal::System { service: "parity".into() }, Trigger::Manual)
+        Causation::new(
+            Source::Cli,
+            Principal::System { service: "parity".into() },
+            Trigger::Command { name: "test".into() },
+        )
     }
 
     // --- UnitCreated ---

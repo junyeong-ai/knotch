@@ -99,7 +99,7 @@ fn unit_created_proposal() -> Proposal<TestWorkflow> {
         causation: Causation::new(
             Source::Cli,
             Principal::System { service: "test".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         ),
         extension: (),
         body: EventBody::UnitCreated { scope: Scope::Standard },

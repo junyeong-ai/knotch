@@ -12,9 +12,6 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
     let Some(command) = input.bash_command() else {
         return Ok(HookOutput::Continue);
     };
-    if !command.trim_start().starts_with("git commit") {
-        return Ok(HookOutput::Continue);
-    }
     let Some(msg) = knotch_agent::commit::extract_message(command) else {
         return Ok(HookOutput::Continue);
     };

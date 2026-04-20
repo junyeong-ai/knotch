@@ -160,8 +160,6 @@ pub enum Principal {
 #[serde(tag = "kind", rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum Trigger {
-    /// User-initiated without a more specific channel.
-    Manual,
     /// Named CLI command or shell invocation.
     Command {
         /// Command name (e.g. `init`, `mark`).

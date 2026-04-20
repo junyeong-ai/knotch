@@ -2,8 +2,11 @@
 //! `knotch_lock::FileLock` and wires kernel invariants
 //! (fingerprint dedup, monotonic ordering, atomic cache+event append).
 //!
-//! The subscribe stream returns empty in v0.1 — real-time file-watch
-//! notification lands in Phase 10 hardening.
+//! The subscribe stream is backed by an in-process
+//! `tokio::sync::broadcast` per unit (see [`BROADCAST_CAPACITY`]).
+//! Cross-process subscribers drain the log via
+//! `SubscribeMode::FromBeginning` or `FromEventId` — there is no
+//! file-watch notification layer between processes.
 
 use std::{path::PathBuf, sync::Arc, time::Duration};
 

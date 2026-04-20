@@ -43,9 +43,9 @@ every `-m` / `--message=` / `-F <file>` source via
 POSIX shell quoting rules (`\` escape, `"..."` / `'...'`
 semantics), which do not match cmd.exe / PowerShell. On Windows
 the function is a stub that returns `None`, so the `check-commit`
-and `verify-commit` hooks silently no-op. Milestone trailers on
-Windows land when a Windows adopter wires a native shell parser —
-tracked as a follow-up, not a v0.1 blocker.
+and `verify-commit` hooks silently no-op. Windows adopters who
+need milestone-trailer capture implement the native shell parser
+against the same `extract_message` contract.
 
 ## Exit-code contract
 
@@ -157,16 +157,6 @@ PostToolUse is unique per invocation, so attempt = 1 is always
 correct for hook-emitted events. Missing id is a silent drop
 with a tracing warn; the precondition's `(tool, call_id)`
 monotonicity rule would otherwise be unenforceable.
-
-## Fallback for Claude Code < v2.1.85
-
-The `if` field on hook handlers (which scopes a hook to specific
-`Bash(git commit *)` invocations) requires v2.1.85+. On older
-versions the hook fires on every Bash call. Each subcommand must
-re-validate `tool_input.command` and return `HookOutput::Continue`
-immediately when the prefix does not match its target. Helpers:
-`knotch_agent::commit::extract_message`,
-`knotch_agent::commit::parse_conventional`.
 
 ## Causation construction
 

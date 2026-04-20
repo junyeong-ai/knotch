@@ -1,16 +1,12 @@
 //! `SubagentStop` → append `EventBody::SubagentCompleted`.
 //!
-//! Prior to v0.2 this helper wrote a side-channel JSON file under
-//! `.knotch/subagents/<agent-id>.json`. That violated §I ("event log
-//! is the only truth") — delegation history lived outside the log
-//! and was invisible to projections, queries, and audits.
-//!
-//! The v0.2 rewrite funnels every subagent termination through
-//! `Repository::append` with a canonical `EventBody::SubagentCompleted`.
-//! The subagent's transcript path and last assistant message survive
-//! as event-body fields, so `knotch-query` can filter by agent_id,
+//! Every subagent termination funnels through `Repository::append`
+//! with a canonical `EventBody::SubagentCompleted`. The subagent's
+//! transcript path and last assistant message survive as event-
+//! body fields, so `knotch-query` can filter by agent_id,
 //! `project::subagents` can reconstruct the delegation roster, and
-//! `cargo public-api` pins the wire shape.
+//! `cargo public-api` pins the wire shape — constitution §I (log
+//! is the only truth).
 //!
 //! Called by the `record-subagent` CLI wrapper
 //! (`crates/knotch-cli/src/cmd/hook/record_subagent.rs`).

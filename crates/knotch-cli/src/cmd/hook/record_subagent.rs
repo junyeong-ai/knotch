@@ -1,11 +1,8 @@
 //! SubagentStop → append `EventBody::SubagentCompleted` against the
-//! active unit.
-//!
-//! Replaces the pre-v0.2 flow that wrote `.knotch/subagents/<id>.json`
-//! (off-log, invisible to projections). Now the event lands in the
-//! log under the active unit and is reachable via `knotch-query`.
-//! Hooks with no active unit silent-noop — subagent delegation outside
-//! a tracked unit is not a knotch concern.
+//! active unit. The event lands under the active unit and is
+//! reachable via `knotch-query`. Hooks with no active unit silent-
+//! noop — subagent delegation outside a tracked unit is not a
+//! knotch concern.
 
 use compact_str::CompactString;
 use knotch_agent::{
@@ -39,9 +36,9 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
     let root = project_root(&input.cwd);
     let unit = match resolve_active_for_hook(&root, input.session_id.as_str())? {
         ActiveUnit::Active(u) => u,
-        // No knotch project, or project with no active unit — either
-        // way there is no log to append to; subagent is silently
-        // unrecorded. Matches the pre-v0.2 behavior.
+        // No knotch project, or project with no active unit —
+        // either way there is no log to append to; subagent is
+        // silently unrecorded.
         ActiveUnit::NoProject | ActiveUnit::Uninitialized => return Ok(HookOutput::Continue),
     };
 

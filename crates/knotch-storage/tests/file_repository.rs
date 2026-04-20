@@ -68,7 +68,7 @@ fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
         causation: Causation::new(
             Source::Cli,
             Principal::System { service: "test".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         ),
         extension: (),
         body,
@@ -199,7 +199,7 @@ where
         causation: Causation::new(
             Source::Cli,
             Principal::System { service: "test".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         ),
         extension: (),
         body,

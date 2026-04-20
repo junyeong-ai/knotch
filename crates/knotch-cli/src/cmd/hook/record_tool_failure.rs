@@ -12,12 +12,10 @@
 //!
 //! Claude Code PostToolUse payloads converge on two error surfaces:
 //!
-//! 1. Any tool: a non-empty string at `tool_response.error`.
-//!    Observed for Edit, Write, Read, Grep, Glob, WebFetch,
-//!    WebSearch, and the MCP call family.
-//! 2. Bash specifically: a non-zero `exit_code` on `tool_response`,
-//!    with the stderr text appended to the reason for operator
-//!    context.
+//! 1. Any tool: a non-empty string at `tool_response.error`. Observed for Edit, Write,
+//!    Read, Grep, Glob, WebFetch, WebSearch, and the MCP call family.
+//! 2. Bash specifically: a non-zero `exit_code` on `tool_response`, with the stderr text
+//!    appended to the reason for operator context.
 //!
 //! Neither the rate-limit nor the timeout variant of
 //! `ToolCallFailureReason` is emitted from this detector — both

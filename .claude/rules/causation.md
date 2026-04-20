@@ -38,8 +38,7 @@ subscribers hash them to BLAKE3-16 prefix. Plain public info
 
 | Variant | When |
 |---|---|
-| `Manual` | fallback; prefer something more specific |
-| `Command { name }` | CLI subcommand |
+| `Command { name }` | CLI subcommand or shell invocation (including test fixtures — use `name: "test"` or a more specific tag) |
 | `GitHook { name }` | pre-commit / post-commit |
 | `ToolInvocation { tool, call_id }` | agent tool call — use this for every event an agent emits |
 | `Observer { name }` | reconciler-driven; observer name only |

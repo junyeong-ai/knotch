@@ -70,7 +70,11 @@ impl WorkflowKind for Wf {
 // --- Helpers ----------------------------------------------------------
 
 fn plain_causation() -> Causation {
-    Causation::new(Source::Cli, Principal::System { service: "t".into() }, Trigger::Manual)
+    Causation::new(
+        Source::Cli,
+        Principal::System { service: "t".into() },
+        Trigger::Command { name: "test".into() },
+    )
 }
 
 fn agent_causation(model: &str) -> Causation {
@@ -81,7 +85,7 @@ fn agent_causation(model: &str) -> Causation {
             model: ModelId(model.into()),
             harness: Harness("claude-code".into()),
         },
-        Trigger::Manual,
+        Trigger::Command { name: "test".into() },
     )
 }
 

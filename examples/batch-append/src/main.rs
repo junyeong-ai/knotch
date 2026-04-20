@@ -21,7 +21,7 @@ fn causation() -> Causation {
     Causation::new(
         Source::Cli,
         Principal::System { service: "batch-append-example".into() },
-        Trigger::Manual,
+        Trigger::Command { name: "test".into() },
     )
 }
 

@@ -16,7 +16,11 @@ use workflow_spec_driven_case_study::{
 };
 
 fn causation() -> Causation {
-    Causation::new(Source::Cli, Principal::System { service: "e2e".into() }, Trigger::Manual)
+    Causation::new(
+        Source::Cli,
+        Principal::System { service: "e2e".into() },
+        Trigger::Command { name: "test".into() },
+    )
 }
 
 #[tokio::test]

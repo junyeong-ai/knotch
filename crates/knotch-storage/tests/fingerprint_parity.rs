@@ -70,7 +70,7 @@ fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
         causation: Causation::new(
             Source::Cli,
             Principal::System { service: "parity".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         ),
         extension: (),
         body,
@@ -113,7 +113,7 @@ fn fingerprint_proposal_is_pure_over_body_shape() {
         variant.causation = Causation::new(
             Source::Test,
             Principal::System { service: "other".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         );
         assert_eq!(
             fingerprint_proposal(&Wf, &base).unwrap(),

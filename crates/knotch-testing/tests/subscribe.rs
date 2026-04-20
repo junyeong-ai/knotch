@@ -66,7 +66,7 @@ fn seed() -> Proposal<W> {
         causation: Causation::new(
             Source::Cli,
             Principal::System { service: "test".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         ),
         extension: (),
         body: EventBody::UnitCreated { scope: Scope::Standard },
@@ -79,7 +79,7 @@ fn phase_done() -> Proposal<W> {
         causation: Causation::new(
             Source::Cli,
             Principal::System { service: "test".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         ),
         extension: (),
         body: EventBody::PhaseCompleted {

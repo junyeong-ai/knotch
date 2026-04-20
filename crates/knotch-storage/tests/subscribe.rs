@@ -63,7 +63,11 @@ impl WorkflowKind for Wf {
 }
 
 fn cause() -> Causation {
-    Causation::new(Source::Cli, Principal::System { service: "t".into() }, Trigger::Manual)
+    Causation::new(
+        Source::Cli,
+        Principal::System { service: "t".into() },
+        Trigger::Command { name: "test".into() },
+    )
 }
 
 fn p(body: EventBody<Wf>) -> Proposal<Wf> {

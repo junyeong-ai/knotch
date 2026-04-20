@@ -31,7 +31,7 @@ async fn main() -> anyhow::Result<()> {
         Causation::new(
             Source::Cli,
             Principal::System { service: "quickstart".into() },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         )
     };
 

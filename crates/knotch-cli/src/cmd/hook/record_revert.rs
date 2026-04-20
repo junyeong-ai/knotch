@@ -22,9 +22,6 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> Result<HookOutput>
     let Some(command) = input.bash_command() else {
         return Ok(HookOutput::Continue);
     };
-    if !command.trim_start().starts_with("git revert") {
-        return Ok(HookOutput::Continue);
-    }
     let Some(original) = extract_revert_target_from_cmd(command) else {
         return Ok(HookOutput::Continue);
     };

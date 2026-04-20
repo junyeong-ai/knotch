@@ -40,7 +40,7 @@ fn causation() -> Causation {
     Causation::new(
         Source::Cli,
         Principal::System { service: "artifact-probe-example".into() },
-        Trigger::Manual,
+        Trigger::Command { name: "test".into() },
     )
 }
 

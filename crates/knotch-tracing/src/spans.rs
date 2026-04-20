@@ -130,7 +130,7 @@ mod tests {
                 model: ModelId(CompactString::from("claude-opus-4-7")),
                 harness: Harness(CompactString::from("claude-code/1.0")),
             },
-            Trigger::Manual,
+            Trigger::Command { name: "test".into() },
         );
         emit_principal(&causation);
     }

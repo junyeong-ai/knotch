@@ -90,7 +90,6 @@ pub knotch_kernel::causation::Trigger::Command
 pub knotch_kernel::causation::Trigger::Command::name: compact_str::CompactString
 pub knotch_kernel::causation::Trigger::GitHook
 pub knotch_kernel::causation::Trigger::GitHook::name: compact_str::CompactString
-pub knotch_kernel::causation::Trigger::Manual
 pub knotch_kernel::causation::Trigger::Observer
 pub knotch_kernel::causation::Trigger::Observer::name: compact_str::CompactString
 pub knotch_kernel::causation::Trigger::ToolInvocation
@@ -1935,7 +1934,6 @@ pub knotch_kernel::Trigger::Command
 pub knotch_kernel::Trigger::Command::name: compact_str::CompactString
 pub knotch_kernel::Trigger::GitHook
 pub knotch_kernel::Trigger::GitHook::name: compact_str::CompactString
-pub knotch_kernel::Trigger::Manual
 pub knotch_kernel::Trigger::Observer
 pub knotch_kernel::Trigger::Observer::name: compact_str::CompactString
 pub knotch_kernel::Trigger::ToolInvocation
