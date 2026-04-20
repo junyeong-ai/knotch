@@ -118,11 +118,45 @@ continue without touching the ledger.
 - `SessionStart` writes `.knotch/sessions/<id>.toml` from the
   current global active unit. Later `knotch unit use` elsewhere
   does **not** disturb the running session.
+- `SessionStart` also runs the model-change detector before the
+  context injection: `$KNOTCH_MODEL` is compared against
+  `project::model_timeline(log).last()` and a `ModelSwitched`
+  event is appended when they differ. Detection silent-noops when
+  the env var is unset, no active unit exists, the log carries no
+  prior model, or the current model matches the prior one — see
+  `knotch_agent::model::record_switch_if_changed`.
 - `SessionEnd` with `reason != "resume"` removes the per-session
   pointer via `active::clear_session`. `reason == "resume"` keeps
   it so the next session restart reuses the same target.
 - Queue auto-drain happens on `SessionStart`. `SessionEnd` logs
   residual queue size for visibility.
+
+## Tool-call failure detection (PostToolUse)
+
+The `record-tool-failure` hook matches **every** PostToolUse
+(empty Bash-matcher plus a universal matcher) and classifies the
+payload into a `ToolCallFailureReason`. Emission rules:
+
+- A non-empty `tool_response.error` string → `Backend { message }`.
+  Covers Edit, Write, Read, Grep, Glob, WebFetch, WebSearch, and
+  MCP calls — every Claude Code tool surfaces failures through
+  this field.
+- Bash with non-zero `tool_response.exit_code` → `Backend` with
+  `exit <code>[: <stderr>]`.
+- Anything else (successful response, missing `tool_response`,
+  zero-exit Bash) → no event.
+
+`RateLimited` and `Timeout` variants are **not** emitted by this
+hook — both carry exact durations we cannot extract from a
+PostToolUse payload. Harnesses that wrap the LLM backend itself
+call `knotch_agent::tool_call::record_failure` directly with the
+richer classification.
+
+The `tool_use_id` field carried by Claude Code on every
+PostToolUse is unique per invocation, so attempt = 1 is always
+correct for hook-emitted events. Missing id is a silent drop
+with a tracing warn; the precondition's `(tool, call_id)`
+monotonicity rule would otherwise be unenforceable.
 
 ## Fallback for Claude Code < v2.1.85
 
