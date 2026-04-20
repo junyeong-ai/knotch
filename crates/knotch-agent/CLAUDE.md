@@ -9,6 +9,7 @@ plug in their own CLI and call the same functions.
 @../../.claude/rules/hook-integration.md
 @../../.claude/rules/event-ownership.md
 @../../.claude/rules/causation.md
+@../../.claude/rules/harness-decoupling.md
 @../../.claude/rules/no-unsafe.md
 
 ## Module map

@@ -45,7 +45,7 @@ cargo xtask plugin-sync   # mirror .claude/skills/ → plugins/knotch/skills/
 | Change `knotch-storage` / `-lock` / `-vcs` | crates/knotch-storage/CLAUDE.md, crates/knotch-lock/CLAUDE.md, crates/knotch-vcs/CLAUDE.md |
 | Add an observer | crates/knotch-observer/CLAUDE.md |
 | Add a reconciler feature | crates/knotch-reconciler/CLAUDE.md |
-| Change hook/skill behavior | @.claude/rules/hook-integration.md, @.claude/rules/event-ownership.md, crates/knotch-agent/CLAUDE.md |
+| Change hook/skill behavior | @.claude/rules/hook-integration.md, @.claude/rules/event-ownership.md, @.claude/rules/harness-decoupling.md, crates/knotch-agent/CLAUDE.md |
 | Tune the canonical workflow (phases, gates, statuses) | crates/knotch-workflow/CLAUDE.md |
 | Fork a workflow for a different shape | examples/workflow-spec-driven-case-study/, examples/workflow-vibe-case-study/ |
 | Add a lint rule | crates/knotch-linter/CLAUDE.md |
