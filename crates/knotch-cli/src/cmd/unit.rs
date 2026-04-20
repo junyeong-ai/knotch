@@ -4,7 +4,8 @@
 use anyhow::{Context as _, anyhow};
 use clap::{Args as ClapArgs, Subcommand};
 use knotch_agent::active::{ActiveUnit, resolve_active, write_active};
-use knotch_kernel::UnitId;
+use knotch_kernel::{AppendMode, Causation, Proposal, Repository, Scope, UnitId, event::EventBody};
+use knotch_workflow::DynamicExtension;
 use serde_json::json;
 
 use crate::{cmd::OutputMode, config::Config};
@@ -25,6 +26,12 @@ pub(crate) enum UnitCommand {
 pub(crate) struct InitArgs {
     /// Unit slug — kebab-case recommended.
     pub slug: String,
+    /// Scope tag for the `UnitCreated` event. Defaults to the
+    /// workflow's `default_scope` (typically `"standard"`). Must
+    /// name an entry in `[workflow.required_phases]` for scope-
+    /// driven checks to fire.
+    #[arg(long)]
+    pub scope: Option<String>,
 }
 
 #[derive(Debug, ClapArgs)]
@@ -44,20 +51,62 @@ pub(crate) async fn run(config: &Config, out: OutputMode, cmd: UnitCommand) -> a
 
 async fn run_init(config: &Config, out: OutputMode, args: InitArgs) -> anyhow::Result<()> {
     let unit_dir = config.unit_dir(&args.slug);
+    let unit_id = UnitId::new(args.slug.clone());
+    let repo = config.build_repository()?;
+    let workflow = config.load_workflow()?;
+
+    // If the unit dir already exists AND the log already holds a
+    // UnitCreated anchor, refuse — `unit init` is for first-time
+    // creation. If the dir exists but the log lacks the anchor, we
+    // treat this as a repair run: `doctor` warns on missing anchors,
+    // and `init --slug <same>` is the suggested remediation (per
+    // `.claude/rules/event-ownership.md` — CLI tier owns
+    // `UnitCreated`).
     if unit_dir.exists() {
-        return Err(anyhow!("unit `{}` already exists at {}", args.slug, unit_dir.display()));
+        let log = repo
+            .load(&unit_id)
+            .await
+            .with_context(|| format!("load existing log for unit `{}`", args.slug))?;
+        if log.events().iter().any(|e| matches!(e.body, EventBody::UnitCreated { .. })) {
+            return Err(anyhow!(
+                "unit `{}` already initialized (UnitCreated event present in log)",
+                args.slug,
+            ));
+        }
+    } else {
+        tokio::fs::create_dir_all(&unit_dir)
+            .await
+            .with_context(|| format!("create unit dir {}", unit_dir.display()))?;
     }
-    tokio::fs::create_dir_all(&unit_dir)
+
+    let scope_tag = args.scope.as_deref().unwrap_or(workflow.default_scope());
+    let scope = Scope::from_tag(scope_tag);
+    let proposal = Proposal {
+        causation: Causation::cli("unit-init"),
+        extension: DynamicExtension::default(),
+        body: EventBody::UnitCreated { scope: scope.clone() },
+        supersedes: None,
+    };
+    repo.append(&unit_id, vec![proposal], AppendMode::AllOrNothing)
         .await
-        .with_context(|| format!("create unit dir {}", unit_dir.display()))?;
+        .with_context(|| format!("append UnitCreated for unit `{}`", args.slug))?;
+
     match out {
-        OutputMode::Human => println!("created unit `{}` at {}", args.slug, unit_dir.display()),
+        OutputMode::Human => {
+            println!(
+                "created unit `{}` at {}\n  scope: {}\n  first event: UnitCreated",
+                args.slug,
+                unit_dir.display(),
+                scope.tag(),
+            );
+        }
         OutputMode::Json => println!(
             "{}",
             json!({
                 "event": "unit_init",
                 "slug": args.slug,
                 "dir": unit_dir.display().to_string(),
+                "scope": scope.tag(),
             })
         ),
     }

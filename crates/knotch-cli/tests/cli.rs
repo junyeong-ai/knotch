@@ -46,6 +46,64 @@ fn init_force_overwrites() {
 }
 
 #[test]
+fn unit_init_emits_unit_created_event_with_default_scope() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    bin().current_dir(dir.path()).args(["init"]).assert().success();
+
+    bin()
+        .current_dir(dir.path())
+        .args(["unit", "init", "feat-auth"])
+        .assert()
+        .success()
+        .stdout(str::contains("scope: standard"))
+        .stdout(str::contains("first event: UnitCreated"));
+
+    // `--json log` emits the raw JSONL stream; parse and confirm the
+    // first body carries `UnitCreated { scope: "standard" }`.
+    let output =
+        bin().current_dir(dir.path()).args(["--json", "log", "feat-auth"]).output().expect("run");
+    assert!(output.status.success(), "{output:?}");
+    let stdout = String::from_utf8(output.stdout).expect("utf8");
+    let parsed: Value = serde_json::from_str(stdout.trim()).expect("valid JSON");
+    let first = &parsed.as_array().expect("array")[0];
+    assert_eq!(first["body"]["type"], "unit_created");
+    assert_eq!(first["body"]["scope"], "standard");
+}
+
+#[test]
+fn unit_init_honours_explicit_scope_flag() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    bin().current_dir(dir.path()).args(["init"]).assert().success();
+
+    bin()
+        .current_dir(dir.path())
+        .args(["unit", "init", "hotfix-bug", "--scope", "tiny"])
+        .assert()
+        .success()
+        .stdout(str::contains("scope: tiny"));
+
+    let output =
+        bin().current_dir(dir.path()).args(["--json", "log", "hotfix-bug"]).output().expect("run");
+    let stdout = String::from_utf8(output.stdout).expect("utf8");
+    let parsed: Value = serde_json::from_str(stdout.trim()).expect("valid JSON");
+    assert_eq!(parsed[0]["body"]["scope"], "tiny");
+}
+
+#[test]
+fn unit_init_rejects_when_unit_already_has_anchor() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    bin().current_dir(dir.path()).args(["init"]).assert().success();
+    bin().current_dir(dir.path()).args(["unit", "init", "feat-x"]).assert().success();
+
+    bin()
+        .current_dir(dir.path())
+        .args(["unit", "init", "feat-x"])
+        .assert()
+        .failure()
+        .stderr(str::contains("already initialized"));
+}
+
+#[test]
 fn log_reads_seeded_jsonl() {
     let dir = tempfile::tempdir().expect("tempdir");
     bin().current_dir(dir.path()).args(["init"]).assert().success();
