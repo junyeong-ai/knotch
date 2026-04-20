@@ -72,7 +72,6 @@ anyhow           = "1.0"
 tokio            = { version = "1.40", default-features = false }
 tokio-util       = { version = "0.7",  default-features = false }
 futures          = { version = "0.3",  default-features = false, features = ["std"] }
-rust_decimal     = { version = "1.37", default-features = false, features = ["serde"] }
 async-stream     = "0.3"
 dashmap          = "6.1"
 arc-swap         = "1.7"

@@ -18,7 +18,6 @@ futures.workspace = true
 tokio = { workspace = true, features = ["rt", "sync"] }
 thiserror.workspace = true
 jiff.workspace = true
-rust_decimal.workspace = true
 
 [dev-dependencies]
 knotch-derive.workspace = true
@@ -28,4 +27,3 @@ tempfile.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 serde.workspace = true
 compact_str.workspace = true
-rust_decimal.workspace = true

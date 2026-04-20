@@ -8,7 +8,7 @@
 
 use knotch_kernel::{
     Causation, UnitId,
-    causation::{Cost, Principal},
+    causation::Principal,
     event::{Event, EventBody},
     workflow::WorkflowKind,
 };
@@ -55,20 +55,7 @@ pub fn emit_event<W: WorkflowKind>(unit: &UnitId, event: &Event<W>) {
         event_kind = event_kind_tag(&event.body),
         principal_kind = principal_kind(&event.causation),
     );
-    if let Some(cost) = &event.causation.cost {
-        emit_cost(cost);
-    }
     emit_principal(&event.causation);
-}
-
-fn emit_cost(cost: &Cost) {
-    let usd = cost.usd.map(|d| d.to_string()).unwrap_or_default();
-    info!(
-        target: "knotch.cost",
-        usd = %usd,
-        tokens_in = cost.tokens_in,
-        tokens_out = cost.tokens_out,
-    );
 }
 
 fn emit_principal(c: &Causation) {

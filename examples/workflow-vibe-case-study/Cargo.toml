@@ -1,6 +1,6 @@
 [package]
 name = "workflow-vibe-case-study"
-description = "Case study: an AI-pair-programming workflow (Intent → Explore → Implement → Verify) with cost aggregation and LLM-summary projections. Demonstrates how to fork knotch's canonical workflow and add preset-specific helpers."
+description = "Case study: an AI-pair-programming workflow (Intent → Explore → Implement → Verify) with LLM-summary projections. Demonstrates how to fork knotch's canonical workflow and add preset-specific helpers."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -22,8 +22,6 @@ knotch-storage.workspace = true
 knotch-derive.workspace = true
 serde.workspace = true
 compact_str.workspace = true
-rust_decimal.workspace = true
-jiff.workspace = true
 
 [dev-dependencies]
 knotch-testing.workspace = true

@@ -6,8 +6,7 @@
 //! - [`Vibe`] — the `WorkflowKind` impl plus milestone/gate shapes. Milestones are
 //!   free-form ids so agents can coin names.
 //! - [`Session`] — a `Causation`-factory that tags every event with agent/model/session
-//!   metadata, making cost and attribution first-class.
-//! - [`total_usd`] / [`total_tokens`] — roll-ups over an effective log.
+//!   metadata, making attribution first-class.
 //! - [`summary_for_llm`] — LLM-friendly natural-language summary budget-capped to a
 //!   target token count (approximated by chars).
 //! - [`build_repository`] — one-liner file-backed repo.
@@ -15,16 +14,14 @@
 use std::{borrow::Cow, path::PathBuf};
 
 use compact_str::CompactString;
-use jiff::Timestamp;
 use knotch_derive::{GateKind, MilestoneKind, PhaseKind};
 use knotch_kernel::{
     Causation, Log, PhaseKind as _, Scope, WorkflowKind,
-    causation::{AgentId, Cost, Harness, ModelId, Principal, SessionId, Source, Trigger},
+    causation::{AgentId, Harness, ModelId, Principal, SessionId, Source, Trigger},
     event::EventBody,
-    project::{current_phase, current_status, effective_events, total_cost},
+    project::{current_phase, current_status, effective_events},
 };
 use knotch_storage::FileRepository;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 /// Vibe-coding lifecycle phases.
@@ -138,7 +135,7 @@ impl Session {
     }
 
     /// Build a `Causation` for the current session. Callers chain
-    /// `with_cost` / `with_trace` / `with_parent_event` as needed.
+    /// `with_trace` / `with_parent_event` as needed.
     #[must_use]
     pub fn causation(&self, trigger: Trigger) -> Causation {
         Causation::new(
@@ -169,19 +166,6 @@ pub fn build_repository(root: impl Into<PathBuf>) -> FileRepository<Vibe> {
     FileRepository::new(root, Vibe)
 }
 
-/// Sum of every `Causation::cost.usd` entry on the effective log.
-#[must_use]
-pub fn total_usd(log: &Log<Vibe>) -> Option<Decimal> {
-    total_cost(log).usd
-}
-
-/// Sum of input + output tokens across the effective log.
-#[must_use]
-pub fn total_tokens(log: &Log<Vibe>) -> (u64, u64) {
-    let c = total_cost(log);
-    (u64::from(c.tokens_in), u64::from(c.tokens_out))
-}
-
 /// Budgetted summarization of a unit's log for prompt injection.
 #[derive(Debug, Clone)]
 pub struct LlmSummary {
@@ -207,9 +191,8 @@ impl Default for SummaryBudget {
 
 /// Produce an LLM-friendly summary of a vibe-workflow log.
 ///
-/// The summary renders current phase, status, shipped milestones,
-/// aggregated cost, and the most recent events — trimmed to the
-/// supplied [`SummaryBudget`].
+/// The summary renders current phase, status, and the most recent
+/// events — trimmed to the supplied [`SummaryBudget`].
 #[must_use]
 pub fn summary_for_llm(log: &Log<Vibe>, budget: SummaryBudget) -> LlmSummary {
     let max_chars = budget.max_tokens.saturating_mul(4);
@@ -222,13 +205,6 @@ pub fn summary_for_llm(log: &Log<Vibe>, budget: SummaryBudget) -> LlmSummary {
     if let Some(status) = current_status(log) {
         body.push_str(&format!("- current status: `{}`\n", status.as_str()));
     }
-    let cost = total_cost(log);
-    body.push_str(&format!(
-        "- cost so far: {} USD · {} in / {} out tokens\n",
-        cost.usd.map(|d| d.to_string()).unwrap_or_else(|| "?".into()),
-        cost.tokens_in,
-        cost.tokens_out,
-    ));
 
     body.push_str("\n## recent events\n");
     let effective = effective_events(log);
@@ -275,12 +251,6 @@ fn short_detail(evt: &knotch_kernel::Event<Vibe>) -> String {
         EventBody::EventSuperseded { target, .. } => format!("superseded {target}"),
         _ => String::new(),
     }
-}
-
-/// Silence clippy about unused imports we use only in doctests.
-#[doc(hidden)]
-pub fn _keepalive(_: Timestamp) {
-    let _ = Cost::default();
 }
 
 #[cfg(test)]

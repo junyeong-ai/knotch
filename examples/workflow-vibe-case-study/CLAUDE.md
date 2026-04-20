@@ -19,7 +19,6 @@ a starting point when your shape matches.
 | `TaskId` | Milestone — free-form short id coined per unit |
 | `VibeGate` | `IntentClear / Handoff` |
 | `Session` | `Causation` factory: `Session::new(agent, model, harness).tool(tool, call_id)` |
-| `total_usd`, `total_tokens` | Cost roll-ups over the effective log |
 | `summary_for_llm` | Budget-capped markdown summary for prompt injection |
 | `SummaryBudget` | Char-count cap for `summary_for_llm` |
 
@@ -34,7 +33,7 @@ Terminal statuses: `archived`, `abandoned`, `handed_off`.
    per-skill. Add skill-level guidance if the new gate has
    prerequisites.
 
-**Add a new projection helper (cost, activity, …):**
+**Add a new projection helper (activity, …):**
 
 1. Place the pure fn in `lib.rs`; take `&Log<Vibe>` and return a
    plain value (no `Result` unless the projection can fail on
@@ -46,9 +45,6 @@ Terminal statuses: `archived`, `abandoned`, `handed_off`.
 
 - Widen `Session::new` signatures — the factory is the stable
   agent-facing entry. Add chainable `with_*` methods instead.
-- Skip `Cost::new` when building `Causation` manually —
-  `#[non_exhaustive]` prevents struct-literal construction
-  (see @../../.claude/rules/causation.md).
 - Record a `MilestoneShipped` from the preset — vibe milestones
   still go through `knotch-agent::commit::verify` like every
   other preset.

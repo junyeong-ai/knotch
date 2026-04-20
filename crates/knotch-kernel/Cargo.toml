@@ -25,7 +25,6 @@ serde_json.workspace = true
 serde_jcs.workspace = true
 thiserror.workspace = true
 futures.workspace = true
-rust_decimal.workspace = true
 
 [dev-dependencies]
 knotch-testing = { workspace = true }

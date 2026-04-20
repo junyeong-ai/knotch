@@ -6,10 +6,10 @@
 //! effective-events view).
 
 use compact_str::CompactString;
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::FxHashSet;
 
 use crate::{
-    causation::{AgentId, Cost, ModelId, Principal},
+    causation::{AgentId, ModelId, Principal},
     event::{Event, EventBody, ToolCallFailureReason},
     id::EventId,
     log::Log,
@@ -94,18 +94,6 @@ pub fn effective_events<W: WorkflowKind>(log: &Log<W>) -> Vec<Event<W>> {
         .collect();
 
     log.events().iter().filter(|evt| !superseded.contains(&evt.id)).cloned().collect()
-}
-
-/// Sum of every `Causation::cost` value on effective events.
-#[must_use]
-pub fn total_cost<W: WorkflowKind>(log: &Log<W>) -> Cost {
-    let mut total = Cost::default();
-    for evt in effective_events(log) {
-        if let Some(cost) = &evt.causation.cost {
-            total.accumulate(cost);
-        }
-    }
-    total
 }
 
 /// Latest authoritative status, or `None` when the log carries no
@@ -263,137 +251,6 @@ pub fn tool_call_timeline<W: WorkflowKind>(
         })
         .collect();
     entries.sort_by_key(|e| e.attempt);
-    entries
-}
-
-/// Cost attributed to each required phase — the sum of
-/// `Causation::cost` on every effective event that fired **while
-/// that phase was the active (first unresolved) phase**. Events
-/// that happen after every required phase has been resolved are
-/// dropped from the attribution (they no longer have an active
-/// phase to blame).
-///
-/// ## Attribution rule
-///
-/// The active phase at event `E` is the first phase in
-/// `W::required_phases(scope)` that has neither completed nor been
-/// skipped in the effective prefix **before** `E` is applied. In
-/// particular, a `PhaseCompleted { phase: X, .. }` event is itself
-/// attributed to `X` — the work that completes the phase is billed
-/// to that phase, not the next.
-///
-/// ## Shape
-///
-/// Returns a map keyed by `W::Phase`; phases with zero cost are
-/// omitted (absent key ⇔ `Cost::default()`). Callers that need a
-/// total per phase including zeroes iterate over
-/// `W::required_phases(scope)` and `cost_by_phase(...).get(p)`.
-///
-/// ## Edge cases
-///
-/// - **Unit not created** (no `UnitCreated` event): returns an empty map.
-/// - **`W::required_phases(scope)` is empty**: returns an empty map (no active phase ever
-///   exists, so no event is billable).
-/// - **`PhaseCompleted` or `PhaseSkipped` for a phase absent from
-///   `required_phases(scope)`**: the phase is tracked in the resolved set for correctness
-///   of subsequent lookups, but it never appears as the active phase, so it is never a
-///   bucket key. This matches the scope-based-omission semantics in
-///   `.claude/rules/preconditions.md`.
-/// - **Events carrying `Causation::cost == None`**: skipped — the projection only sums
-///   explicit costs.
-///
-/// Complexity: `O(n · |required_phases(scope)|)`. The per-event
-/// linear search over `required_phases` is negligible because
-/// typical workflows declare fewer than ten phases.
-#[must_use]
-pub fn cost_by_phase<W: WorkflowKind>(workflow: &W, log: &Log<W>) -> FxHashMap<W::Phase, Cost> {
-    let effective = effective_events(log);
-    let mut buckets: FxHashMap<W::Phase, Cost> = FxHashMap::default();
-
-    let Some(scope) = effective.iter().find_map(|evt| match &evt.body {
-        EventBody::UnitCreated { scope } => Some(scope.clone()),
-        _ => None,
-    }) else {
-        return buckets;
-    };
-
-    let required = workflow.required_phases(&scope);
-    let mut resolved: FxHashSet<W::Phase> = FxHashSet::default();
-
-    for evt in &effective {
-        if let Some(active) = required.iter().find(|p| !resolved.contains(*p))
-            && let Some(cost) = &evt.causation.cost
-        {
-            buckets.entry(active.clone()).or_default().accumulate(cost);
-        }
-        match &evt.body {
-            EventBody::PhaseCompleted { phase, .. } | EventBody::PhaseSkipped { phase, .. } => {
-                resolved.insert(phase.clone());
-            }
-            _ => {}
-        }
-    }
-
-    buckets
-}
-
-/// One `(milestone, cost)` entry in the timeline produced by
-/// [`cost_by_milestone`].
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[non_exhaustive]
-pub struct MilestoneCostEntry<W: WorkflowKind> {
-    /// The milestone that shipped.
-    pub milestone: W::Milestone,
-    /// Cost accumulated between the previous `MilestoneShipped`
-    /// (or the unit's first event) and this one — i.e. the cost of
-    /// the work that got shipped as this milestone.
-    pub cost: Cost,
-}
-
-/// Cost attributed to each shipped milestone — the sum of
-/// `Causation::cost` on every effective event that fired between
-/// the previous milestone (or the unit's first event) and the one
-/// that shipped the milestone. Milestones ship in append order;
-/// the returned `Vec` preserves that order.
-///
-/// Cost accumulated after the final `MilestoneShipped` is not
-/// included (it hasn't been bucketed yet — there is no "current"
-/// milestone to attribute it to). Callers that want the residual
-/// compute `total_cost(log) - cost_by_milestone(log).iter().map(|e|
-/// &e.cost).sum()`.
-///
-/// `MilestoneReverted` does **not** subtract the original bucket —
-/// the log records the work that happened, revert is about
-/// correctness not accounting. If an adopter wants revert-adjusted
-/// cost, they can compose this with `shipped_milestones` and drop
-/// entries whose milestone id is absent from the latter.
-///
-/// The append-time precondition forbids shipping the same milestone
-/// twice (`PreconditionError::MilestoneAlreadyShipped`), so in a
-/// well-formed log each milestone appears at most once in the
-/// output. Hand-crafted logs that bypass the precondition would
-/// produce two entries with the same milestone id and independent
-/// cost buckets — the projection assumes the invariant holds.
-///
-/// Complexity: `O(n)` in log length — a single pass accumulates
-/// pending cost and flushes on each `MilestoneShipped`.
-#[must_use]
-pub fn cost_by_milestone<W: WorkflowKind>(log: &Log<W>) -> Vec<MilestoneCostEntry<W>> {
-    let mut entries: Vec<MilestoneCostEntry<W>> = Vec::new();
-    let mut pending = Cost::default();
-
-    for evt in effective_events(log) {
-        if let Some(cost) = &evt.causation.cost {
-            pending.accumulate(cost);
-        }
-        if let EventBody::MilestoneShipped { milestone, .. } = &evt.body {
-            entries.push(MilestoneCostEntry {
-                milestone: milestone.clone(),
-                cost: core::mem::take(&mut pending),
-            });
-        }
-    }
-
     entries
 }
 

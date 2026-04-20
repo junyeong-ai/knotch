@@ -12,8 +12,8 @@ that pin to these names survive knotch releases because the
 
 | Module | Owns |
 |---|---|
-| `attrs` | `const KNOTCH_*` attribute-name constants. `knotch.unit`, `knotch.event.id`, `knotch.event.kind`, `knotch.causation.agent_id`, `knotch.cost.usd`, and so on. |
-| `spans` | Span builders that pre-populate the attribute keys from a `Causation` / `Event<W>` / `Cost`. Integrates with `tracing::info_span!` so downstream subscribers receive pre-tagged spans. |
+| `attrs` | `const KNOTCH_*` attribute-name constants. `knotch.unit`, `knotch.event.id`, `knotch.event.kind`, `knotch.causation.agent_id`, and so on. |
+| `spans` | Span builders that pre-populate the attribute keys from a `Causation` / `Event<W>`. Integrates with `tracing::info_span!` so downstream subscribers receive pre-tagged spans. |
 
 Downstream integrations (OpenTelemetry export, `metrics` counters,
 Prometheus scrape) stay out-of-process — subscribers of the

@@ -10,7 +10,6 @@
 //! The derive lives in `knotch-derive`; the marker trait is [`Sensitive`].
 
 use compact_str::CompactString;
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 use crate::id::EventId;
@@ -38,8 +37,6 @@ pub struct Causation {
     pub trigger: Trigger,
     /// Event-graph linkage — the prior event that caused this one.
     pub parent_event: Option<EventId>,
-    /// LLM cost attribution.
-    pub cost: Option<Cost>,
 }
 
 impl Causation {
@@ -53,7 +50,6 @@ impl Causation {
             trace: None,
             trigger: Trigger::Command { name: command.into() },
             parent_event: None,
-            cost: None,
         }
     }
 
@@ -62,15 +58,7 @@ impl Causation {
     /// struct literal outside this crate.
     #[must_use]
     pub fn new(source: Source, principal: Principal, trigger: Trigger) -> Self {
-        Self {
-            source,
-            principal,
-            session: None,
-            trace: None,
-            trigger,
-            parent_event: None,
-            cost: None,
-        }
+        Self { source, principal, session: None, trace: None, trigger, parent_event: None }
     }
 
     /// Attach a session id.
@@ -91,13 +79,6 @@ impl Causation {
     #[must_use]
     pub fn with_parent_event(mut self, parent: EventId) -> Self {
         self.parent_event = Some(parent);
-        self
-    }
-
-    /// Attach a cost.
-    #[must_use]
-    pub fn with_cost(mut self, cost: Cost) -> Self {
-        self.cost = Some(cost);
         self
     }
 }
@@ -271,41 +252,6 @@ impl From<[u8; 16]> for TraceId {
     }
 }
 
-/// Cost attribution for a single event caused by an AI agent.
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[non_exhaustive]
-pub struct Cost {
-    /// USD cost with fixed-point precision.
-    pub usd: Option<Decimal>,
-    /// Prompt / input tokens consumed.
-    pub tokens_in: u32,
-    /// Completion / output tokens produced.
-    pub tokens_out: u32,
-}
-
-impl Cost {
-    /// Build a `Cost`. `non_exhaustive` prevents struct-literal
-    /// construction from peer crates, so expose a dedicated
-    /// constructor.
-    #[must_use]
-    pub fn new(usd: Option<Decimal>, tokens_in: u32, tokens_out: u32) -> Self {
-        Self { usd, tokens_in, tokens_out, ..Self::default() }
-    }
-
-    /// Element-wise accumulate `other` into `self`. USD amounts sum
-    /// iff both sides carry a value.
-    pub fn accumulate(&mut self, other: &Cost) {
-        self.tokens_in = self.tokens_in.saturating_add(other.tokens_in);
-        self.tokens_out = self.tokens_out.saturating_add(other.tokens_out);
-        self.usd = match (self.usd, other.usd) {
-            (Some(a), Some(b)) => Some(a + b),
-            (Some(a), None) => Some(a),
-            (None, Some(b)) => Some(b),
-            (None, None) => None,
-        };
-    }
-}
-
 /// Sensitive operator identity. The `#[derive(Sensitive)]` in
 /// `knotch-derive` wraps this with tracing-redacted Debug/Serialize.
 /// Until the derive lands we implement [`Sensitive`] manually.
@@ -377,25 +323,3 @@ impl core::fmt::Display for Harness {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn cost_accumulates_tokens_and_usd() {
-        let mut a = Cost { usd: Some(Decimal::new(1_00, 2)), tokens_in: 5, tokens_out: 7 };
-        let b = Cost { usd: Some(Decimal::new(2_50, 2)), tokens_in: 10, tokens_out: 1 };
-        a.accumulate(&b);
-        assert_eq!(a.tokens_in, 15);
-        assert_eq!(a.tokens_out, 8);
-        assert_eq!(a.usd, Some(Decimal::new(3_50, 2)));
-    }
-
-    #[test]
-    fn cost_accumulates_usd_when_one_side_is_none() {
-        let mut a = Cost::default();
-        let b = Cost { usd: Some(Decimal::new(4_00, 2)), tokens_in: 0, tokens_out: 0 };
-        a.accumulate(&b);
-        assert_eq!(a.usd, Some(Decimal::new(4_00, 2)));
-    }
-}

@@ -30,7 +30,7 @@ pub mod workflow;
 
 pub use self::{
     causation::{
-        AgentId, Causation, Cost, Harness, ModelId, Person, Principal, SessionId, Source, TraceId,
+        AgentId, Causation, Harness, ModelId, Person, Principal, SessionId, Source, TraceId,
         Trigger,
     },
     error::{PreconditionError, RepositoryError},

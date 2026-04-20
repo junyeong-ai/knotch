@@ -11,10 +11,9 @@
 //! - **Unit state** — `where_phase`, `where_status`, `where_milestone_shipped` —
 //!   projection-derived.
 //! - **Time** — `since`, `until` — event-timestamp windowing.
-//! - **Causation** — `where_agent_id`, `where_model`, `where_harness`, `where_cost_gte` —
-//!   introspect who / which model / which harness produced the events, and how much the
-//!   unit cost to run. Agents use these for retrospection ("what have I worked on?"),
-//!   cost attribution dashboards, and model-migration audits.
+//! - **Causation** — `where_agent_id`, `where_model`, `where_harness` —
+//!   introspect who / which model / which harness produced the events. Agents use these
+//!   for retrospection ("what have I worked on?") and model-migration audits.
 
 use std::borrow::Cow;
 
@@ -23,9 +22,8 @@ use jiff::Timestamp;
 use knotch_kernel::{
     Log, Repository, StatusId, UnitId, WorkflowKind,
     causation::{AgentId, Harness, ModelId, Principal},
-    project::{current_phase, current_status, effective_events, shipped_milestones, total_cost},
+    project::{current_phase, current_status, effective_events, shipped_milestones},
 };
-use rust_decimal::Decimal;
 
 mod error;
 
@@ -120,17 +118,6 @@ impl<W: WorkflowKind> QueryBuilder<W> {
         self
     }
 
-    /// Match units whose aggregated `total_cost` is at least
-    /// `min_usd` dollars. Units with no recorded cost never match —
-    /// an absent value is **not** treated as zero, since
-    /// `Cost::usd: None` encodes "unknown", not "free" (see
-    /// `.claude/rules/causation.md`).
-    #[must_use]
-    pub fn where_cost_gte(mut self, min_usd: Decimal) -> Self {
-        self.filters.push(Filter::CostGteUsd(min_usd));
-        self
-    }
-
     /// Cap the number of returned units. Results are sorted by
     /// `UnitId` ascending before the limit is applied.
     #[must_use]
@@ -188,7 +175,6 @@ enum Filter<W: WorkflowKind> {
     AgentId(AgentId),
     Model(ModelId),
     Harness(Harness),
-    CostGteUsd(Decimal),
 }
 
 impl<W: WorkflowKind> Filter<W> {
@@ -220,12 +206,6 @@ impl<W: WorkflowKind> Filter<W> {
                     Principal::Agent { harness, .. } if harness == want,
                 )
             }),
-            Filter::CostGteUsd(min) => {
-                // `Cost::usd == None` means "unknown", not "zero" —
-                // see `.claude/rules/causation.md`. Treat unknown
-                // cost as non-matching under a lower bound query.
-                total_cost(log).usd.is_some_and(|usd| usd >= *min)
-            }
         }
     }
 }

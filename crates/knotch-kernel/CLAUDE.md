@@ -15,10 +15,10 @@ for every downstream crate.
 |---|---|
 | `workflow` | `WorkflowKind` + `PhaseKind` / `MilestoneKind` / `GateKind` / `ExtensionKind` |
 | `event` | `Event<W>`, `EventBody<W>`, `CommitStatus`, `CommitKind`, `RetryAnchor`, `Proposal<W>`, `AppendMode`, `AppendReport<W>`, `EventBody::check_precondition`, `kind_tag`, `kind_ordinal` |
-| `causation` | `Causation`, `Principal`, `Source`, `Trigger`, `Cost`, `Person`, `AgentId`, `ModelId`, `Harness`, `SessionId`, `TraceId` + `Sensitive` marker |
+| `causation` | `Causation`, `Principal`, `Source`, `Trigger`, `Person`, `AgentId`, `ModelId`, `Harness`, `SessionId`, `TraceId` + `Sensitive` marker |
 | `repository` | `Repository<W>` port, `ResumeCache`, `CacheError`, `SubscribeEvent`, `SubscribeMode` |
 | `log` | `Log<W>` (immutable snapshot), `LogError`, `try_from_events` (validated), `from_events` (`#[doc(hidden)]`, adapter-only) |
-| `project` | built-in pure projections: `current_phase`, `last_completed_phase`, `current_status`, `shipped_milestones`, `effective_events`, `total_cost`, `cost_by_phase`, `cost_by_milestone`, `subagents`, `model_timeline`, `tool_call_timeline` |
+| `project` | built-in pure projections: `current_phase`, `last_completed_phase`, `current_status`, `shipped_milestones`, `effective_events`, `subagents`, `model_timeline`, `tool_call_timeline` |
 | `precondition` | `AppendContext<'a, W>`, `VerifyCommit`, `ArtifactCheck` |
 | `fingerprint` | `Fingerprint`, `fingerprint_proposal`, `fingerprint_event` — closed, JCS-canonical |
 | `scope` / `status` / `rationale` / `id` / `time` / `error` | primitives |

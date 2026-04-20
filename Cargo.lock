@@ -1769,7 +1769,6 @@ dependencies = [
  "futures",
  "jiff",
  "knotch-testing",
- "rust_decimal",
  "rustc-hash",
  "serde",
  "serde_jcs",
@@ -1848,7 +1847,6 @@ dependencies = [
  "knotch-kernel",
  "knotch-storage",
  "knotch-testing",
- "rust_decimal",
  "serde",
  "tempfile",
  "thiserror",
@@ -2314,18 +2312,6 @@ name = "regex-syntax"
 version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
-
-[[package]]
-name = "rust_decimal"
-version = "1.41.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ce901f9a19d251159075a4c37af514c3b8ef99c22e02dd8c19161cf397ee94a"
-dependencies = [
- "arrayvec",
- "num-traits",
- "serde",
- "wasm-bindgen",
-]
 
 [[package]]
 name = "rustc-hash"
@@ -2944,7 +2930,6 @@ dependencies = [
  "cfg-if",
  "once_cell",
  "rustversion",
- "serde",
  "wasm-bindgen-macro",
  "wasm-bindgen-shared",
 ]
@@ -3271,12 +3256,10 @@ name = "workflow-vibe-case-study"
 version = "0.2.4"
 dependencies = [
  "compact_str",
- "jiff",
  "knotch-derive",
  "knotch-kernel",
  "knotch-storage",
  "knotch-testing",
- "rust_decimal",
  "serde",
  "tempfile",
  "tokio",

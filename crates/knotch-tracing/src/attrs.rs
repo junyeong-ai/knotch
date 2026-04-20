@@ -1,9 +1,9 @@
 //! Canonical attribute keys emitted on knotch tracing spans.
 //!
 //! Keys are grouped by subsystem (`repo`, `observer`, `unit`,
-//! `event`, `principal`, `agent`, `session`, `trace`, `cost`,
-//! `status`). Changing any constant is a breaking change — guarded
-//! by `cargo-public-api` and `cargo-semver-checks`.
+//! `event`, `principal`, `agent`, `session`, `trace`, `status`).
+//! Changing any constant is a breaking change — guarded by
+//! `cargo-public-api` and `cargo-semver-checks`.
 
 /// Attribute-key constants. Accessing them by reference is idiomatic;
 /// the type is zero-sized.
@@ -54,14 +54,6 @@ impl Attrs {
     pub const SESSION_ID: &'static str = "knotch.session.id";
     /// `knotch.trace.id` — OTel-compatible 128-bit trace id.
     pub const TRACE_ID: &'static str = "knotch.trace.id";
-
-    // --- cost ---
-    /// `knotch.cost.usd` — decimal USD cost.
-    pub const COST_USD: &'static str = "knotch.cost.usd";
-    /// `knotch.cost.tokens_in` — prompt tokens.
-    pub const COST_TOKENS_IN: &'static str = "knotch.cost.tokens_in";
-    /// `knotch.cost.tokens_out` — completion tokens.
-    pub const COST_TOKENS_OUT: &'static str = "knotch.cost.tokens_out";
 
     // --- status ---
     /// `knotch.status.forced` — `true` when a forced transition.
