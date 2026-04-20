@@ -1,10 +1,10 @@
 //! Typed Claude Code hook stdin.
 //!
-//! The envelope ([`HookInput`]) carries `session_id` + `cwd` —
-//! fields every hook event provides. Event-specific payloads are
-//! modelled as a tagged enum ([`HookEvent`]) so consumers pattern-
-//! match on the variant rather than poking optional fields at
-//! runtime.
+//! The envelope ([`HookInput`]) carries `session_id`, `cwd`, and
+//! the optional `agent_id` (present when a subagent is in scope).
+//! Event-specific payloads are modelled as a tagged enum
+//! ([`HookEvent`]) so consumers pattern-match on the variant
+//! rather than poking optional fields at runtime.
 
 use std::path::PathBuf;
 
@@ -18,6 +18,12 @@ pub struct HookInput {
     pub session_id: CompactString,
     /// Working directory at the time the hook fired.
     pub cwd: PathBuf,
+    /// Harness-assigned agent id. Present on every event Claude
+    /// Code fires inside a subagent scope (`SubagentStart`,
+    /// `SubagentStop`, any tool call delegated to a subagent);
+    /// `None` for main-session hooks.
+    #[serde(default)]
+    pub agent_id: Option<CompactString>,
     /// Event-specific payload.
     #[serde(flatten)]
     pub event: HookEvent,
@@ -37,6 +43,15 @@ impl HookInput {
     pub fn bash_response_stdout(&self) -> Option<&str> {
         self.event.bash_response_stdout()
     }
+
+    /// Agent id resolved from the envelope (common field) or — for
+    /// `SubagentStop`, which repeats the id in its variant payload —
+    /// from the event itself. Main-session hooks leave both empty
+    /// and this returns `None`.
+    #[must_use]
+    pub fn agent_id(&self) -> Option<&str> {
+        self.agent_id.as_deref().or_else(|| self.event.agent_id())
+    }
 }
 
 /// Claude Code hook event, tagged by `hook_event_name`.
@@ -51,12 +66,20 @@ impl HookInput {
 #[serde(tag = "hook_event_name")]
 #[non_exhaustive]
 pub enum HookEvent {
-    /// `SessionStart` — new or resumed session.
+    /// `SessionStart` — new or resumed session. Claude Code fires
+    /// this at startup, after `/compact`, and after `/clear`; the
+    /// `source` discriminator says which.
     #[serde(rename = "SessionStart")]
     SessionStart {
         /// Matcher: `startup`, `resume`, `clear`, `compact`.
         #[serde(default)]
         source: Option<CompactString>,
+        /// Current model identifier (`claude-opus-4-7`, `claude-sonnet-4-6`, …). Claude
+        /// Code stamps this on every `SessionStart` payload — `load-context` uses it to
+        /// detect between-session model switches and append a matching `ModelSwitched`
+        /// event when the value differs from the last one recorded.
+        #[serde(default)]
+        model: Option<CompactString>,
     },
     /// `UserPromptSubmit` — before Claude processes a user prompt.
     #[serde(rename = "UserPromptSubmit")]
@@ -74,10 +97,9 @@ pub enum HookEvent {
         #[serde(default)]
         tool_input: Option<serde_json::Value>,
     },
-    /// `PostToolUse` — after a tool call completes (successfully or
-    /// otherwise). The hook can inspect `tool_response` to classify
-    /// outcomes; `record-tool-failure` emits `ToolCallFailed` when
-    /// it detects a failure signal here.
+    /// `PostToolUse` — after a tool call **succeeds**. Failures go
+    /// to [`HookEvent::PostToolUseFailure`]; consumers that want
+    /// both paths match on both variants.
     #[serde(rename = "PostToolUse")]
     PostToolUse {
         /// Tool name.
@@ -93,6 +115,27 @@ pub enum HookEvent {
         /// Tool response payload.
         #[serde(default)]
         tool_response: Option<serde_json::Value>,
+    },
+    /// `PostToolUseFailure` — Claude Code's dedicated failure hook.
+    /// Fires after a tool call returns an error, with the error
+    /// text already extracted; consumers no longer need to sniff
+    /// `tool_response.error` on `PostToolUse`.
+    #[serde(rename = "PostToolUseFailure")]
+    PostToolUseFailure {
+        /// Tool name.
+        tool_name: CompactString,
+        /// Harness-assigned per-call identifier.
+        #[serde(default, rename = "tool_use_id")]
+        tool_use_id: Option<CompactString>,
+        /// Error text surfaced by Claude Code.
+        #[serde(default)]
+        error: CompactString,
+        /// `true` when the user interrupted the tool (Esc / Ctrl-C)
+        /// rather than the tool failing organically. The detector
+        /// skips logging when this is set — user intent, not tool
+        /// fault.
+        #[serde(default)]
+        is_interrupt: bool,
     },
     /// `SubagentStop` — a subagent finished.
     #[serde(rename = "SubagentStop")]
@@ -123,10 +166,11 @@ pub enum HookEvent {
 }
 
 impl HookEvent {
-    /// Harness-assigned agent id when the event provides one.
-    /// Currently only `SubagentStop` — other events return `None`
-    /// and callers fall back to the envelope's `session_id` as a
-    /// best-effort attribution.
+    /// Harness-assigned agent id when the event's own payload
+    /// carries one. Currently only `SubagentStop` (which duplicates
+    /// the id inside the variant). For every other event the
+    /// envelope-level [`HookInput::agent_id`] is the authoritative
+    /// source.
     #[must_use]
     pub fn agent_id(&self) -> Option<&str> {
         match self {
