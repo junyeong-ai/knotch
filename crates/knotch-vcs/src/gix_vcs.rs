@@ -148,7 +148,11 @@ impl Vcs for GixVcs {
 fn build_commit(commit: &gix::Commit<'_>) -> Result<Commit, VcsError> {
     let message = commit_message_string(commit);
     let (subject, body) = split_subject_body(&message);
-    let when = commit.committer().map_err(|e| VcsError::Backend(Box::new(e)))?.time.seconds;
+    // gix ≥ 0.68 made `SignatureRef::time` a fallible method
+    // rather than a bare field because the signature's time bytes
+    // might not parse. `gix::Commit::time()` wraps both fallible
+    // steps (committer fetch + time parse) into one call.
+    let when = commit.time().map_err(|e| VcsError::Backend(Box::new(e)))?.seconds;
     let committed_at = Timestamp::from_second(when)
         .unwrap_or_else(|_| Timestamp::from_second(0).expect("epoch is valid"));
     let parents = commit.parent_ids().map(|id| CommitRef::new(id.to_string())).collect::<Vec<_>>();

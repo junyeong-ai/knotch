@@ -80,7 +80,7 @@ arc-swap         = "1.7"
 # --- adapters ---
 rustix           = { version = "0.38", default-features = false, features = ["std", "fs", "process"] }
 fs4              = { version = "0.9",  default-features = false, features = ["tokio"] }
-gix              = { version = "0.66", default-features = false, features = ["parallel", "revision"] }
+gix              = { version = "0.81", default-features = false, features = ["parallel", "revision", "sha1"] }
 redb             = "2.2"
 sqlx             = { version = "0.8",  default-features = false, features = ["sqlite", "runtime-tokio"] }
 
