@@ -4,6 +4,7 @@
 
 use std::{borrow::Cow, sync::Arc};
 
+use compact_str::CompactString;
 use futures::StreamExt as _;
 use knotch_derive::MilestoneKind;
 use knotch_kernel::{
@@ -28,11 +29,11 @@ impl PhaseKind for Phase {
     }
 }
 
+/// Free-form milestone id for the overflow test, which needs 1500+
+/// distinct milestones and cannot rely on a closed enum.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, MilestoneKind)]
-#[serde(rename_all = "snake_case")]
-enum Milestone {
-    Alpha,
-}
+#[serde(transparent)]
+struct Milestone(CompactString);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 enum Gate {}
@@ -90,7 +91,7 @@ async fn live_only_delivers_post_subscribe_events() {
             .append(
                 &unit_cloned,
                 vec![p(EventBody::MilestoneShipped {
-                    milestone: Milestone::Alpha,
+                    milestone: Milestone("alpha".into()),
                     commit: CommitRef::new("abc"),
                     commit_kind: CommitKind::Feat,
                     status: CommitStatus::Verified,
@@ -141,7 +142,7 @@ async fn from_event_id_replays_after_anchor() {
             vec![
                 p(EventBody::UnitCreated { scope: Scope::Standard }),
                 p(EventBody::MilestoneShipped {
-                    milestone: Milestone::Alpha,
+                    milestone: Milestone("alpha".into()),
                     commit: CommitRef::new("abc"),
                     commit_kind: CommitKind::Feat,
                     status: CommitStatus::Verified,
@@ -160,4 +161,90 @@ async fn from_event_id_replays_after_anchor() {
         SubscribeEvent::Event(e) => assert!(matches!(e.body, EventBody::MilestoneShipped { .. })),
         other => panic!("{other:?}"),
     }
+}
+
+// --- B2 — broadcast overflow regression -----------------------------------
+
+/// The in-process broadcast channel is bounded at `BROADCAST_CAPACITY =
+/// 1024`. Subscribers that fall further behind must surface
+/// `SubscribeEvent::Lagged { skipped, next }` so adopters can re-
+/// subscribe or re-load, never silently lose state.
+///
+/// This test appends `CAPACITY + 500` events without polling the
+/// subscriber, then drains the stream and asserts the first non-event
+/// frame is `Lagged { skipped > 0 }` and that event delivery resumes
+/// afterward.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn broadcast_overflow_surfaces_lagged_event() {
+    const EXTRA: usize = 500;
+
+    let dir = tempfile::tempdir().expect("tempdir");
+    let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
+    let unit = UnitId::new("lag-test");
+
+    repo.append(
+        &unit,
+        vec![p(EventBody::UnitCreated { scope: Scope::Standard })],
+        AppendMode::BestEffort,
+    )
+    .await
+    .expect("seed");
+
+    // Subscribe in LiveOnly mode so history does not inflate the
+    // backlog; we want to see exactly how many events overflow the
+    // broadcast buffer after subscription.
+    let mut stream = repo.subscribe(&unit, SubscribeMode::LiveOnly).await.expect("sub");
+
+    // Capacity-exceeding burst in one batch — each proposal has a
+    // unique milestone id (newtype over CompactString) so fingerprint
+    // dedup and "milestone already shipped" preconditions never fire.
+    // Batching in one `append` avoids per-event lock overhead, keeping
+    // the test fast.
+    let total = 1024 + EXTRA;
+    let proposals: Vec<_> = (0..total)
+        .map(|i| {
+            p(EventBody::MilestoneShipped {
+                milestone: Milestone(format!("m{i:06}").into()),
+                commit: CommitRef::new(format!("sha{i:06}")),
+                commit_kind: CommitKind::Feat,
+                status: CommitStatus::Verified,
+            })
+        })
+        .collect();
+    repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("append batch");
+
+    // Drain the stream. The first non-Event frame must be Lagged.
+    let mut saw_lagged_skipped: Option<u64> = None;
+    let mut events_after_lag = 0;
+    let mut frames_seen = 0;
+    while frames_seen < total + 1 {
+        match tokio::time::timeout(std::time::Duration::from_millis(250), stream.next()).await {
+            Ok(Some(SubscribeEvent::Event(_))) => {
+                if saw_lagged_skipped.is_some() {
+                    events_after_lag += 1;
+                }
+                frames_seen += 1;
+            }
+            Ok(Some(SubscribeEvent::Lagged { skipped, .. })) => {
+                assert!(skipped > 0, "Lagged must report skipped > 0");
+                saw_lagged_skipped = Some(skipped);
+                frames_seen += 1;
+            }
+            Ok(None) => break,
+            Err(_timeout) => break,
+        }
+    }
+
+    let skipped = saw_lagged_skipped.expect("must see SubscribeEvent::Lagged after capacity miss");
+    // We sent 1024 + 500 in one batch; capacity is 1024. The first
+    // Lagged reports at least `EXTRA` skipped frames — subscribers
+    // that never poll see the oldest events evicted by newer ones.
+    assert!(
+        skipped as usize >= EXTRA,
+        "expected skipped >= {EXTRA}, got {skipped}",
+    );
+    assert!(
+        events_after_lag > 0,
+        "stream must continue delivering events after the Lagged signal",
+    );
 }
