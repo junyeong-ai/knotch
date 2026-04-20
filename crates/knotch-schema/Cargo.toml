@@ -1,0 +1,22 @@
+[package]
+name = "knotch-schema"
+description = "Frontmatter schema builder and lifecycle FSM for knotch."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+knotch-workflow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+toml.workspace = true
+compact_str.workspace = true
