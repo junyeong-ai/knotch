@@ -106,10 +106,8 @@ fn fingerprint_proposal_is_pure_over_body_shape() {
     for body in bodies() {
         let base = proposal(body.clone());
         let mut variant = proposal(body.clone());
-        variant.causation = Causation::new(
-            Source::Observer,
-            Trigger::Observer { name: "other".into() },
-        );
+        variant.causation =
+            Causation::new(Source::Observer, Trigger::Observer { name: "other".into() });
         assert_eq!(
             fingerprint_proposal(&Wf, &base).unwrap(),
             fingerprint_proposal(&Wf, &variant).unwrap(),

@@ -7,12 +7,11 @@
 //!
 //! ## Filtering
 //!
-//! - `is_interrupt = true` — user hit Esc / Ctrl-C. That's a
-//!   choice, not a failure; we no-op so the retry timeline does
-//!   not inflate with intentional cancellations.
-//! - Missing `tool_use_id` — without a stable per-call id the
-//!   `(tool, call_id)` monotonicity precondition cannot hold, so
-//!   we log and drop rather than synthesising a placeholder.
+//! - `is_interrupt = true` — user hit Esc / Ctrl-C. That's a choice, not a failure; we
+//!   no-op so the retry timeline does not inflate with intentional cancellations.
+//! - Missing `tool_use_id` — without a stable per-call id the `(tool, call_id)`
+//!   monotonicity precondition cannot hold, so we log and drop rather than synthesising a
+//!   placeholder.
 
 use knotch_agent::{
     HookEvent, HookInput, HookOutput,

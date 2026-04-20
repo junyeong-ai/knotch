@@ -22,7 +22,9 @@ use jiff::Timestamp;
 use knotch_kernel::{
     Log, Repository, StatusId, UnitId, WorkflowKind,
     causation::{AgentId, ModelId},
-    project::{current_phase, current_status, effective_events, model_timeline, shipped_milestones},
+    project::{
+        current_phase, current_status, effective_events, model_timeline, shipped_milestones,
+    },
 };
 
 mod error;
@@ -176,9 +178,9 @@ impl<W: WorkflowKind> Filter<W> {
             Filter::Status(s) => current_status(log).as_ref() == Some(s),
             Filter::Since(ts) => effective_events(log).iter().any(|e| e.at >= *ts),
             Filter::Until(ts) => effective_events(log).iter().any(|e| e.at <= *ts),
-            Filter::AgentId(want) => {
-                effective_events(log).iter().any(|evt| evt.causation.agent_id.as_ref() == Some(want))
-            }
+            Filter::AgentId(want) => effective_events(log)
+                .iter()
+                .any(|evt| evt.causation.agent_id.as_ref() == Some(want)),
             Filter::Model(want) => model_timeline(log).iter().any(|entry| &entry.model == want),
         }
     }

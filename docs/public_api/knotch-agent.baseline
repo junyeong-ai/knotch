@@ -100,12 +100,18 @@ pub knotch_agent::input::HookEvent::PostToolUse::tool_input: core::option::Optio
 pub knotch_agent::input::HookEvent::PostToolUse::tool_name: compact_str::CompactString
 pub knotch_agent::input::HookEvent::PostToolUse::tool_response: core::option::Option<serde_json::value::Value>
 pub knotch_agent::input::HookEvent::PostToolUse::tool_use_id: core::option::Option<compact_str::CompactString>
+pub knotch_agent::input::HookEvent::PostToolUseFailure
+pub knotch_agent::input::HookEvent::PostToolUseFailure::error: compact_str::CompactString
+pub knotch_agent::input::HookEvent::PostToolUseFailure::is_interrupt: bool
+pub knotch_agent::input::HookEvent::PostToolUseFailure::tool_name: compact_str::CompactString
+pub knotch_agent::input::HookEvent::PostToolUseFailure::tool_use_id: core::option::Option<compact_str::CompactString>
 pub knotch_agent::input::HookEvent::PreToolUse
 pub knotch_agent::input::HookEvent::PreToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::input::HookEvent::PreToolUse::tool_name: compact_str::CompactString
 pub knotch_agent::input::HookEvent::SessionEnd
 pub knotch_agent::input::HookEvent::SessionEnd::reason: core::option::Option<compact_str::CompactString>
 pub knotch_agent::input::HookEvent::SessionStart
+pub knotch_agent::input::HookEvent::SessionStart::model: core::option::Option<compact_str::CompactString>
 pub knotch_agent::input::HookEvent::SessionStart::source: core::option::Option<compact_str::CompactString>
 pub knotch_agent::input::HookEvent::SubagentStop
 pub knotch_agent::input::HookEvent::SubagentStop::agent_id: compact_str::CompactString
@@ -133,10 +139,12 @@ impl core::marker::UnsafeUnpin for knotch_agent::input::HookEvent
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookEvent
 impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookEvent
 pub struct knotch_agent::input::HookInput
+pub knotch_agent::input::HookInput::agent_id: core::option::Option<compact_str::CompactString>
 pub knotch_agent::input::HookInput::cwd: std::path::PathBuf
 pub knotch_agent::input::HookInput::event: knotch_agent::input::HookEvent
 pub knotch_agent::input::HookInput::session_id: compact_str::CompactString
 impl knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::agent_id(&self) -> core::option::Option<&str>
 pub fn knotch_agent::input::HookInput::bash_command(&self) -> core::option::Option<&str>
 pub fn knotch_agent::input::HookInput::bash_response_stdout(&self) -> core::option::Option<&str>
 impl core::clone::Clone for knotch_agent::input::HookInput
@@ -341,12 +349,18 @@ pub knotch_agent::HookEvent::PostToolUse::tool_input: core::option::Option<serde
 pub knotch_agent::HookEvent::PostToolUse::tool_name: compact_str::CompactString
 pub knotch_agent::HookEvent::PostToolUse::tool_response: core::option::Option<serde_json::value::Value>
 pub knotch_agent::HookEvent::PostToolUse::tool_use_id: core::option::Option<compact_str::CompactString>
+pub knotch_agent::HookEvent::PostToolUseFailure
+pub knotch_agent::HookEvent::PostToolUseFailure::error: compact_str::CompactString
+pub knotch_agent::HookEvent::PostToolUseFailure::is_interrupt: bool
+pub knotch_agent::HookEvent::PostToolUseFailure::tool_name: compact_str::CompactString
+pub knotch_agent::HookEvent::PostToolUseFailure::tool_use_id: core::option::Option<compact_str::CompactString>
 pub knotch_agent::HookEvent::PreToolUse
 pub knotch_agent::HookEvent::PreToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::HookEvent::PreToolUse::tool_name: compact_str::CompactString
 pub knotch_agent::HookEvent::SessionEnd
 pub knotch_agent::HookEvent::SessionEnd::reason: core::option::Option<compact_str::CompactString>
 pub knotch_agent::HookEvent::SessionStart
+pub knotch_agent::HookEvent::SessionStart::model: core::option::Option<compact_str::CompactString>
 pub knotch_agent::HookEvent::SessionStart::source: core::option::Option<compact_str::CompactString>
 pub knotch_agent::HookEvent::SubagentStop
 pub knotch_agent::HookEvent::SubagentStop::agent_id: compact_str::CompactString
@@ -402,10 +416,12 @@ impl core::marker::UnsafeUnpin for knotch_agent::output::HookOutput
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::output::HookOutput
 impl core::panic::unwind_safe::UnwindSafe for knotch_agent::output::HookOutput
 pub struct knotch_agent::HookInput
+pub knotch_agent::HookInput::agent_id: core::option::Option<compact_str::CompactString>
 pub knotch_agent::HookInput::cwd: std::path::PathBuf
 pub knotch_agent::HookInput::event: knotch_agent::input::HookEvent
 pub knotch_agent::HookInput::session_id: compact_str::CompactString
 impl knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::agent_id(&self) -> core::option::Option<&str>
 pub fn knotch_agent::input::HookInput::bash_command(&self) -> core::option::Option<&str>
 pub fn knotch_agent::input::HookInput::bash_response_stdout(&self) -> core::option::Option<&str>
 impl core::clone::Clone for knotch_agent::input::HookInput

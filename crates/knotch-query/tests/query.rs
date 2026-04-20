@@ -422,8 +422,18 @@ async fn where_model_partitions_by_llm() {
     repo.append(
         &unit,
         vec![
-            Proposal { causation: causation(), extension: (), body: unit_created.clone(), supersedes: None },
-            Proposal { causation: agent_causation("a"), extension: (), body: opus_switch, supersedes: None },
+            Proposal {
+                causation: causation(),
+                extension: (),
+                body: unit_created.clone(),
+                supersedes: None,
+            },
+            Proposal {
+                causation: agent_causation("a"),
+                extension: (),
+                body: opus_switch,
+                supersedes: None,
+            },
         ],
         AppendMode::BestEffort,
     )
@@ -433,8 +443,18 @@ async fn where_model_partitions_by_llm() {
     repo.append(
         &unit,
         vec![
-            Proposal { causation: causation(), extension: (), body: unit_created, supersedes: None },
-            Proposal { causation: agent_causation("a"), extension: (), body: haiku_switch, supersedes: None },
+            Proposal {
+                causation: causation(),
+                extension: (),
+                body: unit_created,
+                supersedes: None,
+            },
+            Proposal {
+                causation: agent_causation("a"),
+                extension: (),
+                body: haiku_switch,
+                supersedes: None,
+            },
         ],
         AppendMode::BestEffort,
     )
@@ -451,5 +471,3 @@ async fn where_model_partitions_by_llm() {
         vec!["opus-unit".to_owned()]
     );
 }
-
-

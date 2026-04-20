@@ -1,33 +1,5 @@
 pub mod knotch_kernel
 pub mod knotch_kernel::causation
-#[non_exhaustive] pub enum knotch_kernel::causation::Principal
-pub knotch_kernel::causation::Principal::Agent
-pub knotch_kernel::causation::Principal::Agent::agent_id: knotch_kernel::causation::AgentId
-pub knotch_kernel::causation::Principal::Agent::harness: knotch_kernel::causation::Harness
-pub knotch_kernel::causation::Principal::Agent::model: knotch_kernel::causation::ModelId
-pub knotch_kernel::causation::Principal::Human
-pub knotch_kernel::causation::Principal::Human::person: knotch_kernel::causation::Person
-pub knotch_kernel::causation::Principal::System
-pub knotch_kernel::causation::Principal::System::service: compact_str::CompactString
-impl core::clone::Clone for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::clone(&self) -> knotch_kernel::causation::Principal
-impl core::cmp::Eq for knotch_kernel::causation::Principal
-impl core::cmp::PartialEq for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::eq(&self, other: &knotch_kernel::causation::Principal) -> bool
-impl core::fmt::Debug for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Principal
-impl serde_core::ser::Serialize for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Principal
-impl core::marker::Send for knotch_kernel::causation::Principal
-impl core::marker::Sync for knotch_kernel::causation::Principal
-impl core::marker::Unpin for knotch_kernel::causation::Principal
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Principal
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Principal
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Principal
 pub enum knotch_kernel::causation::SessionId
 pub knotch_kernel::causation::SessionId::Opaque(compact_str::CompactString)
 pub knotch_kernel::causation::SessionId::Uuid(uuid::Uuid)
@@ -60,12 +32,9 @@ impl core::marker::UnsafeUnpin for knotch_kernel::causation::SessionId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::SessionId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::SessionId
 #[non_exhaustive] pub enum knotch_kernel::causation::Source
-pub knotch_kernel::causation::Source::Agent
 pub knotch_kernel::causation::Source::Cli
-pub knotch_kernel::causation::Source::External(compact_str::CompactString)
 pub knotch_kernel::causation::Source::Hook
-pub knotch_kernel::causation::Source::Test
-pub knotch_kernel::causation::Source::User
+pub knotch_kernel::causation::Source::Observer
 impl core::clone::Clone for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::clone(&self) -> knotch_kernel::causation::Source
 impl core::cmp::Eq for knotch_kernel::causation::Source
@@ -73,6 +42,7 @@ impl core::cmp::PartialEq for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::eq(&self, other: &knotch_kernel::causation::Source) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_kernel::causation::Source
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::Source
 impl serde_core::ser::Serialize for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
@@ -133,7 +103,6 @@ pub fn knotch_kernel::causation::AgentId::fmt(&self, f: &mut core::fmt::Formatte
 impl core::hash::Hash for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::AgentId
-impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::AgentId
 impl serde_core::ser::Serialize for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
 impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::AgentId
@@ -146,20 +115,15 @@ impl core::marker::UnsafeUnpin for knotch_kernel::causation::AgentId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::AgentId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::AgentId
 #[non_exhaustive] pub struct knotch_kernel::causation::Causation
-pub knotch_kernel::causation::Causation::cost: core::option::Option<knotch_kernel::causation::Cost>
-pub knotch_kernel::causation::Causation::parent_event: core::option::Option<knotch_kernel::id::EventId>
-pub knotch_kernel::causation::Causation::principal: knotch_kernel::causation::Principal
+pub knotch_kernel::causation::Causation::agent_id: core::option::Option<knotch_kernel::causation::AgentId>
 pub knotch_kernel::causation::Causation::session: core::option::Option<knotch_kernel::causation::SessionId>
 pub knotch_kernel::causation::Causation::source: knotch_kernel::causation::Source
-pub knotch_kernel::causation::Causation::trace: core::option::Option<knotch_kernel::causation::TraceId>
 pub knotch_kernel::causation::Causation::trigger: knotch_kernel::causation::Trigger
 impl knotch_kernel::causation::Causation
 pub fn knotch_kernel::causation::Causation::cli(command: impl core::convert::Into<compact_str::CompactString>) -> Self
-pub fn knotch_kernel::causation::Causation::new(source: knotch_kernel::causation::Source, principal: knotch_kernel::causation::Principal, trigger: knotch_kernel::causation::Trigger) -> Self
-pub fn knotch_kernel::causation::Causation::with_cost(self, cost: knotch_kernel::causation::Cost) -> Self
-pub fn knotch_kernel::causation::Causation::with_parent_event(self, parent: knotch_kernel::id::EventId) -> Self
+pub fn knotch_kernel::causation::Causation::new(source: knotch_kernel::causation::Source, trigger: knotch_kernel::causation::Trigger) -> Self
+pub fn knotch_kernel::causation::Causation::with_agent_id(self, agent_id: knotch_kernel::causation::AgentId) -> Self
 pub fn knotch_kernel::causation::Causation::with_session(self, session: knotch_kernel::causation::SessionId) -> Self
-pub fn knotch_kernel::causation::Causation::with_trace(self, trace: knotch_kernel::causation::TraceId) -> Self
 impl core::clone::Clone for knotch_kernel::causation::Causation
 pub fn knotch_kernel::causation::Causation::clone(&self) -> knotch_kernel::causation::Causation
 impl core::cmp::Eq for knotch_kernel::causation::Causation
@@ -179,58 +143,6 @@ impl core::marker::Unpin for knotch_kernel::causation::Causation
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::Causation
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Causation
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Causation
-#[non_exhaustive] pub struct knotch_kernel::causation::Cost
-pub knotch_kernel::causation::Cost::tokens_in: u32
-pub knotch_kernel::causation::Cost::tokens_out: u32
-pub knotch_kernel::causation::Cost::usd: core::option::Option<rust_decimal::decimal::Decimal>
-impl knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::accumulate(&mut self, other: &knotch_kernel::causation::Cost)
-pub fn knotch_kernel::causation::Cost::new(usd: core::option::Option<rust_decimal::decimal::Decimal>, tokens_in: u32, tokens_out: u32) -> Self
-impl core::clone::Clone for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::clone(&self) -> knotch_kernel::causation::Cost
-impl core::cmp::Eq for knotch_kernel::causation::Cost
-impl core::cmp::PartialEq for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::eq(&self, other: &knotch_kernel::causation::Cost) -> bool
-impl core::default::Default for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::default() -> knotch_kernel::causation::Cost
-impl core::fmt::Debug for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Cost
-impl serde_core::ser::Serialize for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Cost
-impl core::marker::Send for knotch_kernel::causation::Cost
-impl core::marker::Sync for knotch_kernel::causation::Cost
-impl core::marker::Unpin for knotch_kernel::causation::Cost
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Cost
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Cost
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Cost
-pub struct knotch_kernel::causation::Harness(pub compact_str::CompactString)
-impl core::clone::Clone for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::clone(&self) -> knotch_kernel::causation::Harness
-impl core::cmp::Eq for knotch_kernel::causation::Harness
-impl core::cmp::PartialEq for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::eq(&self, other: &knotch_kernel::causation::Harness) -> bool
-impl core::fmt::Debug for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Harness
-impl serde_core::ser::Serialize for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Harness
-impl core::marker::Send for knotch_kernel::causation::Harness
-impl core::marker::Sync for knotch_kernel::causation::Harness
-impl core::marker::Unpin for knotch_kernel::causation::Harness
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Harness
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Harness
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Harness
 pub struct knotch_kernel::causation::ModelId(pub compact_str::CompactString)
 impl core::clone::Clone for knotch_kernel::causation::ModelId
 pub fn knotch_kernel::causation::ModelId::clone(&self) -> knotch_kernel::causation::ModelId
@@ -255,61 +167,6 @@ impl core::marker::Unpin for knotch_kernel::causation::ModelId
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::ModelId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::ModelId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::ModelId
-pub struct knotch_kernel::causation::Person(pub compact_str::CompactString)
-impl core::clone::Clone for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::clone(&self) -> knotch_kernel::causation::Person
-impl core::cmp::Eq for knotch_kernel::causation::Person
-impl core::cmp::PartialEq for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::eq(&self, other: &knotch_kernel::causation::Person) -> bool
-impl core::fmt::Debug for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Person
-impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::Person
-impl serde_core::ser::Serialize for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Person
-impl core::marker::Send for knotch_kernel::causation::Person
-impl core::marker::Sync for knotch_kernel::causation::Person
-impl core::marker::Unpin for knotch_kernel::causation::Person
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Person
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Person
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Person
-pub struct knotch_kernel::causation::TraceId(_)
-impl knotch_kernel::causation::TraceId
-pub const fn knotch_kernel::causation::TraceId::as_bytes(&self) -> &[u8; 16]
-impl core::clone::Clone for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::clone(&self) -> knotch_kernel::causation::TraceId
-impl core::cmp::Eq for knotch_kernel::causation::TraceId
-impl core::cmp::PartialEq for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::eq(&self, other: &knotch_kernel::causation::TraceId) -> bool
-impl core::convert::From<[u8; 16]> for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::from(bytes: [u8; 16]) -> Self
-impl core::fmt::Debug for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::Copy for knotch_kernel::causation::TraceId
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::TraceId
-impl serde_core::ser::Serialize for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::TraceId
-impl core::marker::Send for knotch_kernel::causation::TraceId
-impl core::marker::Sync for knotch_kernel::causation::TraceId
-impl core::marker::Unpin for knotch_kernel::causation::TraceId
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::TraceId
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::TraceId
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::TraceId
-pub trait knotch_kernel::causation::Sensitive
-impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::AgentId
-impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::Person
 pub mod knotch_kernel::error
 #[non_exhaustive] pub enum knotch_kernel::error::PreconditionError
 pub knotch_kernel::error::PreconditionError::AlreadyCreated
@@ -482,7 +339,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::CommitSta
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::CommitStatus
 #[non_exhaustive] pub enum knotch_kernel::event::EventBody<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::event::EventBody::ApprovalRecorded
-pub knotch_kernel::event::EventBody::ApprovalRecorded::approver: knotch_kernel::causation::Person
+pub knotch_kernel::event::EventBody::ApprovalRecorded::approver: compact_str::CompactString
 pub knotch_kernel::event::EventBody::ApprovalRecorded::decision: knotch_kernel::status::Decision
 pub knotch_kernel::event::EventBody::ApprovalRecorded::rationale: knotch_kernel::rationale::Rationale
 pub knotch_kernel::event::EventBody::ApprovalRecorded::target: knotch_kernel::id::EventId
@@ -1032,24 +889,6 @@ pub fn knotch_kernel::precondition::ArtifactCheck::exists(&self, path: &std::pat
 pub trait knotch_kernel::precondition::VerifyCommit: core::marker::Send + core::marker::Sync
 pub fn knotch_kernel::precondition::VerifyCommit::verify(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_kernel::error::PreconditionError>
 pub mod knotch_kernel::project
-#[non_exhaustive] pub struct knotch_kernel::project::MilestoneCostEntry<W: knotch_kernel::workflow::WorkflowKind>
-pub knotch_kernel::project::MilestoneCostEntry::cost: knotch_kernel::causation::Cost
-pub knotch_kernel::project::MilestoneCostEntry::milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone
-impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::clone::Clone
-pub fn knotch_kernel::project::MilestoneCostEntry<W>::clone(&self) -> knotch_kernel::project::MilestoneCostEntry<W>
-impl<W: core::cmp::Eq + knotch_kernel::workflow::WorkflowKind> core::cmp::Eq for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::cmp::Eq
-impl<W: core::cmp::PartialEq + knotch_kernel::workflow::WorkflowKind> core::cmp::PartialEq for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::cmp::PartialEq
-pub fn knotch_kernel::project::MilestoneCostEntry<W>::eq(&self, other: &knotch_kernel::project::MilestoneCostEntry<W>) -> bool
-impl<W: core::fmt::Debug + knotch_kernel::workflow::WorkflowKind> core::fmt::Debug for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::fmt::Debug
-pub fn knotch_kernel::project::MilestoneCostEntry<W>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl<W: knotch_kernel::workflow::WorkflowKind> core::marker::StructuralPartialEq for knotch_kernel::project::MilestoneCostEntry<W>
-impl<W> core::marker::Freeze for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::Freeze
-impl<W> core::marker::Send for knotch_kernel::project::MilestoneCostEntry<W>
-impl<W> core::marker::Sync for knotch_kernel::project::MilestoneCostEntry<W>
-impl<W> core::marker::Unpin for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::Unpin
-impl<W> core::marker::UnsafeUnpin for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::UnsafeUnpin
-impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe
-impl<W> core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe
 #[non_exhaustive] pub struct knotch_kernel::project::ModelTimelineEntry
 pub knotch_kernel::project::ModelTimelineEntry::at: jiff::timestamp::Timestamp
 pub knotch_kernel::project::ModelTimelineEntry::model: knotch_kernel::causation::ModelId
@@ -1108,8 +947,6 @@ impl core::marker::Unpin for knotch_kernel::project::ToolCallFailureEntry
 impl core::marker::UnsafeUnpin for knotch_kernel::project::ToolCallFailureEntry
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::ToolCallFailureEntry
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::ToolCallFailureEntry
-pub fn knotch_kernel::project::cost_by_milestone<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::project::MilestoneCostEntry<W>>
-pub fn knotch_kernel::project::cost_by_phase<W: knotch_kernel::workflow::WorkflowKind>(workflow: &W, log: &knotch_kernel::log::Log<W>) -> rustc_hash::FxHashMap<<W as knotch_kernel::workflow::WorkflowKind>::Phase, knotch_kernel::causation::Cost>
 pub fn knotch_kernel::project::current_phase<W: knotch_kernel::workflow::WorkflowKind>(workflow: &W, log: &knotch_kernel::log::Log<W>) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Phase>
 pub fn knotch_kernel::project::current_status<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> core::option::Option<knotch_kernel::status::StatusId>
 pub fn knotch_kernel::project::effective_events<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::event::Event<W>>
@@ -1118,7 +955,6 @@ pub fn knotch_kernel::project::model_timeline<W: knotch_kernel::workflow::Workfl
 pub fn knotch_kernel::project::shipped_milestones<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<<W as knotch_kernel::workflow::WorkflowKind>::Milestone>
 pub fn knotch_kernel::project::subagents<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> alloc::vec::Vec<knotch_kernel::project::SubagentEntry>
 pub fn knotch_kernel::project::tool_call_timeline<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>, tool: &str, call_id: &str) -> alloc::vec::Vec<knotch_kernel::project::ToolCallFailureEntry>
-pub fn knotch_kernel::project::total_cost<W: knotch_kernel::workflow::WorkflowKind>(log: &knotch_kernel::log::Log<W>) -> knotch_kernel::causation::Cost
 pub mod knotch_kernel::rationale
 #[non_exhaustive] pub enum knotch_kernel::rationale::RationaleError
 pub knotch_kernel::rationale::RationaleError::TooLong
@@ -1502,7 +1338,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::status::Decision
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::status::Decision
 #[non_exhaustive] pub enum knotch_kernel::EventBody<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::EventBody::ApprovalRecorded
-pub knotch_kernel::EventBody::ApprovalRecorded::approver: knotch_kernel::causation::Person
+pub knotch_kernel::EventBody::ApprovalRecorded::approver: compact_str::CompactString
 pub knotch_kernel::EventBody::ApprovalRecorded::decision: knotch_kernel::status::Decision
 pub knotch_kernel::EventBody::ApprovalRecorded::rationale: knotch_kernel::rationale::Rationale
 pub knotch_kernel::EventBody::ApprovalRecorded::target: knotch_kernel::id::EventId
@@ -1636,34 +1472,6 @@ impl core::marker::Unpin for knotch_kernel::error::PreconditionError
 impl core::marker::UnsafeUnpin for knotch_kernel::error::PreconditionError
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::error::PreconditionError
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::error::PreconditionError
-#[non_exhaustive] pub enum knotch_kernel::Principal
-pub knotch_kernel::Principal::Agent
-pub knotch_kernel::Principal::Agent::agent_id: knotch_kernel::causation::AgentId
-pub knotch_kernel::Principal::Agent::harness: knotch_kernel::causation::Harness
-pub knotch_kernel::Principal::Agent::model: knotch_kernel::causation::ModelId
-pub knotch_kernel::Principal::Human
-pub knotch_kernel::Principal::Human::person: knotch_kernel::causation::Person
-pub knotch_kernel::Principal::System
-pub knotch_kernel::Principal::System::service: compact_str::CompactString
-impl core::clone::Clone for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::clone(&self) -> knotch_kernel::causation::Principal
-impl core::cmp::Eq for knotch_kernel::causation::Principal
-impl core::cmp::PartialEq for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::eq(&self, other: &knotch_kernel::causation::Principal) -> bool
-impl core::fmt::Debug for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Principal
-impl serde_core::ser::Serialize for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Principal
-pub fn knotch_kernel::causation::Principal::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Principal
-impl core::marker::Send for knotch_kernel::causation::Principal
-impl core::marker::Sync for knotch_kernel::causation::Principal
-impl core::marker::Unpin for knotch_kernel::causation::Principal
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Principal
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Principal
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Principal
 #[non_exhaustive] pub enum knotch_kernel::ReconcileFailureKind
 pub knotch_kernel::ReconcileFailureKind::CommitPending
 pub knotch_kernel::ReconcileFailureKind::ObserverFailed
@@ -1835,12 +1643,9 @@ impl core::marker::UnsafeUnpin for knotch_kernel::event::SkipKind
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::SkipKind
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::SkipKind
 #[non_exhaustive] pub enum knotch_kernel::Source
-pub knotch_kernel::Source::Agent
 pub knotch_kernel::Source::Cli
-pub knotch_kernel::Source::External(compact_str::CompactString)
 pub knotch_kernel::Source::Hook
-pub knotch_kernel::Source::Test
-pub knotch_kernel::Source::User
+pub knotch_kernel::Source::Observer
 impl core::clone::Clone for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::clone(&self) -> knotch_kernel::causation::Source
 impl core::cmp::Eq for knotch_kernel::causation::Source
@@ -1848,6 +1653,7 @@ impl core::cmp::PartialEq for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::eq(&self, other: &knotch_kernel::causation::Source) -> bool
 impl core::fmt::Debug for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_kernel::causation::Source
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::Source
 impl serde_core::ser::Serialize for knotch_kernel::causation::Source
 pub fn knotch_kernel::causation::Source::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
@@ -2005,7 +1811,6 @@ pub fn knotch_kernel::causation::AgentId::fmt(&self, f: &mut core::fmt::Formatte
 impl core::hash::Hash for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::StructuralPartialEq for knotch_kernel::causation::AgentId
-impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::AgentId
 impl serde_core::ser::Serialize for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
 impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::AgentId
@@ -2061,20 +1866,15 @@ impl core::marker::UnsafeUnpin for knotch_kernel::event::ArtifactList
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::ArtifactList
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::ArtifactList
 #[non_exhaustive] pub struct knotch_kernel::Causation
-pub knotch_kernel::Causation::cost: core::option::Option<knotch_kernel::causation::Cost>
-pub knotch_kernel::Causation::parent_event: core::option::Option<knotch_kernel::id::EventId>
-pub knotch_kernel::Causation::principal: knotch_kernel::causation::Principal
+pub knotch_kernel::Causation::agent_id: core::option::Option<knotch_kernel::causation::AgentId>
 pub knotch_kernel::Causation::session: core::option::Option<knotch_kernel::causation::SessionId>
 pub knotch_kernel::Causation::source: knotch_kernel::causation::Source
-pub knotch_kernel::Causation::trace: core::option::Option<knotch_kernel::causation::TraceId>
 pub knotch_kernel::Causation::trigger: knotch_kernel::causation::Trigger
 impl knotch_kernel::causation::Causation
 pub fn knotch_kernel::causation::Causation::cli(command: impl core::convert::Into<compact_str::CompactString>) -> Self
-pub fn knotch_kernel::causation::Causation::new(source: knotch_kernel::causation::Source, principal: knotch_kernel::causation::Principal, trigger: knotch_kernel::causation::Trigger) -> Self
-pub fn knotch_kernel::causation::Causation::with_cost(self, cost: knotch_kernel::causation::Cost) -> Self
-pub fn knotch_kernel::causation::Causation::with_parent_event(self, parent: knotch_kernel::id::EventId) -> Self
+pub fn knotch_kernel::causation::Causation::new(source: knotch_kernel::causation::Source, trigger: knotch_kernel::causation::Trigger) -> Self
+pub fn knotch_kernel::causation::Causation::with_agent_id(self, agent_id: knotch_kernel::causation::AgentId) -> Self
 pub fn knotch_kernel::causation::Causation::with_session(self, session: knotch_kernel::causation::SessionId) -> Self
-pub fn knotch_kernel::causation::Causation::with_trace(self, trace: knotch_kernel::causation::TraceId) -> Self
 impl core::clone::Clone for knotch_kernel::causation::Causation
 pub fn knotch_kernel::causation::Causation::clone(&self) -> knotch_kernel::causation::Causation
 impl core::cmp::Eq for knotch_kernel::causation::Causation
@@ -2123,34 +1923,6 @@ impl core::marker::Unpin for knotch_kernel::event::CommitRef
 impl core::marker::UnsafeUnpin for knotch_kernel::event::CommitRef
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::CommitRef
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::CommitRef
-#[non_exhaustive] pub struct knotch_kernel::Cost
-pub knotch_kernel::Cost::tokens_in: u32
-pub knotch_kernel::Cost::tokens_out: u32
-pub knotch_kernel::Cost::usd: core::option::Option<rust_decimal::decimal::Decimal>
-impl knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::accumulate(&mut self, other: &knotch_kernel::causation::Cost)
-pub fn knotch_kernel::causation::Cost::new(usd: core::option::Option<rust_decimal::decimal::Decimal>, tokens_in: u32, tokens_out: u32) -> Self
-impl core::clone::Clone for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::clone(&self) -> knotch_kernel::causation::Cost
-impl core::cmp::Eq for knotch_kernel::causation::Cost
-impl core::cmp::PartialEq for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::eq(&self, other: &knotch_kernel::causation::Cost) -> bool
-impl core::default::Default for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::default() -> knotch_kernel::causation::Cost
-impl core::fmt::Debug for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Cost
-impl serde_core::ser::Serialize for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Cost
-pub fn knotch_kernel::causation::Cost::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Cost
-impl core::marker::Send for knotch_kernel::causation::Cost
-impl core::marker::Sync for knotch_kernel::causation::Cost
-impl core::marker::Unpin for knotch_kernel::causation::Cost
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Cost
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Cost
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Cost
 pub struct knotch_kernel::Event<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::Event::at: jiff::timestamp::Timestamp
 pub knotch_kernel::Event::body: knotch_kernel::event::EventBody<W>
@@ -2237,30 +2009,6 @@ impl core::marker::Unpin for knotch_kernel::fingerprint::Fingerprint
 impl core::marker::UnsafeUnpin for knotch_kernel::fingerprint::Fingerprint
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::fingerprint::Fingerprint
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::fingerprint::Fingerprint
-pub struct knotch_kernel::Harness(pub compact_str::CompactString)
-impl core::clone::Clone for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::clone(&self) -> knotch_kernel::causation::Harness
-impl core::cmp::Eq for knotch_kernel::causation::Harness
-impl core::cmp::PartialEq for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::eq(&self, other: &knotch_kernel::causation::Harness) -> bool
-impl core::fmt::Debug for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Harness
-impl serde_core::ser::Serialize for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Harness
-pub fn knotch_kernel::causation::Harness::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Harness
-impl core::marker::Send for knotch_kernel::causation::Harness
-impl core::marker::Sync for knotch_kernel::causation::Harness
-impl core::marker::Unpin for knotch_kernel::causation::Harness
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Harness
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Harness
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Harness
 pub struct knotch_kernel::Log<W: knotch_kernel::workflow::WorkflowKind>
 impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::log::Log<W>
 pub fn knotch_kernel::log::Log<W>::empty(unit: knotch_kernel::id::UnitId) -> Self
@@ -2304,31 +2052,6 @@ impl core::marker::Unpin for knotch_kernel::causation::ModelId
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::ModelId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::ModelId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::ModelId
-pub struct knotch_kernel::Person(pub compact_str::CompactString)
-impl core::clone::Clone for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::clone(&self) -> knotch_kernel::causation::Person
-impl core::cmp::Eq for knotch_kernel::causation::Person
-impl core::cmp::PartialEq for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::eq(&self, other: &knotch_kernel::causation::Person) -> bool
-impl core::fmt::Debug for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::fmt::Display for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::Person
-impl knotch_kernel::causation::Sensitive for knotch_kernel::causation::Person
-impl serde_core::ser::Serialize for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::Person
-pub fn knotch_kernel::causation::Person::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::Person
-impl core::marker::Send for knotch_kernel::causation::Person
-impl core::marker::Sync for knotch_kernel::causation::Person
-impl core::marker::Unpin for knotch_kernel::causation::Person
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::Person
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Person
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Person
 pub struct knotch_kernel::Proposal<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::Proposal::body: knotch_kernel::event::EventBody<W>
 pub knotch_kernel::Proposal::causation: knotch_kernel::causation::Causation
@@ -2427,33 +2150,6 @@ impl core::marker::Unpin for knotch_kernel::status::StatusId
 impl core::marker::UnsafeUnpin for knotch_kernel::status::StatusId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::status::StatusId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::status::StatusId
-pub struct knotch_kernel::TraceId(_)
-impl knotch_kernel::causation::TraceId
-pub const fn knotch_kernel::causation::TraceId::as_bytes(&self) -> &[u8; 16]
-impl core::clone::Clone for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::clone(&self) -> knotch_kernel::causation::TraceId
-impl core::cmp::Eq for knotch_kernel::causation::TraceId
-impl core::cmp::PartialEq for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::eq(&self, other: &knotch_kernel::causation::TraceId) -> bool
-impl core::convert::From<[u8; 16]> for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::from(bytes: [u8; 16]) -> Self
-impl core::fmt::Debug for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
-impl core::marker::Copy for knotch_kernel::causation::TraceId
-impl core::marker::StructuralPartialEq for knotch_kernel::causation::TraceId
-impl serde_core::ser::Serialize for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::causation::TraceId
-pub fn knotch_kernel::causation::TraceId::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_kernel::causation::TraceId
-impl core::marker::Send for knotch_kernel::causation::TraceId
-impl core::marker::Sync for knotch_kernel::causation::TraceId
-impl core::marker::Unpin for knotch_kernel::causation::TraceId
-impl core::marker::UnsafeUnpin for knotch_kernel::causation::TraceId
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::TraceId
-impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::TraceId
 pub struct knotch_kernel::UnitId(_)
 impl knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::as_str(&self) -> &str

@@ -2,5 +2,4 @@ pub mod knotch_derive
 pub proc macro knotch_derive::#[derive(GateKind)]
 pub proc macro knotch_derive::#[derive(MilestoneKind)]
 pub proc macro knotch_derive::#[derive(PhaseKind)]
-pub proc macro knotch_derive::#[derive(Sensitive)]
 pub proc macro knotch_derive::#[workflow]

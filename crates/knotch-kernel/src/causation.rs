@@ -9,9 +9,9 @@
 //! Three axes answer "who":
 //!
 //! - [`Source`] — the channel (`Cli` / `Hook` / `Observer`).
-//! - `agent_id` — the subagent id, when the action was driven by an
-//!   LLM agent (`None` for CLI operators, observers, and the main
-//!   session where Claude Code doesn't surface a distinct id).
+//! - `agent_id` — the subagent id, when the action was driven by an LLM agent (`None` for
+//!   CLI operators, observers, and the main session where Claude Code doesn't surface a
+//!   distinct id).
 //! - [`SessionId`] — the conversation / run scope.
 //!
 //! Model attribution lives on [`EventBody::ModelSwitched`](crate::event::EventBody)
