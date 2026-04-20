@@ -214,7 +214,7 @@ impl<W: WorkflowKind> FileRepository<W> {
             let fp =
                 fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if used.contains(&fp) {
-                rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
+                rejected.push(RejectedProposal::new(proposal, "duplicate"));
                 continue;
             }
             // 2. Preconditions — body + extension — evaluated against the
@@ -226,14 +226,14 @@ impl<W: WorkflowKind> FileRepository<W> {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                rejected.push(RejectedProposal::new(proposal, err.to_string()));
                 continue;
             }
             if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
                 if matches!(mode, AppendMode::AllOrNothing) {
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                rejected.push(RejectedProposal::new(proposal, err.to_string()));
                 continue;
             }
             // 3. Monotonic timestamp — self-healing against clock drift.
@@ -256,7 +256,7 @@ impl<W: WorkflowKind> FileRepository<W> {
 
         if matches!(mode, AppendMode::AllOrNothing) && !rejected.is_empty() {
             return Ok(CommitOutcome::Rolled {
-                report: AppendReport { accepted: Vec::new(), rejected },
+                report: AppendReport::new(Vec::new(), rejected),
             });
         }
 
@@ -388,7 +388,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
                 for event in &accepted {
                     let _ = tx.send(event.clone());
                 }
-                Ok(AppendReport { accepted, rejected })
+                Ok(AppendReport::new(accepted, rejected))
             }
             CommitOutcome::Rolled { report } => Ok(report),
             CommitOutcome::CasMismatch { .. } => {
@@ -522,7 +522,7 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
                 for event in &accepted {
                     let _ = tx.send(event.clone());
                 }
-                Ok(AppendReport { accepted, rejected })
+                Ok(AppendReport::new(accepted, rejected))
             }
             CommitOutcome::Rolled { report } => Ok(report),
             CommitOutcome::CasMismatch { .. } => {

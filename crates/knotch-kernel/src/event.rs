@@ -928,6 +928,7 @@ pub enum SubscribeMode {
                    W::Gate: serde::de::DeserializeOwned, \
                    W::Extension: serde::de::DeserializeOwned"
 ))]
+#[non_exhaustive]
 pub enum SubscribeEvent<W: WorkflowKind> {
     /// Live or replayed event. Boxed because the `Event<W>` payload
     /// is substantially larger than the `Lagged` variant.
@@ -952,12 +953,31 @@ pub enum SubscribeEvent<W: WorkflowKind> {
                    W::Gate: serde::de::DeserializeOwned, \
                    W::Extension: serde::de::DeserializeOwned"
 ))]
+#[non_exhaustive]
 pub struct AppendReport<W: WorkflowKind> {
     /// Proposals that were appended; the id/timestamp reflect the
     /// Repository-assigned values.
     pub accepted: Vec<Event<W>>,
     /// Proposals that were rejected and why.
     pub rejected: Vec<RejectedProposal<W>>,
+}
+
+impl<W: WorkflowKind> AppendReport<W> {
+    /// Construct a report. The `#[non_exhaustive]` marker blocks
+    /// struct-literal construction outside this crate — adapters
+    /// (`knotch-storage`, `knotch-testing`) use this constructor so a
+    /// future additive field lands as a new parameter rather than a
+    /// silent breakage.
+    #[must_use]
+    pub fn new(accepted: Vec<Event<W>>, rejected: Vec<RejectedProposal<W>>) -> Self {
+        Self { accepted, rejected }
+    }
+
+    /// Empty report — no proposals accepted, no rejections.
+    #[must_use]
+    pub fn empty() -> Self {
+        Self { accepted: Vec::new(), rejected: Vec::new() }
+    }
 }
 
 /// A rejected proposal, along with the reason for rejection.
@@ -970,11 +990,21 @@ pub struct AppendReport<W: WorkflowKind> {
                    W::Gate: serde::de::DeserializeOwned, \
                    W::Extension: serde::de::DeserializeOwned"
 ))]
+#[non_exhaustive]
 pub struct RejectedProposal<W: WorkflowKind> {
     /// The proposal that was rejected.
     pub proposal: Proposal<W>,
     /// Human-readable reason (typically from `PreconditionError::Display`).
     pub reason: CompactString,
+}
+
+impl<W: WorkflowKind> RejectedProposal<W> {
+    /// Construct a rejection record. See [`AppendReport::new`] for
+    /// the rationale behind the explicit constructor.
+    #[must_use]
+    pub fn new(proposal: Proposal<W>, reason: impl Into<CompactString>) -> Self {
+        Self { proposal, reason: reason.into() }
+    }
 }
 
 #[cfg(test)]

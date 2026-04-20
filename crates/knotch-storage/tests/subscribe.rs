@@ -232,6 +232,7 @@ async fn broadcast_overflow_surfaces_lagged_event() {
             }
             Ok(None) => break,
             Err(_timeout) => break,
+            Ok(Some(_)) => frames_seen += 1,
         }
     }
 

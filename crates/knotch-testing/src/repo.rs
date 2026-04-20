@@ -126,7 +126,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
             let fingerprint =
                 fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if inner.fingerprints.contains(&fingerprint) {
-                rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
+                rejected.push(RejectedProposal::new(proposal, "duplicate"));
                 continue;
             }
             // Body + extension preconditions against the working log.
@@ -139,7 +139,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                     inner.fingerprints.truncate(accepted_before);
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                rejected.push(RejectedProposal::new(proposal, err.to_string()));
                 continue;
             }
             if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
@@ -148,7 +148,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                     inner.fingerprints.truncate(accepted_before);
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                rejected.push(RejectedProposal::new(proposal, err.to_string()));
                 continue;
             }
             let at = stamp_monotonic(&SystemClock, inner.events.last().map(|e| e.at));
@@ -168,7 +168,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
         if matches!(mode, AppendMode::AllOrNothing) && !rejected.is_empty() {
             inner.events.truncate(accepted_before);
             inner.fingerprints.truncate(accepted_before);
-            return Ok(AppendReport { accepted: Vec::new(), rejected });
+            return Ok(AppendReport::new(Vec::new(), rejected));
         }
 
         // Fan out accepted events to subscribers. `send` only fails
@@ -177,7 +177,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
             let _ = inner.broadcast.send(event.clone());
         }
 
-        Ok(AppendReport { accepted, rejected })
+        Ok(AppendReport::new(accepted, rejected))
     }
 
     async fn load(&self, unit: &UnitId) -> Result<Arc<Log<W>>, RepositoryError> {
@@ -270,7 +270,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
             let fingerprint =
                 fingerprint_proposal(&self.workflow, &proposal).map_err(RepositoryError::Codec)?;
             if inner.fingerprints.contains(&fingerprint) {
-                rejected.push(RejectedProposal { proposal, reason: "duplicate".into() });
+                rejected.push(RejectedProposal::new(proposal, "duplicate"));
                 continue;
             }
             let working_log = knotch_kernel::Log::from_events(unit.clone(), inner.events.clone());
@@ -284,7 +284,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                     // mutated `working_cache`.
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                rejected.push(RejectedProposal::new(proposal, err.to_string()));
                 continue;
             }
             if let Err(err) = proposal.extension.check_extension::<W>(&ctx) {
@@ -295,7 +295,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
                     // mutated `working_cache`.
                     return Err(RepositoryError::Precondition(err));
                 }
-                rejected.push(RejectedProposal { proposal, reason: err.to_string().into() });
+                rejected.push(RejectedProposal::new(proposal, err.to_string()));
                 continue;
             }
             let at = stamp_monotonic(&SystemClock, inner.events.last().map(|e| e.at));
@@ -316,7 +316,7 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
             inner.events.truncate(accepted_before);
             inner.fingerprints.truncate(accepted_before);
             // `inner.cache` is already the pre-mutation value.
-            return Ok(AppendReport { accepted: Vec::new(), rejected });
+            return Ok(AppendReport::new(Vec::new(), rejected));
         }
 
         // Commit both sides atomically under the same lock.
@@ -325,6 +325,6 @@ impl<W: WorkflowKind> Repository<W> for InMemoryRepository<W> {
         }
         inner.cache = working_cache;
 
-        Ok(AppendReport { accepted, rejected })
+        Ok(AppendReport::new(accepted, rejected))
     }
 }

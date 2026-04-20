@@ -124,6 +124,7 @@ pub fn current_status<W: WorkflowKind>(log: &Log<W>) -> Option<StatusId> {
 /// projection API stays stable when the body adds fields — callers
 /// pattern-match on this struct, not on `EventBody::SubagentCompleted`.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct SubagentEntry {
     /// Harness-assigned subagent id.
     pub agent_id: AgentId,
@@ -171,6 +172,7 @@ pub fn subagents<W: WorkflowKind>(log: &Log<W>) -> Vec<SubagentEntry> {
 /// first event (inferred from `Principal::Agent.model`) plus one
 /// entry per `ModelSwitched` event.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct ModelTimelineEntry {
     /// Instant at which the model became the active one.
     pub at: Timestamp,
@@ -221,6 +223,7 @@ pub fn model_timeline<W: WorkflowKind>(log: &Log<W>) -> Vec<ModelTimelineEntry> 
 /// One `ToolCallFailed` entry on the per-(tool, call_id) retry
 /// timeline surfaced by [`tool_call_timeline`].
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct ToolCallFailureEntry {
     /// Retry attempt counter (1-indexed, monotonic).
     pub attempt: u32,
@@ -341,6 +344,7 @@ pub fn cost_by_phase<W: WorkflowKind>(workflow: &W, log: &Log<W>) -> FxHashMap<W
 /// One `(milestone, cost)` entry in the timeline produced by
 /// [`cost_by_milestone`].
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct MilestoneCostEntry<W: WorkflowKind> {
     /// The milestone that shipped.
     pub milestone: W::Milestone,

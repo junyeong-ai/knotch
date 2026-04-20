@@ -662,7 +662,7 @@ impl core::marker::Unpin for knotch_kernel::event::SkipKind
 impl core::marker::UnsafeUnpin for knotch_kernel::event::SkipKind
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::SkipKind
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::SkipKind
-pub enum knotch_kernel::event::SubscribeEvent<W: knotch_kernel::workflow::WorkflowKind>
+#[non_exhaustive] pub enum knotch_kernel::event::SubscribeEvent<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::event::SubscribeEvent::Event(alloc::boxed::Box<knotch_kernel::event::Event<W>>)
 pub knotch_kernel::event::SubscribeEvent::Lagged
 pub knotch_kernel::event::SubscribeEvent::Lagged::next: knotch_kernel::id::EventId
@@ -702,9 +702,12 @@ impl core::marker::Unpin for knotch_kernel::event::SubscribeMode
 impl core::marker::UnsafeUnpin for knotch_kernel::event::SubscribeMode
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::SubscribeMode
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::SubscribeMode
-pub struct knotch_kernel::event::AppendReport<W: knotch_kernel::workflow::WorkflowKind>
+#[non_exhaustive] pub struct knotch_kernel::event::AppendReport<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::event::AppendReport::accepted: alloc::vec::Vec<knotch_kernel::event::Event<W>>
 pub knotch_kernel::event::AppendReport::rejected: alloc::vec::Vec<knotch_kernel::event::RejectedProposal<W>>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::event::AppendReport<W>
+pub fn knotch_kernel::event::AppendReport<W>::empty() -> Self
+pub fn knotch_kernel::event::AppendReport<W>::new(accepted: alloc::vec::Vec<knotch_kernel::event::Event<W>>, rejected: alloc::vec::Vec<knotch_kernel::event::RejectedProposal<W>>) -> Self
 impl<'de, W> serde_core::de::Deserialize<'de> for knotch_kernel::event::AppendReport<W> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Phase: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Gate: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Extension: serde_core::de::DeserializeOwned
 pub fn knotch_kernel::event::AppendReport<W>::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
 impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_kernel::event::AppendReport<W>
@@ -813,9 +816,11 @@ impl<W> core::marker::Unpin for knotch_kernel::event::Proposal<W> where <W as kn
 impl<W> core::marker::UnsafeUnpin for knotch_kernel::event::Proposal<W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::UnsafeUnpin, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::marker::UnsafeUnpin
 impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::event::Proposal<W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
 impl<W> core::panic::unwind_safe::UnwindSafe for knotch_kernel::event::Proposal<W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::UnwindSafe
-pub struct knotch_kernel::event::RejectedProposal<W: knotch_kernel::workflow::WorkflowKind>
+#[non_exhaustive] pub struct knotch_kernel::event::RejectedProposal<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::event::RejectedProposal::proposal: knotch_kernel::event::Proposal<W>
 pub knotch_kernel::event::RejectedProposal::reason: compact_str::CompactString
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::event::RejectedProposal<W>
+pub fn knotch_kernel::event::RejectedProposal<W>::new(proposal: knotch_kernel::event::Proposal<W>, reason: impl core::convert::Into<compact_str::CompactString>) -> Self
 impl<'de, W> serde_core::de::Deserialize<'de> for knotch_kernel::event::RejectedProposal<W> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Phase: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Gate: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Extension: serde_core::de::DeserializeOwned
 pub fn knotch_kernel::event::RejectedProposal<W>::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
 impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_kernel::event::RejectedProposal<W>
@@ -1021,7 +1026,7 @@ pub fn knotch_kernel::precondition::ArtifactCheck::exists(&self, path: &std::pat
 pub trait knotch_kernel::precondition::VerifyCommit: core::marker::Send + core::marker::Sync
 pub fn knotch_kernel::precondition::VerifyCommit::verify(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_kernel::error::PreconditionError>
 pub mod knotch_kernel::project
-pub struct knotch_kernel::project::MilestoneCostEntry<W: knotch_kernel::workflow::WorkflowKind>
+#[non_exhaustive] pub struct knotch_kernel::project::MilestoneCostEntry<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::project::MilestoneCostEntry::cost: knotch_kernel::causation::Cost
 pub knotch_kernel::project::MilestoneCostEntry::milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone
 impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::clone::Clone
@@ -1039,7 +1044,7 @@ impl<W> core::marker::Unpin for knotch_kernel::project::MilestoneCostEntry<W> wh
 impl<W> core::marker::UnsafeUnpin for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::UnsafeUnpin
 impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe
 impl<W> core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::MilestoneCostEntry<W> where <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe
-pub struct knotch_kernel::project::ModelTimelineEntry
+#[non_exhaustive] pub struct knotch_kernel::project::ModelTimelineEntry
 pub knotch_kernel::project::ModelTimelineEntry::at: jiff::timestamp::Timestamp
 pub knotch_kernel::project::ModelTimelineEntry::model: knotch_kernel::causation::ModelId
 impl core::clone::Clone for knotch_kernel::project::ModelTimelineEntry
@@ -1057,7 +1062,7 @@ impl core::marker::Unpin for knotch_kernel::project::ModelTimelineEntry
 impl core::marker::UnsafeUnpin for knotch_kernel::project::ModelTimelineEntry
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::ModelTimelineEntry
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::ModelTimelineEntry
-pub struct knotch_kernel::project::SubagentEntry
+#[non_exhaustive] pub struct knotch_kernel::project::SubagentEntry
 pub knotch_kernel::project::SubagentEntry::agent_id: knotch_kernel::causation::AgentId
 pub knotch_kernel::project::SubagentEntry::agent_type: core::option::Option<compact_str::CompactString>
 pub knotch_kernel::project::SubagentEntry::at: jiff::timestamp::Timestamp
@@ -1078,7 +1083,7 @@ impl core::marker::Unpin for knotch_kernel::project::SubagentEntry
 impl core::marker::UnsafeUnpin for knotch_kernel::project::SubagentEntry
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::project::SubagentEntry
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::project::SubagentEntry
-pub struct knotch_kernel::project::ToolCallFailureEntry
+#[non_exhaustive] pub struct knotch_kernel::project::ToolCallFailureEntry
 pub knotch_kernel::project::ToolCallFailureEntry::at: jiff::timestamp::Timestamp
 pub knotch_kernel::project::ToolCallFailureEntry::attempt: u32
 pub knotch_kernel::project::ToolCallFailureEntry::reason: knotch_kernel::event::FailureReason
@@ -1879,7 +1884,7 @@ impl core::marker::Unpin for knotch_kernel::causation::Source
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::Source
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Source
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Source
-pub enum knotch_kernel::SubscribeEvent<W: knotch_kernel::workflow::WorkflowKind>
+#[non_exhaustive] pub enum knotch_kernel::SubscribeEvent<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::SubscribeEvent::Event(alloc::boxed::Box<knotch_kernel::event::Event<W>>)
 pub knotch_kernel::SubscribeEvent::Lagged
 pub knotch_kernel::SubscribeEvent::Lagged::next: knotch_kernel::id::EventId
@@ -2006,9 +2011,12 @@ impl core::marker::Unpin for knotch_kernel::causation::AgentId
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::AgentId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::AgentId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::AgentId
-pub struct knotch_kernel::AppendReport<W: knotch_kernel::workflow::WorkflowKind>
+#[non_exhaustive] pub struct knotch_kernel::AppendReport<W: knotch_kernel::workflow::WorkflowKind>
 pub knotch_kernel::AppendReport::accepted: alloc::vec::Vec<knotch_kernel::event::Event<W>>
 pub knotch_kernel::AppendReport::rejected: alloc::vec::Vec<knotch_kernel::event::RejectedProposal<W>>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::event::AppendReport<W>
+pub fn knotch_kernel::event::AppendReport<W>::empty() -> Self
+pub fn knotch_kernel::event::AppendReport<W>::new(accepted: alloc::vec::Vec<knotch_kernel::event::Event<W>>, rejected: alloc::vec::Vec<knotch_kernel::event::RejectedProposal<W>>) -> Self
 impl<'de, W> serde_core::de::Deserialize<'de> for knotch_kernel::event::AppendReport<W> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Phase: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Gate: serde_core::de::DeserializeOwned, <W as knotch_kernel::workflow::WorkflowKind>::Extension: serde_core::de::DeserializeOwned
 pub fn knotch_kernel::event::AppendReport<W>::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
 impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_kernel::event::AppendReport<W>
