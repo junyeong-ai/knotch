@@ -5,6 +5,8 @@
 [![Unsafe](https://img.shields.io/badge/unsafe-forbidden-success?style=flat-square)](#quality-gates)
 [![License](https://img.shields.io/badge/license-MIT_OR_Apache--2.0-lightgrey?style=flat-square)](#license)
 
+> **English** | **[한국어](README.ko.md)**
+
 > **Git-correlated, event-sourced workflow state — built for AI agents.**
 
 Knotch is a Rust library and `knotch` CLI that gives AI agents a
@@ -545,3 +547,7 @@ Dual-licensed under either
 - [MIT license](./LICENSE-MIT)
 
 at your option.
+
+---
+
+> **English** | **[한국어](README.ko.md)**
