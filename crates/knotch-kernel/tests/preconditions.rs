@@ -958,13 +958,12 @@ fn subagent_completed_after_supersede_can_be_re_recorded() {
 #[test]
 fn approval_rejects_missing_target() {
     use compact_str::CompactString;
-    use knotch_kernel::causation::Person;
 
     let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
     let phantom = EventId::new_v7();
     let body: EventBody<Wf> = EventBody::ApprovalRecorded {
         target: phantom,
-        approver: Person(CompactString::from("alice")),
+        approver: CompactString::from("alice"),
         decision: Decision::Approved,
         rationale: Rationale::new("looks fine to me").unwrap(),
     };
@@ -975,7 +974,6 @@ fn approval_rejects_missing_target() {
 #[test]
 fn approval_rejects_duplicate_from_same_approver_and_accepts_another() {
     use compact_str::CompactString;
-    use knotch_kernel::causation::Person;
 
     let unit_created_id = EventId::new_v7();
     let events = vec![
@@ -994,7 +992,7 @@ fn approval_rejects_duplicate_from_same_approver_and_accepts_another() {
             extension: (),
             body: EventBody::ApprovalRecorded {
                 target: unit_created_id,
-                approver: Person(CompactString::from("alice")),
+                approver: CompactString::from("alice"),
                 decision: Decision::Approved,
                 rationale: Rationale::new("sign-off one").unwrap(),
             },
@@ -1004,7 +1002,7 @@ fn approval_rejects_duplicate_from_same_approver_and_accepts_another() {
     let log = Log::from_events(UnitId::try_new("u").unwrap(), events);
     let duplicate: EventBody<Wf> = EventBody::ApprovalRecorded {
         target: unit_created_id,
-        approver: Person(CompactString::from("alice")),
+        approver: CompactString::from("alice"),
         decision: Decision::Rejected,
         rationale: Rationale::new("changed mind").unwrap(),
     };
@@ -1014,7 +1012,7 @@ fn approval_rejects_duplicate_from_same_approver_and_accepts_another() {
     // Different approver lands fine.
     let second: EventBody<Wf> = EventBody::ApprovalRecorded {
         target: unit_created_id,
-        approver: Person(CompactString::from("bob")),
+        approver: CompactString::from("bob"),
         decision: Decision::Approved,
         rationale: Rationale::new("bob also agrees").unwrap(),
     };
@@ -1151,7 +1149,6 @@ fn reconcile_recovered_rejected_when_prior_failure_was_superseded() {
 #[test]
 fn approval_rejected_when_target_was_superseded() {
     use compact_str::CompactString;
-    use knotch_kernel::causation::Person;
     let unit_created_id = EventId::new_v7();
     let events: Vec<knotch_kernel::Event<Wf>> = vec![
         knotch_kernel::Event {
@@ -1177,7 +1174,7 @@ fn approval_rejected_when_target_was_superseded() {
     let l = Log::from_events(UnitId::try_new("u").unwrap(), events);
     let body: EventBody<Wf> = EventBody::ApprovalRecorded {
         target: unit_created_id,
-        approver: Person(CompactString::from("alice")),
+        approver: CompactString::from("alice"),
         decision: Decision::Approved,
         rationale: Rationale::new("approving retracted event").unwrap(),
     };

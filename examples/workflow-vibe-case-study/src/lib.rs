@@ -17,7 +17,7 @@ use compact_str::CompactString;
 use knotch_derive::{GateKind, MilestoneKind, PhaseKind};
 use knotch_kernel::{
     Causation, Log, PhaseKind as _, Scope, WorkflowKind,
-    causation::{AgentId, Harness, ModelId, Principal, SessionId, Source, Trigger},
+    causation::{AgentId, ModelId, Principal, SessionId, Source, Trigger},
     event::EventBody,
     project::{current_phase, current_status, effective_events},
 };
@@ -102,29 +102,23 @@ impl WorkflowKind for Vibe {
 /// Session — the factory every agent-initiated event flows through.
 ///
 /// A `Session` is cheap to clone; it carries the session id plus the
-/// agent / model / harness identifiers. Consumers build a new
-/// session once per conversation and call [`Session::causation`]
-/// at each proposal site.
+/// agent / model identifiers. Consumers build a new session once
+/// per conversation and call [`Session::causation`] at each
+/// proposal site.
 #[derive(Debug, Clone)]
 pub struct Session {
     id: SessionId,
     agent_id: AgentId,
     model: ModelId,
-    harness: Harness,
 }
 
 impl Session {
     /// Start a new session.
-    pub fn new(
-        agent: impl Into<CompactString>,
-        model: impl Into<CompactString>,
-        harness: impl Into<CompactString>,
-    ) -> Self {
+    pub fn new(agent: impl Into<CompactString>, model: impl Into<CompactString>) -> Self {
         Self {
             id: SessionId::new_v7(),
             agent_id: AgentId(agent.into()),
             model: ModelId(model.into()),
-            harness: Harness(harness.into()),
         }
     }
 
@@ -134,17 +128,12 @@ impl Session {
         self.id.clone()
     }
 
-    /// Build a `Causation` for the current session. Callers chain
-    /// `with_trace` / `with_parent_event` as needed.
+    /// Build a `Causation` for the current session.
     #[must_use]
     pub fn causation(&self, trigger: Trigger) -> Causation {
         Causation::new(
             Source::Agent,
-            Principal::Agent {
-                agent_id: self.agent_id.clone(),
-                model: self.model.clone(),
-                harness: self.harness.clone(),
-            },
+            Principal::Agent { agent_id: self.agent_id.clone(), model: self.model.clone() },
             trigger,
         )
         .with_session(self.id.clone())
@@ -261,7 +250,7 @@ mod tests {
 
     #[test]
     fn session_emits_agent_principal() {
-        let session = Session::new("alice", "claude-opus-4-7", "claude-code/1.0");
+        let session = Session::new("alice", "claude-opus-4-7");
         let causation = session.tool("edit_file", "inv-1");
         assert!(matches!(causation.principal, Principal::Agent { .. }));
         assert_eq!(causation.session, Some(session.id()));

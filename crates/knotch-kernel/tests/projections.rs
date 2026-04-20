@@ -8,7 +8,7 @@ use std::borrow::Cow;
 use jiff::Timestamp;
 use knotch_kernel::{
     Causation, Log, PhaseKind, Scope, UnitId, WorkflowKind,
-    causation::{AgentId, Harness, ModelId, Principal, Source, Trigger},
+    causation::{AgentId, ModelId, Principal, Source, Trigger},
     event::{Event, EventBody},
     id::EventId,
     project::model_timeline,
@@ -79,11 +79,7 @@ fn plain_causation() -> Causation {
 fn agent_causation(model: &str) -> Causation {
     Causation::new(
         Source::Hook,
-        Principal::Agent {
-            agent_id: AgentId("agent-a".into()),
-            model: ModelId(model.into()),
-            harness: Harness("claude-code".into()),
-        },
+        Principal::Agent { agent_id: AgentId("agent-a".into()), model: ModelId(model.into()) },
         Trigger::Command { name: "test".into() },
     )
 }

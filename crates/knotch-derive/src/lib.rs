@@ -5,7 +5,6 @@
 //! - `#[derive(MilestoneKind)]` — emits `MilestoneKind` for simple unit-variant enums or
 //!   newtype wrappers.
 //! - `#[derive(GateKind)]` — same shape as milestone.
-//! - `#[derive(Sensitive)]` — marker trait for PII redaction.
 //! - `#[workflow(name = …, phase = …, milestone = …, gate = …)]` — attribute macro on a
 //!   marker struct that emits the full `WorkflowKind` impl.
 //!
@@ -124,18 +123,6 @@ fn expand_identity_kind(
             }
         }
     })
-}
-
-/// `#[derive(Sensitive)]` — marks a type for tracing redaction.
-#[proc_macro_derive(Sensitive)]
-pub fn derive_sensitive(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-    quote! {
-        #[automatically_derived]
-        impl ::knotch_kernel::causation::Sensitive for #name {}
-    }
-    .into()
 }
 
 fn expect_unit_enum<'a>(

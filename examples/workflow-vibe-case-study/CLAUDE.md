@@ -18,7 +18,7 @@ a starting point when your shape matches.
 | `VibePhase` | `Intent / Explore / Implement / Verify` |
 | `TaskId` | Milestone — free-form short id coined per unit |
 | `VibeGate` | `IntentClear / Handoff` |
-| `Session` | `Causation` factory: `Session::new(agent, model, harness).tool(tool, call_id)` |
+| `Session` | `Causation` factory: `Session::new(agent, model).tool(tool, call_id)` |
 | `summary_for_llm` | Budget-capped markdown summary for prompt injection |
 | `SummaryBudget` | Char-count cap for `summary_for_llm` |
 

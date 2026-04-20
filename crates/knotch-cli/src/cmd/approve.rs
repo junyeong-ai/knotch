@@ -12,9 +12,10 @@ use std::str::FromStr as _;
 
 use anyhow::anyhow;
 use clap::{Args as ClapArgs, ValueEnum};
+use compact_str::CompactString;
 use knotch_kernel::{
     AppendMode, Causation, Decision, EventBody, EventId, Proposal, Rationale, Repository, UnitId,
-    WorkflowKind, causation::Person,
+    WorkflowKind,
 };
 use knotch_workflow::ConfigWorkflow;
 use serde::Serialize;
@@ -65,9 +66,8 @@ pub(crate) struct Args {
     /// Non-empty rationale explaining the decision. Minimum length
     /// enforced by the active workflow's `min_rationale_chars`.
     pub rationale: String,
-    /// Named human signing the approval. Stored as
-    /// `Person(CompactString)` which carries `Sensitive` — tracing
-    /// subscribers hash it for external sinks.
+    /// Named human signing the approval. Stored as a plain
+    /// `CompactString` — duplicate detection uses exact equality.
     #[arg(long = "as")]
     pub approver: String,
 }
@@ -108,7 +108,7 @@ where
     }
     let rationale = Rationale::with_min(args.rationale, repo.workflow().min_rationale_chars())
         .map_err(|e| anyhow!(e))?;
-    let approver = Person(args.approver.as_str().into());
+    let approver = CompactString::from(args.approver.as_str());
     let decision: Decision = args.decision.into();
     let proposal = Proposal {
         causation,

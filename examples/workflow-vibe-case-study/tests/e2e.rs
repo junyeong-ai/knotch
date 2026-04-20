@@ -22,7 +22,7 @@ async fn agent_session_lifecycle() {
     let repo = Arc::new(build_repository(dir.path()));
     let unit = UnitId::try_new("signup-refactor").unwrap();
 
-    let session = Session::new("alice", "claude-opus-4-7", "claude-code/1.0");
+    let session = Session::new("alice", "claude-opus-4-7");
 
     let proposals: Vec<Proposal<Vibe>> = vec![
         Proposal {
@@ -64,7 +64,7 @@ async fn summary_includes_phase() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(build_repository(dir.path()));
     let unit = UnitId::try_new("signup-refactor").unwrap();
-    let session = Session::new("alice", "claude-opus-4-7", "claude-code/1.0");
+    let session = Session::new("alice", "claude-opus-4-7");
 
     repo.append(
         &unit,

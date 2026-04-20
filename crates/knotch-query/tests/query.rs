@@ -357,15 +357,14 @@ async fn group_units_by_current_phase() {
 // ---- causation predicates ---------------------------------------------
 
 use compact_str::CompactString;
-use knotch_kernel::causation::{AgentId, Harness, ModelId};
+use knotch_kernel::causation::{AgentId, ModelId};
 
-fn agent_causation(agent: &str, model: &str, harness: &str) -> Causation {
+fn agent_causation(agent: &str, model: &str) -> Causation {
     Causation::new(
         Source::Agent,
         Principal::Agent {
             agent_id: AgentId(CompactString::from(agent)),
             model: ModelId(CompactString::from(model)),
-            harness: Harness(CompactString::from(harness)),
         },
         Trigger::ToolInvocation {
             tool: CompactString::from("test-tool"),
@@ -391,14 +390,14 @@ async fn where_agent_id_filters_to_matching_events() {
     seed_with_causation(
         &repo,
         "by-alice",
-        agent_causation("alice", "opus", "claude-code"),
+        agent_causation("alice", "opus"),
         EventBody::UnitCreated { scope: Scope::Standard },
     )
     .await;
     seed_with_causation(
         &repo,
         "by-bob",
-        agent_causation("bob", "opus", "claude-code"),
+        agent_causation("bob", "opus"),
         EventBody::UnitCreated { scope: Scope::Standard },
     )
     .await;
@@ -420,14 +419,14 @@ async fn where_model_partitions_by_llm() {
     seed_with_causation(
         &repo,
         "opus-unit",
-        agent_causation("a", "claude-opus-4-7", "claude-code"),
+        agent_causation("a", "claude-opus-4-7"),
         EventBody::UnitCreated { scope: Scope::Standard },
     )
     .await;
     seed_with_causation(
         &repo,
         "haiku-unit",
-        agent_causation("a", "claude-haiku-4-5", "claude-code"),
+        agent_causation("a", "claude-haiku-4-5"),
         EventBody::UnitCreated { scope: Scope::Standard },
     )
     .await;
@@ -443,32 +442,4 @@ async fn where_model_partitions_by_llm() {
     );
 }
 
-#[tokio::test]
-async fn where_harness_separates_cohorts() {
-    let repo = InMemoryRepository::<Wf>::new(Wf);
-    seed_with_causation(
-        &repo,
-        "cc-unit",
-        agent_causation("a", "opus", "claude-code"),
-        EventBody::UnitCreated { scope: Scope::Standard },
-    )
-    .await;
-    seed_with_causation(
-        &repo,
-        "cursor-unit",
-        agent_causation("a", "opus", "cursor"),
-        EventBody::UnitCreated { scope: Scope::Standard },
-    )
-    .await;
-
-    let units = QueryBuilder::<Wf>::new()
-        .where_harness(Harness(CompactString::from("cursor")))
-        .execute(&Wf, &repo)
-        .await
-        .expect("execute");
-    assert_eq!(
-        units.iter().map(|u| u.as_str().to_owned()).collect::<Vec<_>>(),
-        vec!["cursor-unit".to_owned()]
-    );
-}
 

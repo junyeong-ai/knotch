@@ -11,9 +11,9 @@
 //! - **Unit state** — `where_phase`, `where_status`, `where_milestone_shipped` —
 //!   projection-derived.
 //! - **Time** — `since`, `until` — event-timestamp windowing.
-//! - **Causation** — `where_agent_id`, `where_model`, `where_harness` —
-//!   introspect who / which model / which harness produced the events. Agents use these
-//!   for retrospection ("what have I worked on?") and model-migration audits.
+//! - **Causation** — `where_agent_id`, `where_model` — introspect who / which model
+//!   produced the events. Agents use these for retrospection ("what have I worked on?")
+//!   and model-migration audits.
 
 use std::borrow::Cow;
 
@@ -21,7 +21,7 @@ use futures::StreamExt as _;
 use jiff::Timestamp;
 use knotch_kernel::{
     Log, Repository, StatusId, UnitId, WorkflowKind,
-    causation::{AgentId, Harness, ModelId, Principal},
+    causation::{AgentId, ModelId, Principal},
     project::{current_phase, current_status, effective_events, shipped_milestones},
 };
 
@@ -107,17 +107,6 @@ impl<W: WorkflowKind> QueryBuilder<W> {
         self
     }
 
-    /// Match units that carry at least one effective event produced
-    /// under `Principal::Agent { harness }`. Useful when a knotch
-    /// workspace is shared across multiple harnesses (Claude Code,
-    /// Cursor, custom) and an operator wants the per-harness
-    /// cohort.
-    #[must_use]
-    pub fn where_harness(mut self, harness: Harness) -> Self {
-        self.filters.push(Filter::Harness(harness));
-        self
-    }
-
     /// Cap the number of returned units. Results are sorted by
     /// `UnitId` ascending before the limit is applied.
     #[must_use]
@@ -174,7 +163,6 @@ enum Filter<W: WorkflowKind> {
     Until(Timestamp),
     AgentId(AgentId),
     Model(ModelId),
-    Harness(Harness),
 }
 
 impl<W: WorkflowKind> Filter<W> {
@@ -198,12 +186,6 @@ impl<W: WorkflowKind> Filter<W> {
                 matches!(
                     &evt.causation.principal,
                     Principal::Agent { model, .. } if model == want,
-                )
-            }),
-            Filter::Harness(want) => effective_events(log).iter().any(|evt| {
-                matches!(
-                    &evt.causation.principal,
-                    Principal::Agent { harness, .. } if harness == want,
                 )
             }),
         }

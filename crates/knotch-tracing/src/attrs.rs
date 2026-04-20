@@ -1,8 +1,8 @@
 //! Canonical attribute keys emitted on knotch tracing spans.
 //!
 //! Keys are grouped by subsystem (`repo`, `observer`, `unit`,
-//! `event`, `principal`, `agent`, `session`, `trace`, `status`).
-//! Changing any constant is a breaking change — guarded by
+//! `event`, `principal`, `agent`, `session`, `status`). Changing
+//! any constant is a breaking change — guarded by
 //! `cargo-public-api` and `cargo-semver-checks`.
 
 /// Attribute-key constants. Accessing them by reference is idiomatic;
@@ -42,18 +42,14 @@ impl Attrs {
     pub const PRINCIPAL_KIND: &'static str = "knotch.principal.kind";
 
     // --- agent (when principal is agent) ---
-    /// `knotch.agent.id.hash` — BLAKE3 of `AgentId` (sensitive).
-    pub const AGENT_ID_HASH: &'static str = "knotch.agent.id.hash";
-    /// `knotch.agent.model` — `ModelId` (public).
+    /// `knotch.agent.id` — `AgentId` (Claude Code assigned UUID).
+    pub const AGENT_ID: &'static str = "knotch.agent.id";
+    /// `knotch.agent.model` — `ModelId`.
     pub const AGENT_MODEL: &'static str = "knotch.agent.model";
-    /// `knotch.agent.harness` — `Harness` (public).
-    pub const AGENT_HARNESS: &'static str = "knotch.agent.harness";
 
-    // --- session / trace ---
+    // --- session ---
     /// `knotch.session.id` — conversation / run scope.
     pub const SESSION_ID: &'static str = "knotch.session.id";
-    /// `knotch.trace.id` — OTel-compatible 128-bit trace id.
-    pub const TRACE_ID: &'static str = "knotch.trace.id";
 
     // --- status ---
     /// `knotch.status.forced` — `true` when a forced transition.

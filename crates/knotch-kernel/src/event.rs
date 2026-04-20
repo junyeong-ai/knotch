@@ -6,7 +6,7 @@ use compact_str::CompactString;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    causation::{AgentId, Causation, ModelId, Person},
+    causation::{AgentId, Causation, ModelId},
     id::EventId,
     rationale::Rationale,
     scope::Scope,
@@ -267,10 +267,9 @@ pub enum EventBody<W: WorkflowKind> {
     ApprovalRecorded {
         /// The event being approved or refused.
         target: EventId,
-        /// Named human who is signing off (or refusing). `Person`
-        /// carries `Sensitive` — subscribers hash it for external
-        /// sinks.
-        approver: Person,
+        /// Reviewer name signing off (or refusing). Carried as a
+        /// plain string — duplicate detection uses exact equality.
+        approver: CompactString,
         /// The decision carried with the signature. Reuses the same
         /// `Decision` vocabulary as `GateRecorded` so dashboards
         /// have a single enum to aggregate across both surfaces.

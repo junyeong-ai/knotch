@@ -60,18 +60,13 @@ pub fn emit_event<W: WorkflowKind>(unit: &UnitId, event: &Event<W>) {
 
 fn emit_principal(c: &Causation) {
     match &c.principal {
-        Principal::Agent { agent_id, model, harness } => {
-            let hashed = blake3::hash(agent_id.0.as_bytes()).to_hex().to_string();
+        Principal::Agent { agent_id, model } => {
             info!(
                 target: "knotch.principal",
                 principal_kind = "agent",
-                agent_id_hash = &hashed[..16],
+                agent_id = agent_id.as_str(),
                 agent_model = model.0.as_str(),
-                agent_harness = harness.0.as_str(),
             );
-        }
-        Principal::Human { .. } => {
-            info!(target: "knotch.principal", principal_kind = "human");
         }
         Principal::System { service } => {
             info!(
@@ -88,7 +83,6 @@ fn emit_principal(c: &Causation) {
 
 fn principal_kind(c: &Causation) -> &'static str {
     match c.principal {
-        Principal::Human { .. } => "human",
         Principal::Agent { .. } => "agent",
         Principal::System { .. } => "system",
         _ => "unknown",
@@ -102,7 +96,7 @@ fn event_kind_tag<W: WorkflowKind>(body: &EventBody<W>) -> &'static str {
 #[cfg(test)]
 mod tests {
     use compact_str::CompactString;
-    use knotch_kernel::causation::{AgentId, Harness, ModelId, Principal, Source, Trigger};
+    use knotch_kernel::causation::{AgentId, ModelId, Principal, Source, Trigger};
 
     use super::*;
 
@@ -115,7 +109,6 @@ mod tests {
             Principal::Agent {
                 agent_id: AgentId(CompactString::from("alice")),
                 model: ModelId(CompactString::from("claude-opus-4-7")),
-                harness: Harness(CompactString::from("claude-code/1.0")),
             },
             Trigger::Command { name: "test".into() },
         );

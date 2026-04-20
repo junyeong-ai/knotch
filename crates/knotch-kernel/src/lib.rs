@@ -29,10 +29,7 @@ pub mod time;
 pub mod workflow;
 
 pub use self::{
-    causation::{
-        AgentId, Causation, Harness, ModelId, Person, Principal, SessionId, Source, TraceId,
-        Trigger,
-    },
+    causation::{AgentId, Causation, ModelId, Principal, SessionId, Source, Trigger},
     error::{PreconditionError, RepositoryError},
     event::{
         AppendMode, AppendReport, ArtifactList, CommitKind, CommitRef, CommitStatus, Event,
