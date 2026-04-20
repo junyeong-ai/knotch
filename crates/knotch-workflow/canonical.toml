@@ -1,0 +1,58 @@
+# Canonical knotch workflow. Edit phases, gates, statuses below to customise.
+#
+# Shipped by `knotch init` as the default project `knotch.toml`
+# `[workflow]` section. Adopters edit in place to customise the
+# phase list, gate ladder, milestone shape, and status vocabulary.
+
+name = "knotch"
+schema_version = 1
+terminal_statuses = ["archived", "abandoned", "superseded", "deprecated"]
+known_statuses = [
+    "draft",
+    "in_progress",
+    "in_review",
+    "shipped",
+    "archived",
+    "abandoned",
+    "superseded",
+    "deprecated",
+]
+
+[[phases]]
+id = "specify"
+
+[[phases]]
+id = "plan"
+
+[[phases]]
+id = "build"
+
+[[phases]]
+id = "review"
+
+[[phases]]
+id = "ship"
+
+[required_phases]
+tiny = ["specify", "build", "ship"]
+standard = ["specify", "plan", "build", "review", "ship"]
+
+[[gates]]
+id = "g0-scope"
+prerequisites = []
+
+[[gates]]
+id = "g1-clarify"
+prerequisites = ["g0-scope"]
+
+[[gates]]
+id = "g2-plan"
+prerequisites = ["g0-scope", "g1-clarify"]
+
+[[gates]]
+id = "g3-review"
+prerequisites = ["g0-scope", "g1-clarify", "g2-plan"]
+
+[[gates]]
+id = "g4-drift"
+prerequisites = ["g0-scope", "g1-clarify", "g2-plan", "g3-review"]
