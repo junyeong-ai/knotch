@@ -178,28 +178,41 @@ pub struct ModelTimelineEntry {
     pub model: ModelId,
 }
 
-/// Chronological model timeline for the unit: the first known model
-/// (from the earliest `Principal::Agent` event) followed by every
-/// effective `ModelSwitched` event. Empty when no event carries
-/// agent attribution and no model switch has been recorded.
+/// Chronological model timeline for the unit.
 ///
-/// Supersede-aware: a superseded `ModelSwitched` drops out of the
-/// timeline.
+/// Seeded from the **first event that reveals a model** — either
+/// an `EventBody::ModelSwitched` (whose `to` field is the model
+/// active from that point on) or an event whose
+/// `Principal::Agent { model, .. }` carries one. Every subsequent
+/// `ModelSwitched` appends in log order.
+///
+/// Order is chronological by construction: the projection walks
+/// `effective_events` in log order (= monotonic timestamp order)
+/// and never re-orders. An earlier two-pass seed-then-append
+/// implementation could emit a `ModelSwitched` before its "seed"
+/// entry whenever the first `Principal::Agent` event came later
+/// than some `ModelSwitched` event — this single-pass form makes
+/// that reordering structurally impossible.
+///
+/// Supersede-aware via `effective_events`: a superseded
+/// `ModelSwitched` drops out of the timeline.
+///
+/// Empty when no effective event exposes a model.
+///
+/// Complexity: `O(n)` in log length.
 #[must_use]
 pub fn model_timeline<W: WorkflowKind>(log: &Log<W>) -> Vec<ModelTimelineEntry> {
-    let effective = effective_events(log);
     let mut timeline = Vec::new();
-    // Seed with the first agent-principal event's model, if any.
-    if let Some(first_agent) = effective.iter().find_map(|evt| match &evt.causation.principal {
-        Principal::Agent { model, .. } => Some((evt.at, model.clone())),
-        _ => None,
-    }) {
-        timeline.push(ModelTimelineEntry { at: first_agent.0, model: first_agent.1 });
-    }
-    // Append every effective ModelSwitched in log order.
-    for evt in &effective {
+    let mut seeded = false;
+    for evt in effective_events(log) {
         if let EventBody::ModelSwitched { to, .. } = &evt.body {
             timeline.push(ModelTimelineEntry { at: evt.at, model: to.clone() });
+            seeded = true;
+        } else if !seeded
+            && let Principal::Agent { model, .. } = &evt.causation.principal
+        {
+            timeline.push(ModelTimelineEntry { at: evt.at, model: model.clone() });
+            seeded = true;
         }
     }
     timeline

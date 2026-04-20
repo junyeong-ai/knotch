@@ -1,5 +1,5 @@
 //! Built-in projection semantics — attribution, ordering, and
-//! supersede-awareness for the cost roll-up projections.
+//! supersede-awareness for the cost + timeline projections.
 
 #![allow(missing_docs)]
 
@@ -8,10 +8,10 @@ use std::borrow::Cow;
 use jiff::Timestamp;
 use knotch_kernel::{
     Causation, CommitStatus, Log, PhaseKind, Scope, UnitId, WorkflowKind,
-    causation::{Cost, Principal, Source, Trigger},
+    causation::{AgentId, Cost, Harness, ModelId, Principal, Source, Trigger},
     event::{ArtifactList, CommitKind, CommitRef, Event, EventBody},
     id::EventId,
-    project::{cost_by_milestone, cost_by_phase, total_cost},
+    project::{cost_by_milestone, cost_by_phase, model_timeline, total_cost},
 };
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -71,6 +71,18 @@ impl WorkflowKind for Wf {
 
 fn plain_causation() -> Causation {
     Causation::new(Source::Cli, Principal::System { service: "t".into() }, Trigger::Manual)
+}
+
+fn agent_causation(model: &str) -> Causation {
+    Causation::new(
+        Source::Hook,
+        Principal::Agent {
+            agent_id: AgentId("agent-a".into()),
+            model: ModelId(model.into()),
+            harness: Harness("claude-code".into()),
+        },
+        Trigger::Manual,
+    )
 }
 
 fn causation_with_cost(tokens_in: u32, tokens_out: u32, usd: Option<Decimal>) -> Causation {
@@ -205,4 +217,71 @@ fn cost_by_milestone_leaves_trailing_cost_unbucketed() {
     let total = total_cost(&log);
     let bucketed: u32 = entries.iter().map(|e| e.cost.tokens_in).sum();
     assert_eq!(total.tokens_in - bucketed, 30, "30 tokens trail past the last milestone");
+}
+
+// --- model_timeline --------------------------------------------------
+
+#[test]
+fn model_timeline_seeds_from_first_agent_principal_then_appends_switches() {
+    let events = vec![
+        event(1_000, plain_causation(), created()),
+        event(2_000, agent_causation("sonnet-4-6"), work_body()),
+        event(
+            3_000,
+            agent_causation("sonnet-4-6"),
+            EventBody::ModelSwitched {
+                from: ModelId("sonnet-4-6".into()),
+                to: ModelId("opus-4-7".into()),
+            },
+        ),
+    ];
+    let log = log_from(events);
+    let tl = model_timeline(&log);
+
+    assert_eq!(tl.len(), 2);
+    assert_eq!(tl[0].model, ModelId("sonnet-4-6".into()));
+    assert_eq!(tl[0].at.as_millisecond(), 2_000);
+    assert_eq!(tl[1].model, ModelId("opus-4-7".into()));
+    assert_eq!(tl[1].at.as_millisecond(), 3_000);
+}
+
+#[test]
+fn model_timeline_preserves_chronological_order_when_switch_precedes_agent_principal() {
+    // Regression for a two-pass bug: if the first Agent-principal
+    // event came *after* a `ModelSwitched` event, the old
+    // seed-then-append algorithm emitted
+    //     [(t_agent, model_agent), (t_switch, model_switch)]
+    // which is out of chronological order when t_switch < t_agent.
+    // The single-pass rewrite seeds from whichever comes first —
+    // here, the ModelSwitched — so the timeline is monotonic by
+    // construction.
+    let events = vec![
+        event(1_000, plain_causation(), created()),
+        event(
+            2_000,
+            plain_causation(),
+            EventBody::ModelSwitched {
+                from: ModelId("sonnet-4-6".into()),
+                to: ModelId("opus-4-7".into()),
+            },
+        ),
+        event(3_000, agent_causation("opus-4-7"), work_body()),
+    ];
+    let log = log_from(events);
+    let tl = model_timeline(&log);
+
+    assert!(
+        tl.windows(2).all(|w| w[0].at <= w[1].at),
+        "timeline must be chronological: {tl:?}"
+    );
+    assert_eq!(tl.len(), 1, "post-seed Agent events with matching model add nothing");
+    assert_eq!(tl[0].at.as_millisecond(), 2_000);
+    assert_eq!(tl[0].model, ModelId("opus-4-7".into()));
+}
+
+#[test]
+fn model_timeline_is_empty_when_no_event_exposes_a_model() {
+    let events = vec![event(1_000, plain_causation(), created())];
+    let log = log_from(events);
+    assert!(model_timeline(&log).is_empty());
 }
