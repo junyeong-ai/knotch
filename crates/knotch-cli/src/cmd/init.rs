@@ -477,7 +477,9 @@ fn knotch_mandatory_hook_block() -> Value {
                         {"type": "command", "if": "Bash(git commit *)", "command": "knotch hook verify-commit"},
                         {"type": "command", "if": "Bash(git revert *)", "command": "knotch hook record-revert"}
                     ]
-                },
+                }
+            ],
+            "PostToolUseFailure": [
                 {
                     "matcher": "",
                     "hooks": [

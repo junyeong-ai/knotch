@@ -52,8 +52,8 @@ pub(crate) enum HookCommand {
     GuardRewrite,
     /// Record a subagent transcript (SubagentStop).
     RecordSubagent,
-    /// Record `ToolCallFailed` when PostToolUse carries a failure
-    /// signal in `tool_response`.
+    /// Record `ToolCallFailed` when Claude Code fires
+    /// `PostToolUseFailure`.
     RecordToolFailure,
     /// Surface reconciler-queue size at session end (SessionEnd).
     FinalizeSession,
@@ -79,7 +79,8 @@ impl HookCommand {
             Self::RefreshContext => "UserPromptSubmit",
             Self::CheckCommit | Self::GuardRewrite => "PreToolUse",
 
-            Self::VerifyCommit | Self::RecordRevert | Self::RecordToolFailure => "PostToolUse",
+            Self::VerifyCommit | Self::RecordRevert => "PostToolUse",
+            Self::RecordToolFailure => "PostToolUseFailure",
             Self::RecordSubagent => "SubagentStop",
             Self::FinalizeSession => "SessionEnd",
         }
