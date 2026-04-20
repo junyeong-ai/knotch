@@ -1,0 +1,5 @@
+error: `PhaseKind` derive requires unit variants only
+ --> tests/ui/phase_kind_non_unit.rs:9:5
+  |
+9 |     B(u32),
+  |     ^^^^^^

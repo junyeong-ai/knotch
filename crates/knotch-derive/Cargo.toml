@@ -1,0 +1,28 @@
+[package]
+name = "knotch-derive"
+description = "Proc macros for knotch — #[workflow], #[derive(PhaseKind/MilestoneKind/GateKind/ExtensionKind/Sensitive)]."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[lib]
+proc-macro = true
+
+[lints]
+workspace = true
+
+[dependencies]
+syn.workspace = true
+quote.workspace = true
+proc-macro2.workspace = true
+darling.workspace = true
+proc-macro-error2.workspace = true
+
+[dev-dependencies]
+knotch-kernel = { workspace = true }
+serde.workspace = true
+trybuild.workspace = true
