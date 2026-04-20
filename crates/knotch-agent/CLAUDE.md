@@ -25,7 +25,9 @@ plug in their own CLI and call the same functions.
 | `session`     | `SessionStart` → inject active-unit context                   |
 | `commit`      | `check` / `verify` / `record_revert` — git-driven events      |
 | `guard`       | `rewrite` — block destructive history-rewriting git ops       |
-| `subagent`    | `SubagentStop` → `.knotch/subagents/<id>.json`                |
+| `subagent`    | `SubagentStop` → `EventBody::SubagentCompleted` append        |
+| `tool_call`   | harness failure detector → `EventBody::ToolCallFailed` append |
+| `model`       | harness model-lifecycle callback → `EventBody::ModelSwitched` append |
 | `context`     | `UserPromptSubmit` — re-inject context (opt-in)               |
 | `session_end` | `SessionEnd` — surface reconciler queue size                  |
 

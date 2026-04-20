@@ -18,7 +18,7 @@ for every downstream crate.
 | `causation` | `Causation`, `Principal`, `Source`, `Trigger`, `Cost`, `Person`, `AgentId`, `ModelId`, `Harness`, `SessionId`, `TraceId` + `Sensitive` marker |
 | `repository` | `Repository<W>` port, `ResumeCache`, `CacheError`, `SubscribeEvent`, `SubscribeMode` |
 | `log` | `Log<W>` (immutable snapshot), `LogError`, `try_from_events` (validated), `from_events` (`#[doc(hidden)]`, adapter-only) |
-| `project` | built-in pure projections: `current_phase`, `current_status`, `shipped_milestones`, `effective_events`, `total_cost` |
+| `project` | built-in pure projections: `current_phase`, `last_completed_phase`, `current_status`, `shipped_milestones`, `effective_events`, `total_cost`, `cost_by_phase`, `cost_by_milestone`, `subagents`, `model_timeline`, `tool_call_timeline` |
 | `precondition` | `AppendContext<'a, W>`, `VerifyCommit`, `ArtifactCheck` |
 | `fingerprint` | `Fingerprint`, `fingerprint_proposal`, `fingerprint_event` — closed, JCS-canonical |
 | `scope` / `status` / `rationale` / `id` / `time` / `error` | primitives |
@@ -35,6 +35,14 @@ for every downstream crate.
 4. Extend `error.rs::PreconditionError` if the check surfaces a new
    failure mode.
 5. Add tests in `tests/preconditions.rs` (pass + fail per variant).
+6. Add rows to `.claude/rules/event-ownership.md` (Owner table +
+   Opt-in matrix) and `.claude/rules/preconditions.md`
+   (Variant → check table). Enforced by `cargo xtask docs-lint` —
+   a missing row fails CI.
+7. Wire a canonical emitter — CLI subcommand, hook, skill,
+   reconciler observer, or `knotch-agent` library helper (for
+   harness-wired variants; see
+   `.claude/rules/harness-decoupling.md`).
 
 **Add a new `WorkflowKind` associated-type convention:**
 1. Extend `workflow.rs::WorkflowKind` with a default method.

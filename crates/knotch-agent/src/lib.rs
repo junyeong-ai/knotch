@@ -30,12 +30,14 @@ pub mod context;
 pub mod error;
 pub mod guard;
 pub mod input;
+pub mod model;
 pub mod orphan;
 pub mod output;
 pub mod queue;
 pub mod session;
 pub mod session_end;
 pub mod subagent;
+pub mod tool_call;
 
 pub use self::{
     active::{ActiveUnit, resolve_active, write_active},

@@ -98,16 +98,37 @@ fn public_api() -> anyhow::Result<()> {
 }
 
 fn docs_lint() -> anyhow::Result<()> {
-    // Scan every `.claude/rules/*.md` for `path/file.rs:LINE` citations
-    // and verify each referenced line still exists. Pure Rust — no
-    // external tools.
+    // Two gates, composed:
+    //   (1) `file:line` citations in `.claude/rules/*.md` still point
+    //       at real lines.
+    //   (2) Every `EventBody<W>` variant in
+    //       `crates/knotch-kernel/src/event.rs` has a row in the
+    //       `event-ownership.md` Owner table + Opt-in matrix, and in
+    //       the `preconditions.md` Variant → check table.
+    //
+    // Both together keep the rule files structurally in sync with the
+    // kernel surface (constitution §VII — any rule that can be a CI
+    // gate is).
+    let citation_failures = check_citations()?;
+    let parity_failures = check_variant_parity()?;
+
+    let total = citation_failures.len() + parity_failures.len();
+    if total == 0 {
+        println!("xtask docs-lint: ok");
+        return Ok(());
+    }
+    for f in citation_failures.iter().chain(parity_failures.iter()) {
+        eprintln!("  {f}");
+    }
+    anyhow::bail!("{total} docs-lint failure(s)")
+}
+
+fn check_citations() -> anyhow::Result<Vec<String>> {
     let rules_dir = Path::new(".claude/rules");
     let Ok(entries) = std::fs::read_dir(rules_dir) else {
-        println!("xtask docs-lint: no .claude/rules directory — skipping");
-        return Ok(());
+        return Ok(Vec::new());
     };
     let mut failures: Vec<String> = Vec::new();
-    // Matches `crates/<crate>/src/<path>.rs:<line>` inline-code style.
     for entry in entries.flatten() {
         let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) != Some("md") {
@@ -116,26 +137,156 @@ fn docs_lint() -> anyhow::Result<()> {
         let body = std::fs::read_to_string(&path)?;
         for (line_no, line) in body.lines().enumerate() {
             for citation in extract_citations(line) {
-                match verify_citation(&citation) {
-                    Ok(()) => {}
-                    Err(why) => failures.push(format!(
+                if let Err(why) = verify_citation(&citation) {
+                    failures.push(format!(
                         "{}:{} — {citation}: {why}",
                         path.display(),
                         line_no + 1,
-                    )),
+                    ));
                 }
             }
         }
     }
-    if failures.is_empty() {
-        println!("xtask docs-lint: ok");
-        Ok(())
-    } else {
-        for f in &failures {
-            eprintln!("  {f}");
-        }
-        anyhow::bail!("{} broken citation(s)", failures.len())
+    Ok(failures)
+}
+
+/// Variant-row parity between `EventBody<W>` and the rule-file tables
+/// that document each variant's owner, emission mode, and precondition.
+///
+/// The check is one-directional: every variant in code must appear in
+/// each table. Extra table rows are allowed (adopters may document
+/// planned variants ahead of implementation).
+fn check_variant_parity() -> anyhow::Result<Vec<String>> {
+    let event_src = Path::new("crates/knotch-kernel/src/event.rs");
+    let ownership = Path::new(".claude/rules/event-ownership.md");
+    let preconditions = Path::new(".claude/rules/preconditions.md");
+    if !event_src.exists() || !ownership.exists() || !preconditions.exists() {
+        return Ok(Vec::new());
     }
+
+    let variants = extract_event_body_variants(&std::fs::read_to_string(event_src)?);
+    let ownership_body = std::fs::read_to_string(ownership)?;
+    let preconditions_body = std::fs::read_to_string(preconditions)?;
+
+    let owner_rows = table_variants(&ownership_body, "## Owner table");
+    let optin_rows = table_variants(&ownership_body, "## Opt-in matrix");
+    let precondition_rows = table_variants(&preconditions_body, "## Variant → check");
+
+    let mut failures = Vec::new();
+    for gate in [
+        (ownership, "Owner table", &owner_rows),
+        (ownership, "Opt-in matrix", &optin_rows),
+        (preconditions, "Variant → check", &precondition_rows),
+    ] {
+        let (path, table, rows) = gate;
+        let missing: Vec<&str> =
+            variants.iter().filter(|v| !rows.contains(v.as_str())).map(String::as_str).collect();
+        if !missing.is_empty() {
+            failures.push(format!(
+                "{}: missing {} row(s) for: {}",
+                path.display(),
+                table,
+                missing.join(", ")
+            ));
+        }
+    }
+    Ok(failures)
+}
+
+/// Extract variant names from the `pub enum EventBody<W: WorkflowKind>`
+/// block. Recognises both struct-style (`UnitCreated {`) and unit-style
+/// (`UnitCreated,`) declarations at four-space indent.
+fn extract_event_body_variants(source: &str) -> Vec<String> {
+    let Some(start) = source.find("pub enum EventBody<W") else {
+        return Vec::new();
+    };
+    let rest = &source[start..];
+    let Some(brace) = rest.find('{') else {
+        return Vec::new();
+    };
+    let mut depth = 0_i32;
+    let mut end = 0_usize;
+    for (i, c) in rest[brace..].char_indices() {
+        match c {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    end = brace + i;
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    if end == 0 {
+        return Vec::new();
+    }
+    let body = &rest[brace + 1..end];
+
+    let mut variants = Vec::new();
+    let mut inner_depth = 0_i32;
+    for raw_line in body.lines() {
+        let pre_depth = inner_depth;
+        for c in raw_line.chars() {
+            match c {
+                '{' => inner_depth += 1,
+                '}' => inner_depth -= 1,
+                _ => {}
+            }
+        }
+        if pre_depth > 0 {
+            continue;
+        }
+        let line = raw_line.trim_start();
+        if line.starts_with("///") || line.starts_with("//") || line.is_empty() {
+            continue;
+        }
+        let indent = raw_line.len() - line.len();
+        if indent != 4 {
+            continue;
+        }
+        let token_end =
+            line.find(|c: char| !c.is_alphanumeric() && c != '_').unwrap_or(line.len());
+        if token_end == 0 {
+            continue;
+        }
+        let name = &line[..token_end];
+        if !name.starts_with(|c: char| c.is_ascii_uppercase()) {
+            continue;
+        }
+        let suffix = line[token_end..].trim_start();
+        if suffix.starts_with('{') || suffix.starts_with('(') || suffix.starts_with(',') {
+            variants.push(name.to_owned());
+        }
+    }
+    variants
+}
+
+/// Extract first-column identifiers from a Markdown table immediately
+/// following `heading` (e.g. `## Owner table`). Identifiers are read
+/// from backtick-wrapped spans in the first cell — rows without
+/// backticked names (or the header / separator rows) are skipped.
+fn table_variants(markdown: &str, heading: &str) -> std::collections::HashSet<String> {
+    let mut out = std::collections::HashSet::new();
+    let Some(start) = markdown.find(heading) else {
+        return out;
+    };
+    let rest = &markdown[start + heading.len()..];
+    for line in rest.lines() {
+        if line.starts_with("## ") {
+            break;
+        }
+        if !line.starts_with('|') {
+            continue;
+        }
+        let first = line[1..].split('|').next().unwrap_or("").trim();
+        if let Some(name) = first.strip_prefix('`').and_then(|s| s.split_once('`')).map(|(n, _)| n)
+        {
+            out.insert(name.to_owned());
+        }
+    }
+    out
 }
 
 fn extract_citations(line: &str) -> Vec<String> {

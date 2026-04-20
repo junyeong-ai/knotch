@@ -151,6 +151,8 @@ impl core::marker::Unpin for knotch_agent::input::HookInput
 impl core::marker::UnsafeUnpin for knotch_agent::input::HookInput
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookInput
 impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookInput
+pub mod knotch_agent::model
+pub async fn knotch_agent::model::record_switch<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, from: impl core::convert::Into<knotch_kernel::causation::ModelId>, to: impl core::convert::Into<knotch_kernel::causation::ModelId>, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
 pub mod knotch_agent::orphan
 pub fn knotch_agent::orphan::log_orphan(home: &std::path::Path, event: &str, cwd: &std::path::Path, reason: &str)
 pub mod knotch_agent::output
@@ -280,6 +282,8 @@ pub mod knotch_agent::session_end
 pub fn knotch_agent::session_end::finalize(project_root: &std::path::Path, session_id: &str, reason: core::option::Option<&str>) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError>
 pub mod knotch_agent::subagent
 pub async fn knotch_agent::subagent::record<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, agent_id: impl core::convert::Into<knotch_kernel::causation::AgentId>, agent_type: core::option::Option<compact_str::CompactString>, transcript_path: core::option::Option<&std::path::Path>, last_message: core::option::Option<compact_str::CompactString>, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
+pub mod knotch_agent::tool_call
+pub async fn knotch_agent::tool_call::record_failure<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, tool: impl core::convert::Into<compact_str::CompactString>, call_id: impl core::convert::Into<compact_str::CompactString>, attempt: core::num::nonzero::NonZeroU32, reason: knotch_kernel::event::FailureReason, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
 pub enum knotch_agent::ActiveUnit
 pub knotch_agent::ActiveUnit::Active(knotch_kernel::id::UnitId)
 pub knotch_agent::ActiveUnit::NoProject

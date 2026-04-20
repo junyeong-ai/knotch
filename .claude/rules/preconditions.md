@@ -28,6 +28,10 @@ lock, against a **freshly-loaded** log snapshot.
 | `ReconcileFailed` | attempt ≤ prior max for same anchor (non-monotonic) |
 | `ReconcileRecovered` | no prior failure for anchor |
 | `EventSuperseded` | target absent; target already superseded (combined with append-only construction this rules out supersede cycles — a new event cannot reach back to reference an unappended predecessor) |
+| `SubagentCompleted` | same `agent_id` already recorded as completed on the unit |
+| `ToolCallFailed` | `attempt` ≤ prior max for same `(tool, call_id)` (non-monotonic per-call retry counter) |
+| `ModelSwitched` | `from == to` (no-op switch carries no information) |
+| `ApprovalRecorded` | `target` event id absent from the log; same `(target, approver)` pair already recorded (co-sign by a different approver is admissible) |
 
 Taxonomy: `crates/knotch-kernel/src/error.rs::PreconditionError`.
 

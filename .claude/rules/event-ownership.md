@@ -31,6 +31,9 @@ additions here before shipping.
 | `ReconcileRecovered`  | Reconciler | Reconciler itself on recovery                |
 | `EventSuperseded`     | CLI        | `knotch supersede <event-id> <rationale>`    |
 | `SubagentCompleted`   | Hook       | `knotch hook record-subagent` (SubagentStop) |
+| `ToolCallFailed`      | Agent lib  | `knotch_agent::tool_call::record_failure` (harness-wired)|
+| `ModelSwitched`       | Agent lib  | `knotch_agent::model::record_switch` (harness-wired) |
+| `ApprovalRecorded`    | CLI        | `knotch approve <unit> <event-id> <decision> <rationale>`|
 
 ## Opt-in matrix
 
@@ -52,6 +55,9 @@ the two is the main source of false-positive events.
 | `ReconcileRecovered` | Automatic     | Reconciler observer succeeds after a prior failure     |
 | `EventSuperseded`    | Explicit      | Operator runs `knotch supersede`                       |
 | `SubagentCompleted`  | Automatic     | Claude Code fires `SubagentStop` for a delegated task  |
+| `ToolCallFailed`     | Automatic     | Harness's failure detector (post-tool hook or retry loop) |
+| `ModelSwitched`      | Automatic     | Harness's model-lifecycle callback (no Claude Code trigger) |
+| `ApprovalRecorded`   | Explicit      | Reviewer runs `knotch approve`                         |
 
 **Opt-in rationale** (`MilestoneShipped`): one feature usually
 lands across several incremental commits ("start X", "polish X",
@@ -68,11 +74,15 @@ whichever commit finalizes it. See
 - **Skill** — agent judgment. The agent decides when a phase is
   complete, when a gate passes, when status transitions. Not
   derivable from tool calls alone.
-- **CLI** — human-driven, deliberate. Unit creation and supersede
-  are rare, near-irreversible operations; an explicit command
-  prevents accidents.
+- **CLI** — human-driven, deliberate. Unit creation, supersede,
+  and human approval are rare, deliberate operations; an explicit
+  command prevents accidents.
 - **Reconciler** — passive observation. Reads the world and emits
   whatever external state implies; never tied to a single tool call.
+- **Agent lib** — harness-wired events (tool-call failures, model
+  switches) for which Claude Code exposes no uniform hook trigger.
+  The library ships the append helper; each harness wires its own
+  detector. See `.claude/rules/harness-decoupling.md`.
 
 ## Forbidden overlaps
 
@@ -91,8 +101,12 @@ Adding a new `EventBody` variant:
 
 1. Update `crates/knotch-kernel/src/event.rs`.
 2. Update both tables above with the chosen owner **and** emission
-   mode. If it's opt-in, name the opt-in signal.
-3. Add the emitter (hook subcommand, skill, CLI subcommand, or
-   reconciler observer).
-4. Update `.claude/rules/hook-integration.md` if a new hook is
+   mode. If it's opt-in, name the opt-in signal. **Enforced by
+   `cargo xtask docs-lint`** — every variant must have a row in
+   both tables.
+3. Add the emitter (hook subcommand, skill, CLI subcommand,
+   reconciler observer, or `knotch-agent` library helper).
+4. Update `.claude/rules/preconditions.md` Variant → check table
+   (also enforced by `cargo xtask docs-lint`).
+5. Update `.claude/rules/hook-integration.md` if a new hook is
    introduced.
