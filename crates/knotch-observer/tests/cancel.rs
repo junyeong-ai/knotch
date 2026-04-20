@@ -83,7 +83,7 @@ impl Observer<Wf> for SlowObserver {
 
 #[tokio::test]
 async fn cancellation_token_stops_an_inflight_observer() {
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     let log: Arc<Log<Wf>> = Arc::new(Log::empty(unit.clone()));
     let cache = knotch_kernel::repository::ResumeCache::new();
     let cancel = CancellationToken::new();

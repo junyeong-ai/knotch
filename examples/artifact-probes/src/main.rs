@@ -51,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Seed a unit.
     let repo = knotch_workflow::build_repository(state.path());
-    let unit = UnitId::new("artifact-probe-demo");
+    let unit = UnitId::try_new("artifact-probe-demo").unwrap();
     repo.append(
         &unit,
         vec![Proposal {

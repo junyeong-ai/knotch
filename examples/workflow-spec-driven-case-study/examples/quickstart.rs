@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     let root = std::env::temp_dir().join("knotch-quickstart-demo");
     std::fs::create_dir_all(&root)?;
     let repo = Arc::new(build_repository(&root));
-    let unit = UnitId::new("quickstart-1");
+    let unit = UnitId::try_new("quickstart-1").unwrap();
 
     let causation = || {
         Causation::new(

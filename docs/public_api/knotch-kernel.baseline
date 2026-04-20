@@ -807,6 +807,34 @@ impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::fingerprint::Finger
 pub fn knotch_kernel::fingerprint::fingerprint_event<W>(workflow: &W, event: &knotch_kernel::event::Event<W>) -> core::result::Result<knotch_kernel::fingerprint::Fingerprint, serde_json::error::Error> where W: knotch_kernel::workflow::WorkflowKind
 pub fn knotch_kernel::fingerprint::fingerprint_proposal<W>(workflow: &W, proposal: &knotch_kernel::event::Proposal<W>) -> core::result::Result<knotch_kernel::fingerprint::Fingerprint, serde_json::error::Error> where W: knotch_kernel::workflow::WorkflowKind
 pub mod knotch_kernel::id
+#[non_exhaustive] pub enum knotch_kernel::id::UnitIdError
+pub knotch_kernel::id::UnitIdError::Empty
+pub knotch_kernel::id::UnitIdError::InvalidChar
+pub knotch_kernel::id::UnitIdError::InvalidChar::found: char
+pub knotch_kernel::id::UnitIdError::InvalidChar::position: usize
+pub knotch_kernel::id::UnitIdError::InvalidStart
+pub knotch_kernel::id::UnitIdError::InvalidStart::found: char
+pub knotch_kernel::id::UnitIdError::TooLong
+pub knotch_kernel::id::UnitIdError::TooLong::actual: usize
+pub knotch_kernel::id::UnitIdError::TooLong::max: usize
+impl core::clone::Clone for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::clone(&self) -> knotch_kernel::id::UnitIdError
+impl core::cmp::Eq for knotch_kernel::id::UnitIdError
+impl core::cmp::PartialEq for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::eq(&self, other: &knotch_kernel::id::UnitIdError) -> bool
+impl core::error::Error for knotch_kernel::id::UnitIdError
+impl core::fmt::Debug for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_kernel::id::UnitIdError
+impl core::marker::Freeze for knotch_kernel::id::UnitIdError
+impl core::marker::Send for knotch_kernel::id::UnitIdError
+impl core::marker::Sync for knotch_kernel::id::UnitIdError
+impl core::marker::Unpin for knotch_kernel::id::UnitIdError
+impl core::marker::UnsafeUnpin for knotch_kernel::id::UnitIdError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::id::UnitIdError
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::id::UnitIdError
 pub struct knotch_kernel::id::EventId(_)
 impl knotch_kernel::id::EventId
 pub const fn knotch_kernel::id::EventId::into_uuid(self) -> uuid::Uuid
@@ -843,7 +871,7 @@ impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::id::EventId
 pub struct knotch_kernel::id::UnitId(_)
 impl knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::as_str(&self) -> &str
-pub fn knotch_kernel::id::UnitId::new(slug: impl core::convert::Into<compact_str::CompactString>) -> Self
+pub fn knotch_kernel::id::UnitId::try_new(slug: impl core::convert::AsRef<str>) -> core::result::Result<Self, knotch_kernel::id::UnitIdError>
 impl core::clone::Clone for knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::clone(&self) -> knotch_kernel::id::UnitId
 impl core::cmp::Eq for knotch_kernel::id::UnitId
@@ -861,7 +889,7 @@ impl core::marker::StructuralPartialEq for knotch_kernel::id::UnitId
 impl serde_core::ser::Serialize for knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
 impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::id::UnitId
-pub fn knotch_kernel::id::UnitId::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+pub fn knotch_kernel::id::UnitId::deserialize<D: serde_core::de::Deserializer<'de>>(d: D) -> core::result::Result<Self, <D as serde_core::de::Deserializer>::Error>
 impl core::marker::Freeze for knotch_kernel::id::UnitId
 impl core::marker::Send for knotch_kernel::id::UnitId
 impl core::marker::Sync for knotch_kernel::id::UnitId
@@ -869,6 +897,7 @@ impl core::marker::Unpin for knotch_kernel::id::UnitId
 impl core::marker::UnsafeUnpin for knotch_kernel::id::UnitId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::id::UnitId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::id::UnitId
+pub const knotch_kernel::id::UNIT_ID_MAX_LEN: usize
 pub mod knotch_kernel::log
 #[non_exhaustive] pub enum knotch_kernel::log::LogError
 pub knotch_kernel::log::LogError::NonMonotonic
@@ -1727,6 +1756,34 @@ impl core::marker::Unpin for knotch_kernel::causation::Trigger
 impl core::marker::UnsafeUnpin for knotch_kernel::causation::Trigger
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::causation::Trigger
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::Trigger
+#[non_exhaustive] pub enum knotch_kernel::UnitIdError
+pub knotch_kernel::UnitIdError::Empty
+pub knotch_kernel::UnitIdError::InvalidChar
+pub knotch_kernel::UnitIdError::InvalidChar::found: char
+pub knotch_kernel::UnitIdError::InvalidChar::position: usize
+pub knotch_kernel::UnitIdError::InvalidStart
+pub knotch_kernel::UnitIdError::InvalidStart::found: char
+pub knotch_kernel::UnitIdError::TooLong
+pub knotch_kernel::UnitIdError::TooLong::actual: usize
+pub knotch_kernel::UnitIdError::TooLong::max: usize
+impl core::clone::Clone for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::clone(&self) -> knotch_kernel::id::UnitIdError
+impl core::cmp::Eq for knotch_kernel::id::UnitIdError
+impl core::cmp::PartialEq for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::eq(&self, other: &knotch_kernel::id::UnitIdError) -> bool
+impl core::error::Error for knotch_kernel::id::UnitIdError
+impl core::fmt::Debug for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_kernel::id::UnitIdError
+pub fn knotch_kernel::id::UnitIdError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_kernel::id::UnitIdError
+impl core::marker::Freeze for knotch_kernel::id::UnitIdError
+impl core::marker::Send for knotch_kernel::id::UnitIdError
+impl core::marker::Sync for knotch_kernel::id::UnitIdError
+impl core::marker::Unpin for knotch_kernel::id::UnitIdError
+impl core::marker::UnsafeUnpin for knotch_kernel::id::UnitIdError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::id::UnitIdError
+impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::id::UnitIdError
 pub struct knotch_kernel::AgentId(pub compact_str::CompactString)
 impl core::clone::Clone for knotch_kernel::causation::AgentId
 pub fn knotch_kernel::causation::AgentId::clone(&self) -> knotch_kernel::causation::AgentId
@@ -2181,7 +2238,7 @@ impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::causation::TraceId
 pub struct knotch_kernel::UnitId(_)
 impl knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::as_str(&self) -> &str
-pub fn knotch_kernel::id::UnitId::new(slug: impl core::convert::Into<compact_str::CompactString>) -> Self
+pub fn knotch_kernel::id::UnitId::try_new(slug: impl core::convert::AsRef<str>) -> core::result::Result<Self, knotch_kernel::id::UnitIdError>
 impl core::clone::Clone for knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::clone(&self) -> knotch_kernel::id::UnitId
 impl core::cmp::Eq for knotch_kernel::id::UnitId
@@ -2199,7 +2256,7 @@ impl core::marker::StructuralPartialEq for knotch_kernel::id::UnitId
 impl serde_core::ser::Serialize for knotch_kernel::id::UnitId
 pub fn knotch_kernel::id::UnitId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
 impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::id::UnitId
-pub fn knotch_kernel::id::UnitId::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+pub fn knotch_kernel::id::UnitId::deserialize<D: serde_core::de::Deserializer<'de>>(d: D) -> core::result::Result<Self, <D as serde_core::de::Deserializer>::Error>
 impl core::marker::Freeze for knotch_kernel::id::UnitId
 impl core::marker::Send for knotch_kernel::id::UnitId
 impl core::marker::Sync for knotch_kernel::id::UnitId
@@ -2207,6 +2264,7 @@ impl core::marker::Unpin for knotch_kernel::id::UnitId
 impl core::marker::UnsafeUnpin for knotch_kernel::id::UnitId
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_kernel::id::UnitId
 impl core::panic::unwind_safe::UnwindSafe for knotch_kernel::id::UnitId
+pub const knotch_kernel::UNIT_ID_MAX_LEN: usize
 pub trait knotch_kernel::ExtensionKind: core::clone::Clone + serde_core::ser::Serialize + serde_core::de::DeserializeOwned + core::fmt::Debug + core::marker::Send + core::marker::Sync + 'static
 pub fn knotch_kernel::ExtensionKind::check_extension<W>(&self, _ctx: &knotch_kernel::precondition::AppendContext<'_, W>) -> core::result::Result<(), knotch_kernel::error::PreconditionError> where W: knotch_kernel::workflow::WorkflowKind<Extension = Self>
 impl knotch_kernel::workflow::ExtensionKind for ()

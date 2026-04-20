@@ -82,7 +82,7 @@ impl WorkflowKind for PrWorkflow {
 async fn main() -> anyhow::Result<()> {
     let dir = tempfile::tempdir()?;
     let repo = FileRepository::<PrWorkflow>::new(dir.path(), PrWorkflow);
-    let unit = UnitId::new("pr-42");
+    let unit = UnitId::try_new("pr-42").unwrap();
 
     append(&repo, &unit, EventBody::UnitCreated { scope: Scope::Standard }).await?;
     append(

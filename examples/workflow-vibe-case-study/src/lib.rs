@@ -304,7 +304,7 @@ mod tests {
 
     #[test]
     fn summary_budget_caps_output_length() {
-        let unit = UnitId::new("x");
+        let unit = UnitId::try_new("x").unwrap();
         let log: Log<Vibe> = Log::empty(unit);
         let summary = summary_for_llm(&log, SummaryBudget { max_tokens: 64 });
         assert!(summary.body.len() <= 64 * 4 + 128);

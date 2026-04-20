@@ -23,7 +23,7 @@ fn resolve_with_knotch_toml_but_no_active_is_uninitialized() {
 fn write_then_resolve_roundtrips() {
     let tmp = TempDir::new().unwrap();
     std::fs::write(tmp.path().join("knotch.toml"), "state_dir = \"state\"\n").unwrap();
-    let unit = UnitId::new("signup-flow");
+    let unit = UnitId::try_new("signup-flow").unwrap();
     write_active(tmp.path(), Some(&unit), "test").unwrap();
     let out = resolve_active(tmp.path()).unwrap();
     assert_eq!(out, ActiveUnit::Active(unit));
@@ -33,7 +33,7 @@ fn write_then_resolve_roundtrips() {
 fn write_none_clears_active() {
     let tmp = TempDir::new().unwrap();
     std::fs::write(tmp.path().join("knotch.toml"), "state_dir = \"state\"\n").unwrap();
-    let unit = UnitId::new("signup-flow");
+    let unit = UnitId::try_new("signup-flow").unwrap();
     write_active(tmp.path(), Some(&unit), "test").unwrap();
     write_active(tmp.path(), None, "test").unwrap();
     assert_eq!(resolve_active(tmp.path()).unwrap(), ActiveUnit::Uninitialized);

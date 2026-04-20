@@ -121,7 +121,7 @@ mod tests {
 
     #[test]
     fn emit_helpers_run_without_panic() {
-        let unit = UnitId::new("trace-unit");
+        let unit = UnitId::try_new("trace-unit").unwrap();
         emit_reconcile(&unit, 1, 0);
         let causation = Causation::new(
             Source::Agent,

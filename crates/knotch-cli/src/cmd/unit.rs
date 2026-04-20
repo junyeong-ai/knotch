@@ -50,8 +50,9 @@ pub(crate) async fn run(config: &Config, out: OutputMode, cmd: UnitCommand) -> a
 }
 
 async fn run_init(config: &Config, out: OutputMode, args: InitArgs) -> anyhow::Result<()> {
+    let unit_id = UnitId::try_new(&args.slug)
+        .map_err(|e| anyhow!("invalid unit slug `{}`: {e}", args.slug))?;
     let unit_dir = config.unit_dir(&args.slug);
-    let unit_id = UnitId::new(args.slug.clone());
     let repo = config.build_repository()?;
     let workflow = config.load_workflow()?;
 
@@ -123,7 +124,8 @@ async fn run_use(config: &Config, out: OutputMode, args: UseArgs) -> anyhow::Res
             args.slug,
         ));
     }
-    let unit = UnitId::new(args.slug.clone());
+    let unit = UnitId::try_new(&args.slug)
+        .map_err(|e| anyhow!("invalid unit slug `{}`: {e}", args.slug))?;
     write_active(&config.root, Some(&unit), "cli")
         .map_err(|e| anyhow!("write active.toml: {e}"))?;
     match out {

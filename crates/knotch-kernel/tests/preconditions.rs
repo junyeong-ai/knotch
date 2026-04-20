@@ -95,7 +95,7 @@ fn log(events: Vec<EventBody<Wf>>) -> Log<Wf> {
             supersedes: None,
         })
         .collect();
-    Log::from_events(UnitId::new("u"), events)
+    Log::from_events(UnitId::try_new("u").unwrap(), events)
 }
 
 const WF: Wf = Wf;
@@ -144,7 +144,7 @@ fn phase_completed_requires_artifacts_when_fs_provided() {
             false
         }
     }
-    let _unit = UnitId::new("u");
+    let _unit = UnitId::try_new("u").unwrap();
     let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
     let mut artifacts = ArtifactList::default();
     artifacts.0.push("plan.md".into());
@@ -196,7 +196,7 @@ fn milestone_shipped_uses_vcs_when_provided() {
             Ok(CommitStatus::Missing)
         }
     }
-    let _unit = UnitId::new("u");
+    let _unit = UnitId::try_new("u").unwrap();
     let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
     let body: EventBody<Wf> = EventBody::MilestoneShipped {
         milestone: M("x".into()),
@@ -326,7 +326,7 @@ fn olog(events: Vec<EventBody<OrderedWf>>) -> Log<OrderedWf> {
             supersedes: None,
         })
         .collect();
-    Log::from_events(UnitId::new("u"), events)
+    Log::from_events(UnitId::try_new("u").unwrap(), events)
 }
 
 const OWF: OrderedWf = OrderedWf;
@@ -457,12 +457,12 @@ fn tlog(events: Vec<EventBody<TerminalWf>>) -> Log<TerminalWf> {
             supersedes: None,
         })
         .collect();
-    Log::from_events(UnitId::new("u"), events)
+    Log::from_events(UnitId::try_new("u").unwrap(), events)
 }
 
 #[test]
 fn terminal_transition_rejected_when_required_phases_unresolved() {
-    let _unit = UnitId::new("u");
+    let _unit = UnitId::try_new("u").unwrap();
     let l = tlog(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
     let body: EventBody<TerminalWf> = EventBody::StatusTransitioned {
         target: StatusId::new("archived"),
@@ -476,7 +476,7 @@ fn terminal_transition_rejected_when_required_phases_unresolved() {
 
 #[test]
 fn terminal_transition_accepted_when_all_phases_resolved() {
-    let _unit = UnitId::new("u");
+    let _unit = UnitId::try_new("u").unwrap();
     let l = tlog(vec![
         EventBody::UnitCreated { scope: Scope::Standard },
         EventBody::PhaseCompleted { phase: P::One, artifacts: ArtifactList::default() },
@@ -493,7 +493,7 @@ fn terminal_transition_accepted_when_all_phases_resolved() {
 
 #[test]
 fn forced_terminal_transition_bypasses_cross_invariant() {
-    let _unit = UnitId::new("u");
+    let _unit = UnitId::try_new("u").unwrap();
     let l = tlog(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
     let body: EventBody<TerminalWf> = EventBody::StatusTransitioned {
         target: StatusId::new("archived"),
@@ -576,7 +576,7 @@ fn event_superseded_rejects_missing_target() {
 /// impossible by design — no chain-walk guard is required.
 #[test]
 fn event_superseded_rejects_double_supersede_of_same_target() {
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     // Build two events directly so we can grab the target id.
     let base_id = EventId::new_v7();
     let base = knotch_kernel::Event {
@@ -627,7 +627,7 @@ fn event_superseded_rejects_double_supersede_of_same_target() {
 #[tokio::test]
 async fn repository_rejects_already_created() {
     let repo = knotch_testing::InMemoryRepository::<Wf>::new(Wf);
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     use knotch_kernel::{AppendMode, Repository};
     repo.append(
         &unit,
@@ -659,7 +659,7 @@ async fn repository_rejects_already_created() {
 #[tokio::test]
 async fn repository_all_or_nothing_propagates_precondition_error() {
     let repo = knotch_testing::InMemoryRepository::<Wf>::new(Wf);
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     use knotch_kernel::{AppendMode, Repository};
     // PhaseCompleted without UnitCreated is valid (the current
     // precondition set doesn't require UnitCreated as a prior), but a
@@ -732,7 +732,7 @@ fn terminal_unit_refuses_non_supersede_appends() {
     }
 
     // Seed a log that has already transitioned to `archived`.
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     let log: Log<Terminal> = Log::from_events(
         unit.clone(),
         vec![

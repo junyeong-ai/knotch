@@ -29,7 +29,7 @@ fn causation() -> Causation {
 async fn main() -> anyhow::Result<()> {
     let state = tempfile::tempdir()?;
     let repo = knotch_workflow::build_repository(state.path());
-    let unit = UnitId::new("batch-demo");
+    let unit = UnitId::try_new("batch-demo").unwrap();
 
     // Seed the unit.
     repo.append(

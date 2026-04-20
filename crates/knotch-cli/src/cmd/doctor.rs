@@ -228,7 +228,14 @@ async fn check_units(config: &Config) -> anyhow::Result<Check> {
     while let Some(entry) = entries.next_entry().await.context("read state dir")? {
         if entry.file_type().await.context("stat entry")?.is_dir() {
             let unit = entry.file_name().to_string_lossy().into_owned();
-            let log_path = storage.log_path(&knotch_kernel::UnitId::new(unit.as_str()));
+            let Ok(unit_id) = knotch_kernel::UnitId::try_new(unit.as_str()) else {
+                // A foreign directory under the state root — skip it,
+                // but do not report as unhealthy: operators control
+                // what ends up here, and `list_units` already skips
+                // the same set.
+                continue;
+            };
+            let log_path = storage.log_path(&unit_id);
             if tokio::fs::metadata(&log_path).await.is_err() {
                 continue;
             }
@@ -283,7 +290,10 @@ async fn check_unit_created_anchors(config: &Config) -> anyhow::Result<Check> {
             continue;
         }
         let unit_name = entry.file_name().to_string_lossy().into_owned();
-        let log_path = storage.log_path(&knotch_kernel::UnitId::new(unit_name.as_str()));
+        let Ok(unit_id) = knotch_kernel::UnitId::try_new(unit_name.as_str()) else {
+            continue;
+        };
+        let log_path = storage.log_path(&unit_id);
         let Ok(body) = tokio::fs::read_to_string(&log_path).await else { continue };
         let has_anchor = body.lines().filter(|l| !l.trim().is_empty()).any(|line| {
             serde_json::from_str::<serde_json::Value>(line)

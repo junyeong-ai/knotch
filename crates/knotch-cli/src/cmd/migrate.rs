@@ -112,7 +112,10 @@ async fn enumerate_units(state_dir: &std::path::Path) -> anyhow::Result<Vec<Stri
         let ty = entry.file_type().await.context("stat entry")?;
         if ty.is_dir() {
             let slug = entry.file_name().to_string_lossy().into_owned();
-            let log_path = storage.log_path(&knotch_kernel::UnitId::new(slug.as_str()));
+            let Ok(unit_id) = knotch_kernel::UnitId::try_new(slug.as_str()) else {
+                continue;
+            };
+            let log_path = storage.log_path(&unit_id);
             if tokio::fs::metadata(&log_path).await.is_ok() {
                 out.push(slug);
             }

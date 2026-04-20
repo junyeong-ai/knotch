@@ -164,7 +164,7 @@ async fn happy_path_single_append_no_queue() {
     let ctx = make_ctx(&queue_dir, &cfg, &home, &cwd);
 
     let repo = FaultyRepo::new(0);
-    let unit = UnitId::new("happy");
+    let unit = UnitId::try_new("happy").unwrap();
     seed_unit(&repo, &unit).await;
 
     let proposal = milestone_proposal("ms-1", "abc1234");
@@ -188,7 +188,7 @@ async fn retry_exhausted_enqueues_for_reconcile() {
     // Fail 999 times — well beyond `POST_TOOL_MAX_ATTEMPTS=3`, so every
     // retry surfaces the transient error. The helper must then queue.
     let repo = FaultyRepo::new(999);
-    let unit = UnitId::new("queued");
+    let unit = UnitId::try_new("queued").unwrap();
 
     let proposal = milestone_proposal("ms-2", "def5678");
     let out = post_tool_append::<Knotch, _>(&repo, &unit, proposal, ctx).await.expect("queued");
@@ -218,7 +218,7 @@ async fn queue_full_falls_back_to_orphan_log() {
     assert_eq!(queue_size(&queue_dir).unwrap(), 1);
 
     let repo = FaultyRepo::new(999);
-    let unit = UnitId::new("orphaned");
+    let unit = UnitId::try_new("orphaned").unwrap();
 
     let proposal = milestone_proposal("ms-3", "deadbee");
     let out = post_tool_append::<Knotch, _>(&repo, &unit, proposal, ctx).await.expect("orphaned");
@@ -251,7 +251,7 @@ async fn best_effort_rejection_continues_without_retry_or_queue() {
     let ctx = make_ctx(&queue_dir, &cfg, &home, &cwd);
 
     let repo = FaultyRepo::new(0);
-    let unit = UnitId::new("bestfx");
+    let unit = UnitId::try_new("bestfx").unwrap();
     seed_unit(&repo, &unit).await; // first UnitCreated lands
     let before_attempts = repo.attempts();
 
@@ -286,7 +286,7 @@ async fn retry_eventually_succeeds_on_transient_recovery() {
     let ctx = make_ctx(&queue_dir, &cfg, &home, &cwd);
 
     let repo = FaultyRepo::new(2);
-    let unit = UnitId::new("recovers");
+    let unit = UnitId::try_new("recovers").unwrap();
     // `seed_unit` uses up attempt 0 (succeeds since fail_count=2 but…)
     // Wait — FaultyRepo fails the first `fail_count` attempts. For a
     // clean test we seed via `inner` directly so the seed does not

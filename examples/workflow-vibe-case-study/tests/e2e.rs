@@ -34,7 +34,7 @@ fn cost_causation(
 async fn agent_session_lifecycle() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(build_repository(dir.path()));
-    let unit = UnitId::new("signup-refactor");
+    let unit = UnitId::try_new("signup-refactor").unwrap();
 
     let session = Session::new("alice", "claude-opus-4-7", "claude-code/1.0");
 
@@ -82,7 +82,7 @@ async fn agent_session_lifecycle() {
 async fn summary_includes_phase_and_cost() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(build_repository(dir.path()));
-    let unit = UnitId::new("signup-refactor");
+    let unit = UnitId::try_new("signup-refactor").unwrap();
     let session = Session::new("alice", "claude-opus-4-7", "claude-code/1.0");
 
     repo.append(

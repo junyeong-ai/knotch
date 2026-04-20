@@ -23,7 +23,7 @@ fn causation() -> Causation {
 async fn full_lifecycle_round_trip() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(build_repository(dir.path()));
-    let unit = UnitId::new("story-001");
+    let unit = UnitId::try_new("story-001").unwrap();
 
     // SPECIFY → G0..G3 → DESIGN → IMPLEMENT → G5Review → REVIEW → WRAPUP.
     // The case-study workflow's gate ladder is kernel-enforced via
@@ -69,7 +69,7 @@ async fn full_lifecycle_round_trip() {
 async fn tiny_scope_allows_skipping_review() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(build_repository(dir.path()));
-    let unit = UnitId::new("tiny-123");
+    let unit = UnitId::try_new("tiny-123").unwrap();
 
     let phases: Vec<_> = SpecDriven.required_phases(&Scope::Tiny).to_vec();
     assert!(!phases.contains(&SpecPhase::Review));
@@ -88,7 +88,7 @@ async fn tiny_scope_allows_skipping_review() {
 #[tokio::test]
 async fn replay_persists_across_reopen() {
     let dir = tempfile::tempdir().expect("tempdir");
-    let unit = UnitId::new("persisted");
+    let unit = UnitId::try_new("persisted").unwrap();
     {
         let repo = build_repository(dir.path());
         repo.append(

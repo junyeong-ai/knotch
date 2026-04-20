@@ -78,7 +78,7 @@ impl WorkflowKind for Minimal {
 async fn main() -> anyhow::Result<()> {
     let dir = tempfile::tempdir()?;
     let repo = FileRepository::<Minimal>::new(dir.path(), Minimal);
-    let unit = UnitId::new("demo");
+    let unit = UnitId::try_new("demo").unwrap();
 
     append(&repo, &unit, EventBody::UnitCreated { scope: Scope::Standard }).await?;
     append(

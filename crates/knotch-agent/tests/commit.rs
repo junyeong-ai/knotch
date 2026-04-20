@@ -10,7 +10,7 @@ use knotch_workflow::Knotch;
 #[tokio::test]
 async fn check_passes_through_non_conventional_messages() {
     let repo = InMemoryRepository::<Knotch>::new(Knotch);
-    let unit = UnitId::new("signup-flow");
+    let unit = UnitId::try_new("signup-flow").unwrap();
     let out =
         commit::check::<Knotch, InMemoryRepository<Knotch>>(&repo, &unit, "wip").await.unwrap();
     assert_eq!(out, HookOutput::Continue);
@@ -19,7 +19,7 @@ async fn check_passes_through_non_conventional_messages() {
 #[tokio::test]
 async fn check_allows_fresh_milestone() {
     let repo = InMemoryRepository::<Knotch>::new(Knotch);
-    let unit = UnitId::new("signup-flow");
+    let unit = UnitId::try_new("signup-flow").unwrap();
     let out =
         commit::check::<Knotch, InMemoryRepository<Knotch>>(&repo, &unit, "feat: add sso login")
             .await
@@ -30,7 +30,7 @@ async fn check_allows_fresh_milestone() {
 #[tokio::test]
 async fn check_ignores_scope_prefix() {
     let repo = InMemoryRepository::<Knotch>::new(Knotch);
-    let unit = UnitId::new("signup-flow");
+    let unit = UnitId::try_new("signup-flow").unwrap();
     let out =
         commit::check::<Knotch, InMemoryRepository<Knotch>>(&repo, &unit, "feat(auth): add sso")
             .await

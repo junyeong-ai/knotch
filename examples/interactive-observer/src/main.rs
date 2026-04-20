@@ -90,7 +90,7 @@ async fn main() -> anyhow::Result<()> {
     use knotch_testing::InMemoryRepository;
 
     let repo = InMemoryRepository::<Knotch>::new(Knotch);
-    let unit = UnitId::new("interactive-demo");
+    let unit = UnitId::try_new("interactive-demo").unwrap();
     let log: Arc<Log<Knotch>> = repo.load(&unit).await?;
 
     // Run 1 — no input arrives, expect cancellation.

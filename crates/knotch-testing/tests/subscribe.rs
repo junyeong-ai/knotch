@@ -93,7 +93,7 @@ fn phase_done() -> Proposal<W> {
 #[tokio::test]
 async fn live_only_misses_events_before_subscribe() {
     let repo = Arc::new(InMemoryRepository::<W>::new(W));
-    let unit = UnitId::new("s1");
+    let unit = UnitId::try_new("s1").unwrap();
 
     repo.append(&unit, vec![seed()], AppendMode::BestEffort).await.expect("seed");
 
@@ -113,7 +113,7 @@ async fn live_only_misses_events_before_subscribe() {
 #[tokio::test]
 async fn from_beginning_replays_history_then_goes_live() {
     let repo = Arc::new(InMemoryRepository::<W>::new(W));
-    let unit = UnitId::new("s2");
+    let unit = UnitId::try_new("s2").unwrap();
 
     repo.append(&unit, vec![seed()], AppendMode::BestEffort).await.expect("seed");
 
@@ -138,7 +138,7 @@ async fn from_beginning_replays_history_then_goes_live() {
 #[tokio::test]
 async fn from_event_id_skips_up_to_and_including_anchor() {
     let repo = Arc::new(InMemoryRepository::<W>::new(W));
-    let unit = UnitId::new("s3");
+    let unit = UnitId::try_new("s3").unwrap();
 
     let r = repo
         .append(&unit, vec![seed(), phase_done()], AppendMode::BestEffort)

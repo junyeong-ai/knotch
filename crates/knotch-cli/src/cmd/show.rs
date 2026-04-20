@@ -10,6 +10,7 @@
 //! - `json` — structured JSON version of `summary`. Same as `--json` global flag applied
 //!   to the default format.
 
+use anyhow::anyhow;
 use clap::{Args as ClapArgs, ValueEnum};
 use knotch_kernel::{MilestoneKind as _, PhaseKind, Repository, UnitId, WorkflowKind};
 use knotch_workflow::ConfigWorkflow;
@@ -42,7 +43,8 @@ pub(crate) struct Args {
 pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow::Result<()> {
     // --json global flag collapses onto Json format.
     let format = if out.is_json() { Format::Json } else { args.format };
-    let unit = UnitId::new(args.unit);
+    let unit = UnitId::try_new(&args.unit)
+        .map_err(|e| anyhow!("invalid unit slug `{}`: {e}", args.unit))?;
     let repo = config.build_repository()?;
     render::<ConfigWorkflow, _>(&repo, unit, format, &config.state_dir).await
 }

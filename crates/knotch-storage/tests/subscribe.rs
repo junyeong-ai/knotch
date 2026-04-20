@@ -74,7 +74,7 @@ fn p(body: EventBody<Wf>) -> Proposal<Wf> {
 async fn live_only_delivers_post_subscribe_events() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
-    let unit = UnitId::new("sub-1");
+    let unit = UnitId::try_new("sub-1").unwrap();
     repo.append(
         &unit,
         vec![p(EventBody::UnitCreated { scope: Scope::Standard })],
@@ -114,7 +114,7 @@ async fn live_only_delivers_post_subscribe_events() {
 async fn from_beginning_replays_history_then_live() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
-    let unit = UnitId::new("sub-2");
+    let unit = UnitId::try_new("sub-2").unwrap();
     repo.append(
         &unit,
         vec![p(EventBody::UnitCreated { scope: Scope::Standard })],
@@ -135,7 +135,7 @@ async fn from_beginning_replays_history_then_live() {
 async fn from_event_id_replays_after_anchor() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
-    let unit = UnitId::new("sub-3");
+    let unit = UnitId::try_new("sub-3").unwrap();
     let report = repo
         .append(
             &unit,
@@ -180,7 +180,7 @@ async fn broadcast_overflow_surfaces_lagged_event() {
 
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
-    let unit = UnitId::new("lag-test");
+    let unit = UnitId::try_new("lag-test").unwrap();
 
     repo.append(
         &unit,

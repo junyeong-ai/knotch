@@ -129,8 +129,8 @@ async fn fingerprint_matches_between_in_memory_and_file_repositories() {
     let file_repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
     let mem_repo = Arc::new(InMemoryRepository::<Wf>::new(Wf));
 
-    let file_unit = UnitId::new("file");
-    let mem_unit = UnitId::new("mem");
+    let file_unit = UnitId::try_new("file").unwrap();
+    let mem_unit = UnitId::try_new("mem").unwrap();
 
     let bodies = bodies();
     let file_report = file_repo

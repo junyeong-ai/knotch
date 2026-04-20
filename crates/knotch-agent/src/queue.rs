@@ -281,7 +281,18 @@ where
                 continue;
             }
         };
-        let unit = UnitId::new(entry.unit.clone());
+        let unit = match UnitId::try_new(&entry.unit) {
+            Ok(u) => u,
+            Err(err) => {
+                tracing::warn!(
+                    path = %path.display(),
+                    slug = %entry.unit,
+                    %err,
+                    "queue drain: invalid unit slug in queued entry — leaving on disk",
+                );
+                continue;
+            }
+        };
         let proposal: Proposal<W> = match serde_json::from_value(entry.proposal) {
             Ok(p) => p,
             Err(err) => {
@@ -456,7 +467,7 @@ mod tests {
     use super::*;
 
     fn unit() -> UnitId {
-        UnitId::new("test-unit")
+        UnitId::try_new("test-unit").expect("test-unit is a valid slug")
     }
 
     fn fill(dir: &Path, count: usize, config: &QueueConfig) {

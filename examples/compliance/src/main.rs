@@ -102,7 +102,7 @@ impl WorkflowKind for Compliance {
 async fn main() -> anyhow::Result<()> {
     let dir = tempfile::tempdir()?;
     let repo = FileRepository::<Compliance>::new(dir.path(), Compliance);
-    let unit = UnitId::new("change-2026-04-19-001");
+    let unit = UnitId::try_new("change-2026-04-19-001").unwrap();
 
     let now = || CompactString::from("2026-04-19T10:00:00Z");
 

@@ -120,7 +120,7 @@ fn resolver() -> knotch_observer::git_log::MilestoneResolver<TestWorkflow> {
 #[tokio::test]
 async fn ten_reconcile_passes_produce_zero_new_events_after_the_first() {
     let repo = Arc::new(InMemoryRepository::<TestWorkflow>::new(TestWorkflow));
-    let unit = UnitId::new("test-unit");
+    let unit = UnitId::try_new("test-unit").unwrap();
 
     // Seed the log with a UnitCreated event so phase-invariants pass.
     repo.append(&unit, vec![unit_created_proposal()], AppendMode::BestEffort).await.expect("seed");

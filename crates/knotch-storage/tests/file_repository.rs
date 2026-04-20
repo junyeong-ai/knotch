@@ -80,7 +80,7 @@ fn proposal(body: EventBody<Wf>) -> Proposal<Wf> {
 async fn append_then_load_round_trips() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
-    let unit = UnitId::new("roundtrip");
+    let unit = UnitId::try_new("roundtrip").unwrap();
 
     let proposals = vec![
         proposal(EventBody::UnitCreated { scope: Scope::Standard }),
@@ -104,7 +104,7 @@ async fn append_then_load_round_trips() {
 #[tokio::test]
 async fn replay_on_reopened_repository() {
     let dir = tempfile::tempdir().expect("tempdir");
-    let unit = UnitId::new("reopen");
+    let unit = UnitId::try_new("reopen").unwrap();
 
     {
         let repo = FileRepository::<Wf>::new(dir.path(), Wf);
@@ -126,7 +126,7 @@ async fn replay_on_reopened_repository() {
 async fn duplicate_proposals_are_rejected() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = Arc::new(FileRepository::<Wf>::new(dir.path(), Wf));
-    let unit = UnitId::new("dedup");
+    let unit = UnitId::try_new("dedup").unwrap();
 
     let body = EventBody::MilestoneShipped {
         milestone: Milestone::Beta,
@@ -146,7 +146,7 @@ async fn duplicate_proposals_are_rejected() {
 async fn header_written_once_and_schema_version_set() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = FileRepository::<Wf>::new(dir.path(), Wf);
-    let unit = UnitId::new("header");
+    let unit = UnitId::try_new("header").unwrap();
     repo.append(
         &unit,
         vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
@@ -211,7 +211,7 @@ where
 async fn load_rejects_header_with_mismatched_salt() {
     let dir = tempfile::tempdir().expect("tempdir");
     let original = FileRepository::<Wf>::new(dir.path(), Wf);
-    let unit = UnitId::new("salt-drift");
+    let unit = UnitId::try_new("salt-drift").unwrap();
     original
         .append(
             &unit,
@@ -233,7 +233,7 @@ async fn load_rejects_header_with_mismatched_salt() {
 async fn append_rejects_header_with_mismatched_salt() {
     let dir = tempfile::tempdir().expect("tempdir");
     let original = FileRepository::<Wf>::new(dir.path(), Wf);
-    let unit = UnitId::new("salt-drift-append");
+    let unit = UnitId::try_new("salt-drift-append").unwrap();
     original
         .append(
             &unit,
@@ -266,7 +266,7 @@ async fn load_until_drops_events_after_cutoff() {
 
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = FileRepository::<Wf>::new(dir.path(), Wf);
-    let unit = UnitId::new("timewalk");
+    let unit = UnitId::try_new("timewalk").unwrap();
     repo.append(
         &unit,
         vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
@@ -305,7 +305,7 @@ async fn load_until_drops_events_after_cutoff() {
 async fn with_cache_survives_cache_write_failure() {
     let dir = tempfile::tempdir().expect("tempdir");
     let repo = FileRepository::<Wf>::new(dir.path(), Wf);
-    let unit = UnitId::new("cache-failure");
+    let unit = UnitId::try_new("cache-failure").unwrap();
 
     // Seed so the unit directory exists and `UnitCreated` is in place.
     repo.append(

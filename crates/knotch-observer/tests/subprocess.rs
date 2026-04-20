@@ -73,7 +73,7 @@ async fn observer_returning_empty_proposals_succeeds() {
     };
     let observer = SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
 
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     let log = Arc::new(Log::<ConfigWorkflow>::from_events(unit.clone(), vec![]));
     let cache = ResumeCache::new();
     let cancel = CancellationToken::new();
@@ -104,7 +104,7 @@ async fn observer_non_zero_exit_surfaces_as_backend_error() {
     };
     let observer = SubprocessObserver::<ConfigWorkflow>::new(manifest).expect("binary exists");
 
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     let log = Arc::new(Log::<ConfigWorkflow>::from_events(unit.clone(), vec![]));
     let cache = ResumeCache::new();
     let cancel = CancellationToken::new();
@@ -149,7 +149,7 @@ async fn observer_receives_events_filtered_by_subscription() {
     // Build a log with UnitCreated + one PhaseCompleted + one
     // MilestoneShipped-unrelated event. Subscription filter should
     // only pass `phase_completed`.
-    let unit = UnitId::new("u");
+    let unit = UnitId::try_new("u").unwrap();
     let causation = knotch_kernel::Causation::new(
         knotch_kernel::causation::Source::Cli,
         knotch_kernel::causation::Principal::System { service: "test".into() },

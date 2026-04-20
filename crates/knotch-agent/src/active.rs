@@ -150,7 +150,14 @@ pub fn project_root(cwd: &Path) -> PathBuf {
 }
 
 fn env_override() -> Option<UnitId> {
-    std::env::var(UNIT_ENV_VAR).ok().filter(|v| !v.is_empty()).map(UnitId::new)
+    // A malformed `KNOTCH_UNIT` env var should degrade to "no
+    // override" rather than poison every subsequent hook call —
+    // operators fix the typo and retry. `try_new` surfaces the
+    // grammar violation; the `.ok()` drops it silently here.
+    std::env::var(UNIT_ENV_VAR)
+        .ok()
+        .filter(|v| !v.is_empty())
+        .and_then(|v| UnitId::try_new(v).ok())
 }
 
 fn global_path(project_root: &Path) -> PathBuf {
@@ -182,7 +189,13 @@ fn read_pointer(path: &Path) -> Result<ActiveUnit, HookError> {
     if parsed.unit.is_empty() {
         Ok(ActiveUnit::Uninitialized)
     } else {
-        Ok(ActiveUnit::Active(UnitId::new(parsed.unit)))
+        let unit = UnitId::try_new(&parsed.unit).map_err(|e| {
+            HookError::Toml(format!(
+                "active.toml carries invalid unit slug {:?}: {e}",
+                parsed.unit,
+            ))
+        })?;
+        Ok(ActiveUnit::Active(unit))
     }
 }
 

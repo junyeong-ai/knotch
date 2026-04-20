@@ -74,7 +74,7 @@ fn p(body: EventBody<Wf>) -> Proposal<Wf> {
 }
 
 async fn seed_unit(repo: &InMemoryRepository<Wf>, id: &str, steps: Vec<EventBody<Wf>>) {
-    let unit = UnitId::new(id);
+    let unit = UnitId::try_new(id).unwrap();
     let proposals: Vec<_> = steps.into_iter().map(p).collect();
     repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("seed");
 }
@@ -233,7 +233,7 @@ async fn seed_adapter<R>(repo: &R, id: &str, steps: Vec<EventBody<Wf>>)
 where
     R: knotch_kernel::Repository<Wf>,
 {
-    let unit = UnitId::new(id);
+    let unit = UnitId::try_new(id).unwrap();
     let proposals: Vec<_> = steps.into_iter().map(p).collect();
     repo.append(&unit, proposals, AppendMode::BestEffort).await.expect("seed");
 }

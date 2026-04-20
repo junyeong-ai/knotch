@@ -31,7 +31,7 @@ async fn sixteen_threads_each_appending_sixty_four_events_converge() {
     let dir = tempfile::tempdir().expect("tempdir");
     let storage = Arc::new(FileSystemStorage::new(dir.path()));
     let lock = Arc::new(FileLock::new(dir.path()).with_poll_interval(Duration::from_millis(5)));
-    let unit = Arc::new(UnitId::new("convergence"));
+    let unit = Arc::new(UnitId::try_new("convergence").unwrap());
 
     let mut tasks = Vec::new();
     const WORKERS: usize = 16;
@@ -78,7 +78,7 @@ async fn contending_writers_never_corrupt_log() {
     let dir = tempfile::tempdir().expect("tempdir");
     let storage = Arc::new(FileSystemStorage::new(dir.path()));
     let lock = Arc::new(FileLock::new(dir.path()).with_poll_interval(Duration::from_millis(5)));
-    let unit = Arc::new(UnitId::new("no-corruption"));
+    let unit = Arc::new(UnitId::try_new("no-corruption").unwrap());
 
     let mut tasks = Vec::new();
     for w in 0..4 {

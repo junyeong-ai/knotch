@@ -271,7 +271,7 @@ mod tests {
     #[tokio::test]
     async fn acquire_release_roundtrip() {
         let (_dir, lock) = setup();
-        let unit = UnitId::new("alpha");
+        let unit = UnitId::try_new("alpha").unwrap();
         let guard = lock
             .acquire(&unit, Duration::from_secs(5), Duration::from_secs(60))
             .await
@@ -284,7 +284,7 @@ mod tests {
     #[tokio::test]
     async fn sequential_acquire_works() {
         let (_dir, lock) = setup();
-        let unit = UnitId::new("gamma");
+        let unit = UnitId::try_new("gamma").unwrap();
         for _ in 0..3 {
             let _g = lock
                 .acquire(&unit, Duration::from_secs(1), Duration::from_secs(60))
@@ -297,7 +297,7 @@ mod tests {
     async fn concurrent_tasks_are_serialized_in_process() {
         let (_dir, lock) = setup();
         let lock = Arc::new(lock);
-        let unit = Arc::new(UnitId::new("serial"));
+        let unit = Arc::new(UnitId::try_new("serial").unwrap());
         let counter = Arc::new(std::sync::atomic::AtomicUsize::new(0));
 
         let mut tasks = Vec::new();

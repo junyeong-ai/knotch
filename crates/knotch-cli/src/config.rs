@@ -111,7 +111,16 @@ impl Config {
     /// stays a storage-adapter concern (constitution §II).
     #[must_use]
     pub(crate) fn unit_log(&self, unit: &str) -> PathBuf {
-        FileSystemStorage::new(&self.state_dir).log_path(&UnitId::new(unit))
+        // This helper is only called by CLI subcommands that have
+        // already validated the slug via `UnitId::try_new`, so the
+        // re-validation here is defensive. On a legitimately invalid
+        // slug the path points nowhere useful anyway — the fallback
+        // to state_dir root surfaces the error to the caller when the
+        // file is probed.
+        match UnitId::try_new(unit) {
+            Ok(u) => FileSystemStorage::new(&self.state_dir).log_path(&u),
+            Err(_) => self.state_dir.clone(),
+        }
     }
 
     /// Path to the root `knotch.toml` (may not exist on disk yet).

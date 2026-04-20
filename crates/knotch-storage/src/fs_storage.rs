@@ -186,7 +186,20 @@ async fn collect_units(root: PathBuf) -> Vec<Result<UnitId, StorageError>> {
                 {
                     let candidate = entry.path().join("log.jsonl");
                     if tokio::fs::metadata(&candidate).await.is_ok() {
-                        out.push(Ok(UnitId::new(name)));
+                        // Directory names we manage were created via
+                        // `UnitId::try_new` and are known valid. Any
+                        // dir that doesn't round-trip is a hostile /
+                        // foreign artifact under the state root —
+                        // skip rather than surface as a unit.
+                        match UnitId::try_new(name) {
+                            Ok(unit) => out.push(Ok(unit)),
+                            Err(err) => tracing::debug!(
+                                root = %root.display(),
+                                name = %name,
+                                %err,
+                                "list_units: skipping directory with invalid unit slug",
+                            ),
+                        }
                     }
                 }
             }
@@ -236,7 +249,7 @@ mod tests {
     #[tokio::test]
     async fn load_of_missing_unit_is_empty() {
         let (_dir, storage) = storage();
-        let unit = UnitId::new("nope");
+        let unit = UnitId::try_new("nope").unwrap();
         let (lines, report) = storage.load(&unit).await.expect("load");
         assert!(lines.is_empty());
         assert!(report.is_clean());
@@ -245,7 +258,7 @@ mod tests {
     #[tokio::test]
     async fn append_then_load_roundtrips() {
         let (_dir, storage) = storage();
-        let unit = UnitId::new("signup");
+        let unit = UnitId::try_new("signup").unwrap();
         storage
             .append(&unit, 0, vec!["{\"a\":1}".into(), "{\"a\":2}".into()])
             .await
@@ -259,7 +272,7 @@ mod tests {
     #[tokio::test]
     async fn append_with_wrong_expected_len_errors() {
         let (_dir, storage) = storage();
-        let unit = UnitId::new("race");
+        let unit = UnitId::try_new("race").unwrap();
         storage.append(&unit, 0, vec!["{\"a\":1}".into()]).await.expect("first");
         let err = storage
             .append(&unit, 0, vec!["{\"a\":2}".into()]) // stale expected_len
@@ -271,7 +284,7 @@ mod tests {
     #[tokio::test]
     async fn cache_roundtrips() {
         let (_dir, storage) = storage();
-        let unit = UnitId::new("cache-unit");
+        let unit = UnitId::try_new("cache-unit").unwrap();
         let mut map = serde_json::Map::new();
         map.insert("head".into(), serde_json::Value::String("abc".into()));
         storage.write_cache(&unit, map.clone()).await.expect("write");
@@ -282,7 +295,7 @@ mod tests {
     #[tokio::test]
     async fn missing_cache_returns_empty_map() {
         let (_dir, storage) = storage();
-        let map = storage.read_cache(&UnitId::new("nope")).await.expect("read");
+        let map = storage.read_cache(&UnitId::try_new("nope").unwrap()).await.expect("read");
         assert!(map.is_empty());
     }
 

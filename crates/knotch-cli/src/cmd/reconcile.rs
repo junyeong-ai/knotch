@@ -178,7 +178,7 @@ async fn run_observers(
     }
 
     let unit = if let Some(explicit) = explicit_unit {
-        UnitId::new(explicit.to_owned())
+        UnitId::try_new(explicit).map_err(|e| anyhow!("invalid unit slug `{explicit}`: {e}"))?
     } else {
         match resolve_active(&config.root).map_err(|e| anyhow!("resolve active: {e}"))? {
             ActiveUnit::Active(u) => u,

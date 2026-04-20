@@ -40,7 +40,8 @@ pub(crate) struct Args {
 /// workflow's minimum, missing target event, already-superseded
 /// target, or any lower-level `Repository::append` failure.
 pub(crate) async fn run(config: &Config, out: OutputMode, args: Args) -> anyhow::Result<()> {
-    let unit = UnitId::new(&args.unit);
+    let unit = UnitId::try_new(&args.unit)
+        .map_err(|e| anyhow!("invalid unit slug `{}`: {e}", args.unit))?;
     let target = EventId::from_str(&args.event)
         .map_err(|e| anyhow!("invalid event id `{}`: {e}", args.event))?;
     let causation = Causation::cli("supersede");

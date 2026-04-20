@@ -251,7 +251,7 @@ fn print_next_steps(ctx: &NextStepsContext) {
 }
 
 async fn populate_demo(config: &Config) -> anyhow::Result<()> {
-    let unit = UnitId::new("demo");
+    let unit = UnitId::try_new("demo").expect("`demo` is a valid slug");
     let repo = config.build_repository()?;
     append_body::<ConfigWorkflow, _>(
         &repo,

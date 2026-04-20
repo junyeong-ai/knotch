@@ -342,7 +342,7 @@ fn completions_emits_script() {
 fn seed_fixture_log(project_root: &Path, slug: &str) -> PathBuf {
     let state_dir = project_root.join("state");
     let storage = knotch_storage::FileSystemStorage::new(&state_dir);
-    let unit = knotch_kernel::UnitId::new(slug);
+    let unit = knotch_kernel::UnitId::try_new(slug).unwrap();
     let log_path = storage.log_path(&unit);
     fs::create_dir_all(log_path.parent().expect("unit dir")).expect("unit dir");
     let header =
