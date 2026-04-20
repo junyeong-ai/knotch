@@ -207,12 +207,25 @@ pub fn extract_milestone_id(commit_message: &str) -> Option<String> {
 /// - `-F <path>` / `--file=<path>` — read message body from disk. `-F -` (stdin) is not
 ///   supported; callers cannot replay stdin.
 ///
-/// Shell quoting / escaping goes through
-/// [`shell_words::split`] so `-m 'It\'s fine'`, `-m "with \"quotes\""`
-/// and the like tokenize correctly.
+/// Shell quoting / escaping goes through [`shell_words::split`]
+/// which applies **POSIX shell** rules — `\` is an escape character,
+/// `"..."` and `'...'` have their POSIX semantics. That means this
+/// function is Unix-only: on Windows the `bash_command` that Claude
+/// Code hands us comes from cmd.exe / PowerShell, whose quoting
+/// rules are incompatible with POSIX, so any attempt to parse it
+/// here produces garbage tokens.
+///
+/// To keep the contract narrow rather than fragile, the function is
+/// compiled only on Unix targets. On Windows the stub returns `None`
+/// so PostToolUse hooks silently no-op for `git commit` until a
+/// platform-native parser is wired in (follow-up when a Windows
+/// adopter asks for milestone recording — `SubprocessObserver`
+/// itself is already cross-platform, this gap is commit-hook
+/// specific).
 ///
 /// Returns `None` when the command is not `git commit`, when no
 /// message source is present, or when the command fails to tokenize.
+#[cfg(unix)]
 #[must_use]
 pub fn extract_commit_message(cmd: &str) -> Option<String> {
     let tokens = shell_words::split(cmd).ok()?;
@@ -270,8 +283,19 @@ pub fn extract_commit_message(cmd: &str) -> Option<String> {
     Some(messages.join("\n\n"))
 }
 
+/// Windows stub — POSIX-shell quoting is not portable to cmd.exe /
+/// PowerShell. Returning `None` keeps the PostToolUse commit hook
+/// as a silent no-op on Windows rather than mangling a command
+/// string through the wrong shell grammar.
+#[cfg(not(unix))]
+#[must_use]
+pub fn extract_commit_message(_cmd: &str) -> Option<String> {
+    None
+}
+
+// Platform-independent parser tests — run on every CI target.
 #[cfg(test)]
-mod tests {
+mod parser_tests {
     use super::*;
 
     // ---- parse_conventional ----
@@ -320,6 +344,15 @@ mod tests {
             );
         }
     }
+}
+
+// `extract_commit_message` is POSIX-only (see its `#[cfg(unix)]`).
+// On Windows the stub returns `None` for every input, so the tests
+// below would either be no-ops (asserting `Some(...)`) or false-green
+// (asserting `None`). Gate the whole suite on Unix instead.
+#[cfg(all(test, unix))]
+mod commit_message_tests {
+    use super::*;
 
     // ---- extract_commit_message ----
 

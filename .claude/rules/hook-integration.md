@@ -39,6 +39,14 @@ body. `knotch-agent::commit::extract_commit_message` reassembles
 every `-m` / `--message=` / `-F <file>` source via
 [`shell-words`](https://crates.io/crates/shell-words).
 
+**Platform scope**: `extract_commit_message` is Unix-only. It uses
+POSIX shell quoting rules (`\` escape, `"..."` / `'...'`
+semantics), which do not match cmd.exe / PowerShell. On Windows
+the function is a stub that returns `None`, so the `check-commit`
+and `verify-commit` hooks silently no-op. Milestone trailers on
+Windows land when a Windows adopter wires a native shell parser —
+tracked as a follow-up, not a v0.1 blocker.
+
 ## Exit-code contract
 
 Claude Code only reads exit 2 as blocking. Exit 1 and every other
