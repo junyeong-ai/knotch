@@ -1,0 +1,430 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
+    Checking knotch-vcs v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-vcs)
+    Checking knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
+    Checking knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
+    Checking knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
+ Documenting knotch-observer v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-observer)
+warning: unresolved link to `subject_prefix_resolver`
+  --> crates/knotch-observer/src/git_log.rs:13:7
+   |
+13 | //! [`subject_prefix_resolver`] as a starter.
+   |       ^^^^^^^^^^^^^^^^^^^^^^^ no item named `subject_prefix_resolver` in scope
+   |
+   = help: to escape `[` and `]` characters, add '\' before them like `\[` or `\]`
+   = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
+
+warning: `knotch-observer` (lib doc) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.22s
+pub mod knotch_observer
+pub mod knotch_observer::artifact
+pub struct knotch_observer::artifact::ArtifactObserver<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::artifact::ArtifactObserver<W>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::new(unit_root: std::path::PathBuf, scanner: knotch_observer::artifact::PhaseScanner<W>) -> Self
+pub fn knotch_observer::artifact::ArtifactObserver<W>::with_fs(self, fs: alloc::sync::Arc<dyn knotch_observer::context::FsView>) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::Observer<W> for knotch_observer::artifact::ArtifactObserver<W>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::name(&self) -> &str
+pub async fn knotch_observer::artifact::ArtifactObserver<W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::timeout(&self) -> core::time::Duration
+impl<W> core::marker::Freeze for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::Send for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::Sync for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::Unpin for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::UnsafeUnpin for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_observer::artifact::ArtifactObserver<W>
+pub struct knotch_observer::artifact::ArtifactScan<W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_observer::artifact::ArtifactScan::artifacts: knotch_kernel::event::ArtifactList
+pub knotch_observer::artifact::ArtifactScan::phase: <W as knotch_kernel::workflow::WorkflowKind>::Phase
+impl<W: core::clone::Clone + knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::clone::Clone
+pub fn knotch_observer::artifact::ArtifactScan<W>::clone(&self) -> knotch_observer::artifact::ArtifactScan<W>
+impl<W: core::fmt::Debug + knotch_kernel::workflow::WorkflowKind> core::fmt::Debug for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::fmt::Debug
+pub fn knotch_observer::artifact::ArtifactScan<W>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<W> core::marker::Freeze for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::Freeze
+impl<W> core::marker::Send for knotch_observer::artifact::ArtifactScan<W>
+impl<W> core::marker::Sync for knotch_observer::artifact::ArtifactScan<W>
+impl<W> core::marker::Unpin for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::UnsafeUnpin
+impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe
+impl<W> core::panic::unwind_safe::UnwindSafe for knotch_observer::artifact::ArtifactScan<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::UnwindSafe
+pub fn knotch_observer::artifact::scanner<W, F>(f: F) -> knotch_observer::artifact::PhaseScanner<W> where W: knotch_kernel::workflow::WorkflowKind, F: core::ops::function::Fn(&dyn knotch_observer::context::FsView, &std::path::Path) -> alloc::vec::Vec<knotch_observer::artifact::ArtifactScan<W>> + core::marker::Send + core::marker::Sync + 'static
+pub type knotch_observer::artifact::PhaseScanner<W> = alloc::sync::Arc<(dyn core::ops::function::Fn(&dyn knotch_observer::context::FsView, &std::path::Path) -> alloc::vec::Vec<knotch_observer::artifact::ArtifactScan<W>> + core::marker::Send + core::marker::Sync + 'static)>
+pub mod knotch_observer::context
+pub struct knotch_observer::context::ObserveBudget
+pub knotch_observer::context::ObserveBudget::max_proposals: usize
+impl core::clone::Clone for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::clone(&self) -> knotch_observer::context::ObserveBudget
+impl core::cmp::Eq for knotch_observer::context::ObserveBudget
+impl core::cmp::PartialEq for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::eq(&self, other: &knotch_observer::context::ObserveBudget) -> bool
+impl core::default::Default for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::default() -> Self
+impl core::fmt::Debug for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_observer::context::ObserveBudget
+impl core::marker::StructuralPartialEq for knotch_observer::context::ObserveBudget
+impl core::marker::Freeze for knotch_observer::context::ObserveBudget
+impl core::marker::Send for knotch_observer::context::ObserveBudget
+impl core::marker::Sync for knotch_observer::context::ObserveBudget
+impl core::marker::Unpin for knotch_observer::context::ObserveBudget
+impl core::marker::UnsafeUnpin for knotch_observer::context::ObserveBudget
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::context::ObserveBudget
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::context::ObserveBudget
+pub struct knotch_observer::context::ObserveContext<'a, W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_observer::context::ObserveContext::budget: knotch_observer::context::ObserveBudget
+pub knotch_observer::context::ObserveContext::cache: &'a knotch_kernel::repository::ResumeCache
+pub knotch_observer::context::ObserveContext::cancel: &'a tokio_util::sync::cancellation_token::CancellationToken
+pub knotch_observer::context::ObserveContext::head: &'a str
+pub knotch_observer::context::ObserveContext::log: alloc::sync::Arc<knotch_kernel::log::Log<W>>
+pub knotch_observer::context::ObserveContext::taken_at: jiff::timestamp::Timestamp
+pub knotch_observer::context::ObserveContext::unit: &'a knotch_kernel::id::UnitId
+impl<'a, W> core::marker::Freeze for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::Send for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::Sync for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::Unpin for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::UnsafeUnpin for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::context::ObserveContext<'a, W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
+impl<'a, W> core::panic::unwind_safe::UnwindSafe for knotch_observer::context::ObserveContext<'a, W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
+pub struct knotch_observer::context::StdFsView
+impl core::clone::Clone for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::clone(&self) -> knotch_observer::context::StdFsView
+impl core::default::Default for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::default() -> knotch_observer::context::StdFsView
+impl core::fmt::Debug for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_observer::context::StdFsView
+impl knotch_observer::context::FsView for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::exists(&self, path: &std::path::Path) -> bool
+pub fn knotch_observer::context::StdFsView::list_files(&self, root: &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
+impl core::marker::Freeze for knotch_observer::context::StdFsView
+impl core::marker::Send for knotch_observer::context::StdFsView
+impl core::marker::Sync for knotch_observer::context::StdFsView
+impl core::marker::Unpin for knotch_observer::context::StdFsView
+impl core::marker::UnsafeUnpin for knotch_observer::context::StdFsView
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::context::StdFsView
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::context::StdFsView
+pub trait knotch_observer::context::FsView: core::marker::Send + core::marker::Sync
+pub fn knotch_observer::context::FsView::exists(&self, path: &std::path::Path) -> bool
+pub fn knotch_observer::context::FsView::list_files(&self, root: &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
+impl knotch_observer::context::FsView for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::exists(&self, path: &std::path::Path) -> bool
+pub fn knotch_observer::context::StdFsView::list_files(&self, root: &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
+pub mod knotch_observer::error
+#[non_exhaustive] pub enum knotch_observer::error::ObserverError
+pub knotch_observer::error::ObserverError::Backend(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_observer::error::ObserverError::BudgetExceeded
+pub knotch_observer::error::ObserverError::BudgetExceeded::limit: usize
+pub knotch_observer::error::ObserverError::BudgetExceeded::name: compact_str::CompactString
+pub knotch_observer::error::ObserverError::Cancelled
+pub knotch_observer::error::ObserverError::Cancelled::elapsed_ms: u64
+pub knotch_observer::error::ObserverError::Cancelled::name: compact_str::CompactString
+pub knotch_observer::error::ObserverError::Vcs(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+impl core::error::Error for knotch_observer::error::ObserverError
+pub fn knotch_observer::error::ObserverError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_observer::error::ObserverError
+pub fn knotch_observer::error::ObserverError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_observer::error::ObserverError
+pub fn knotch_observer::error::ObserverError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_observer::error::ObserverError
+impl core::marker::Send for knotch_observer::error::ObserverError
+impl core::marker::Sync for knotch_observer::error::ObserverError
+impl core::marker::Unpin for knotch_observer::error::ObserverError
+impl core::marker::UnsafeUnpin for knotch_observer::error::ObserverError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_observer::error::ObserverError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_observer::error::ObserverError
+pub mod knotch_observer::git_log
+pub struct knotch_observer::git_log::GitLogObserver<V, W: knotch_kernel::workflow::WorkflowKind>
+impl<V, W: knotch_kernel::workflow::WorkflowKind> knotch_observer::git_log::GitLogObserver<V, W> where V: knotch_vcs::Vcs
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::new(vcs: alloc::sync::Arc<V>, resolver: knotch_observer::git_log::MilestoneResolver<W>) -> Self
+impl<V, W> knotch_observer::Observer<W> for knotch_observer::git_log::GitLogObserver<V, W> where V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::name(&self) -> &str
+pub async fn knotch_observer::git_log::GitLogObserver<V, W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::timeout(&self) -> core::time::Duration
+impl<V, W> core::marker::Freeze for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> core::marker::Send for knotch_observer::git_log::GitLogObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Sync for knotch_observer::git_log::GitLogObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Unpin for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> core::marker::UnsafeUnpin for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> !core::panic::unwind_safe::RefUnwindSafe for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> !core::panic::unwind_safe::UnwindSafe for knotch_observer::git_log::GitLogObserver<V, W>
+pub fn knotch_observer::git_log::resolver<W, F>(f: F) -> knotch_observer::git_log::MilestoneResolver<W> where W: knotch_kernel::workflow::WorkflowKind, F: core::ops::function::Fn(&knotch_vcs::commit::ParsedCommit) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Milestone> + core::marker::Send + core::marker::Sync + 'static
+pub type knotch_observer::git_log::MilestoneResolver<W> = alloc::sync::Arc<(dyn core::ops::function::Fn(&knotch_vcs::commit::ParsedCommit) -> core::option::Option<<W as knotch_kernel::workflow::WorkflowKind>::Milestone> + core::marker::Send + core::marker::Sync + 'static)>
+pub mod knotch_observer::pending_commit
+pub struct knotch_observer::pending_commit::PendingCommitObserver<V, W: knotch_kernel::workflow::WorkflowKind>
+impl<V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind> knotch_observer::pending_commit::PendingCommitObserver<V, W>
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::new(vcs: alloc::sync::Arc<V>) -> Self
+impl<V, W> knotch_observer::Observer<W> for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::name(&self) -> &str
+pub async fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::timeout(&self) -> core::time::Duration
+impl<V, W> core::marker::Freeze for knotch_observer::pending_commit::PendingCommitObserver<V, W>
+impl<V, W> core::marker::Send for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Sync for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Unpin for knotch_observer::pending_commit::PendingCommitObserver<V, W>
+impl<V, W> core::marker::UnsafeUnpin for knotch_observer::pending_commit::PendingCommitObserver<V, W>
+impl<V, W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::panic::unwind_safe::RefUnwindSafe
+impl<V, W> core::panic::unwind_safe::UnwindSafe for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::panic::unwind_safe::RefUnwindSafe
+pub mod knotch_observer::subprocess
+#[non_exhaustive] pub enum knotch_observer::subprocess::SubprocessError
+pub knotch_observer::subprocess::SubprocessError::BinaryMissing
+pub knotch_observer::subprocess::SubprocessError::BinaryMissing::name: compact_str::CompactString
+pub knotch_observer::subprocess::SubprocessError::BinaryMissing::path: std::path::PathBuf
+impl core::error::Error for knotch_observer::subprocess::SubprocessError
+impl core::fmt::Debug for knotch_observer::subprocess::SubprocessError
+pub fn knotch_observer::subprocess::SubprocessError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_observer::subprocess::SubprocessError
+pub fn knotch_observer::subprocess::SubprocessError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_observer::subprocess::SubprocessError
+impl core::marker::Send for knotch_observer::subprocess::SubprocessError
+impl core::marker::Sync for knotch_observer::subprocess::SubprocessError
+impl core::marker::Unpin for knotch_observer::subprocess::SubprocessError
+impl core::marker::UnsafeUnpin for knotch_observer::subprocess::SubprocessError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::subprocess::SubprocessError
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::subprocess::SubprocessError
+pub struct knotch_observer::subprocess::ObserverManifest
+pub knotch_observer::subprocess::ObserverManifest::args: alloc::vec::Vec<alloc::string::String>
+pub knotch_observer::subprocess::ObserverManifest::binary: std::path::PathBuf
+pub knotch_observer::subprocess::ObserverManifest::deterministic: bool
+pub knotch_observer::subprocess::ObserverManifest::name: compact_str::CompactString
+pub knotch_observer::subprocess::ObserverManifest::subscribes: alloc::vec::Vec<compact_str::CompactString>
+pub knotch_observer::subprocess::ObserverManifest::timeout_ms: u64
+impl core::clone::Clone for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::clone(&self) -> knotch_observer::subprocess::ObserverManifest
+impl core::fmt::Debug for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_observer::subprocess::ObserverManifest
+impl core::marker::Send for knotch_observer::subprocess::ObserverManifest
+impl core::marker::Sync for knotch_observer::subprocess::ObserverManifest
+impl core::marker::Unpin for knotch_observer::subprocess::ObserverManifest
+impl core::marker::UnsafeUnpin for knotch_observer::subprocess::ObserverManifest
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::subprocess::ObserverManifest
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::subprocess::ObserverManifest
+pub struct knotch_observer::subprocess::SubprocessObserver<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::subprocess::SubprocessObserver<W>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::manifest(&self) -> &knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::new(manifest: knotch_observer::subprocess::ObserverManifest) -> core::result::Result<Self, knotch_observer::subprocess::SubprocessError>
+impl<W: core::fmt::Debug + knotch_kernel::workflow::WorkflowKind> core::fmt::Debug for knotch_observer::subprocess::SubprocessObserver<W>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<W> knotch_observer::Observer<W> for knotch_observer::subprocess::SubprocessObserver<W> where W: knotch_kernel::workflow::WorkflowKind, knotch_kernel::event::Event<W>: serde_core::ser::Serialize, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::name(&self) -> &str
+pub async fn knotch_observer::subprocess::SubprocessObserver<W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::timeout(&self) -> core::time::Duration
+impl<W> core::marker::Freeze for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::Send for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::Sync for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::Unpin for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::UnsafeUnpin for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::panic::unwind_safe::UnwindSafe for knotch_observer::subprocess::SubprocessObserver<W>
+#[non_exhaustive] pub enum knotch_observer::ObserverError
+pub knotch_observer::ObserverError::Backend(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_observer::ObserverError::BudgetExceeded
+pub knotch_observer::ObserverError::BudgetExceeded::limit: usize
+pub knotch_observer::ObserverError::BudgetExceeded::name: compact_str::CompactString
+pub knotch_observer::ObserverError::Cancelled
+pub knotch_observer::ObserverError::Cancelled::elapsed_ms: u64
+pub knotch_observer::ObserverError::Cancelled::name: compact_str::CompactString
+pub knotch_observer::ObserverError::Vcs(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+impl core::error::Error for knotch_observer::error::ObserverError
+pub fn knotch_observer::error::ObserverError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_observer::error::ObserverError
+pub fn knotch_observer::error::ObserverError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_observer::error::ObserverError
+pub fn knotch_observer::error::ObserverError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_observer::error::ObserverError
+impl core::marker::Send for knotch_observer::error::ObserverError
+impl core::marker::Sync for knotch_observer::error::ObserverError
+impl core::marker::Unpin for knotch_observer::error::ObserverError
+impl core::marker::UnsafeUnpin for knotch_observer::error::ObserverError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_observer::error::ObserverError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_observer::error::ObserverError
+#[non_exhaustive] pub enum knotch_observer::SubprocessError
+pub knotch_observer::SubprocessError::BinaryMissing
+pub knotch_observer::SubprocessError::BinaryMissing::name: compact_str::CompactString
+pub knotch_observer::SubprocessError::BinaryMissing::path: std::path::PathBuf
+impl core::error::Error for knotch_observer::subprocess::SubprocessError
+impl core::fmt::Debug for knotch_observer::subprocess::SubprocessError
+pub fn knotch_observer::subprocess::SubprocessError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_observer::subprocess::SubprocessError
+pub fn knotch_observer::subprocess::SubprocessError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_observer::subprocess::SubprocessError
+impl core::marker::Send for knotch_observer::subprocess::SubprocessError
+impl core::marker::Sync for knotch_observer::subprocess::SubprocessError
+impl core::marker::Unpin for knotch_observer::subprocess::SubprocessError
+impl core::marker::UnsafeUnpin for knotch_observer::subprocess::SubprocessError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::subprocess::SubprocessError
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::subprocess::SubprocessError
+pub struct knotch_observer::ArtifactObserver<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::artifact::ArtifactObserver<W>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::new(unit_root: std::path::PathBuf, scanner: knotch_observer::artifact::PhaseScanner<W>) -> Self
+pub fn knotch_observer::artifact::ArtifactObserver<W>::with_fs(self, fs: alloc::sync::Arc<dyn knotch_observer::context::FsView>) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::Observer<W> for knotch_observer::artifact::ArtifactObserver<W>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::name(&self) -> &str
+pub async fn knotch_observer::artifact::ArtifactObserver<W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::timeout(&self) -> core::time::Duration
+impl<W> core::marker::Freeze for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::Send for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::Sync for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::Unpin for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> core::marker::UnsafeUnpin for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_observer::artifact::ArtifactObserver<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_observer::artifact::ArtifactObserver<W>
+pub struct knotch_observer::GitLogObserver<V, W: knotch_kernel::workflow::WorkflowKind>
+impl<V, W: knotch_kernel::workflow::WorkflowKind> knotch_observer::git_log::GitLogObserver<V, W> where V: knotch_vcs::Vcs
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::new(vcs: alloc::sync::Arc<V>, resolver: knotch_observer::git_log::MilestoneResolver<W>) -> Self
+impl<V, W> knotch_observer::Observer<W> for knotch_observer::git_log::GitLogObserver<V, W> where V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::name(&self) -> &str
+pub async fn knotch_observer::git_log::GitLogObserver<V, W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::timeout(&self) -> core::time::Duration
+impl<V, W> core::marker::Freeze for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> core::marker::Send for knotch_observer::git_log::GitLogObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Sync for knotch_observer::git_log::GitLogObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Unpin for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> core::marker::UnsafeUnpin for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> !core::panic::unwind_safe::RefUnwindSafe for knotch_observer::git_log::GitLogObserver<V, W>
+impl<V, W> !core::panic::unwind_safe::UnwindSafe for knotch_observer::git_log::GitLogObserver<V, W>
+pub struct knotch_observer::ObserveBudget
+pub knotch_observer::ObserveBudget::max_proposals: usize
+impl core::clone::Clone for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::clone(&self) -> knotch_observer::context::ObserveBudget
+impl core::cmp::Eq for knotch_observer::context::ObserveBudget
+impl core::cmp::PartialEq for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::eq(&self, other: &knotch_observer::context::ObserveBudget) -> bool
+impl core::default::Default for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::default() -> Self
+impl core::fmt::Debug for knotch_observer::context::ObserveBudget
+pub fn knotch_observer::context::ObserveBudget::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_observer::context::ObserveBudget
+impl core::marker::StructuralPartialEq for knotch_observer::context::ObserveBudget
+impl core::marker::Freeze for knotch_observer::context::ObserveBudget
+impl core::marker::Send for knotch_observer::context::ObserveBudget
+impl core::marker::Sync for knotch_observer::context::ObserveBudget
+impl core::marker::Unpin for knotch_observer::context::ObserveBudget
+impl core::marker::UnsafeUnpin for knotch_observer::context::ObserveBudget
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::context::ObserveBudget
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::context::ObserveBudget
+pub struct knotch_observer::ObserveContext<'a, W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_observer::ObserveContext::budget: knotch_observer::context::ObserveBudget
+pub knotch_observer::ObserveContext::cache: &'a knotch_kernel::repository::ResumeCache
+pub knotch_observer::ObserveContext::cancel: &'a tokio_util::sync::cancellation_token::CancellationToken
+pub knotch_observer::ObserveContext::head: &'a str
+pub knotch_observer::ObserveContext::log: alloc::sync::Arc<knotch_kernel::log::Log<W>>
+pub knotch_observer::ObserveContext::taken_at: jiff::timestamp::Timestamp
+pub knotch_observer::ObserveContext::unit: &'a knotch_kernel::id::UnitId
+impl<'a, W> core::marker::Freeze for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::Send for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::Sync for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::Unpin for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::marker::UnsafeUnpin for knotch_observer::context::ObserveContext<'a, W>
+impl<'a, W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::context::ObserveContext<'a, W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
+impl<'a, W> core::panic::unwind_safe::UnwindSafe for knotch_observer::context::ObserveContext<'a, W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::panic::unwind_safe::RefUnwindSafe
+pub struct knotch_observer::ObserverManifest
+pub knotch_observer::ObserverManifest::args: alloc::vec::Vec<alloc::string::String>
+pub knotch_observer::ObserverManifest::binary: std::path::PathBuf
+pub knotch_observer::ObserverManifest::deterministic: bool
+pub knotch_observer::ObserverManifest::name: compact_str::CompactString
+pub knotch_observer::ObserverManifest::subscribes: alloc::vec::Vec<compact_str::CompactString>
+pub knotch_observer::ObserverManifest::timeout_ms: u64
+impl core::clone::Clone for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::clone(&self) -> knotch_observer::subprocess::ObserverManifest
+impl core::fmt::Debug for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::ObserverManifest::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_observer::subprocess::ObserverManifest
+impl core::marker::Send for knotch_observer::subprocess::ObserverManifest
+impl core::marker::Sync for knotch_observer::subprocess::ObserverManifest
+impl core::marker::Unpin for knotch_observer::subprocess::ObserverManifest
+impl core::marker::UnsafeUnpin for knotch_observer::subprocess::ObserverManifest
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::subprocess::ObserverManifest
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::subprocess::ObserverManifest
+pub struct knotch_observer::PendingCommitObserver<V, W: knotch_kernel::workflow::WorkflowKind>
+impl<V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind> knotch_observer::pending_commit::PendingCommitObserver<V, W>
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::new(vcs: alloc::sync::Arc<V>) -> Self
+impl<V, W> knotch_observer::Observer<W> for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::name(&self) -> &str
+pub async fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::timeout(&self) -> core::time::Duration
+impl<V, W> core::marker::Freeze for knotch_observer::pending_commit::PendingCommitObserver<V, W>
+impl<V, W> core::marker::Send for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Sync for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::marker::Sync + core::marker::Send
+impl<V, W> core::marker::Unpin for knotch_observer::pending_commit::PendingCommitObserver<V, W>
+impl<V, W> core::marker::UnsafeUnpin for knotch_observer::pending_commit::PendingCommitObserver<V, W>
+impl<V, W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::panic::unwind_safe::RefUnwindSafe
+impl<V, W> core::panic::unwind_safe::UnwindSafe for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: core::panic::unwind_safe::RefUnwindSafe
+pub struct knotch_observer::StdFsView
+impl core::clone::Clone for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::clone(&self) -> knotch_observer::context::StdFsView
+impl core::default::Default for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::default() -> knotch_observer::context::StdFsView
+impl core::fmt::Debug for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_observer::context::StdFsView
+impl knotch_observer::context::FsView for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::exists(&self, path: &std::path::Path) -> bool
+pub fn knotch_observer::context::StdFsView::list_files(&self, root: &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
+impl core::marker::Freeze for knotch_observer::context::StdFsView
+impl core::marker::Send for knotch_observer::context::StdFsView
+impl core::marker::Sync for knotch_observer::context::StdFsView
+impl core::marker::Unpin for knotch_observer::context::StdFsView
+impl core::marker::UnsafeUnpin for knotch_observer::context::StdFsView
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_observer::context::StdFsView
+impl core::panic::unwind_safe::UnwindSafe for knotch_observer::context::StdFsView
+pub struct knotch_observer::SubprocessObserver<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::subprocess::SubprocessObserver<W>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::manifest(&self) -> &knotch_observer::subprocess::ObserverManifest
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::new(manifest: knotch_observer::subprocess::ObserverManifest) -> core::result::Result<Self, knotch_observer::subprocess::SubprocessError>
+impl<W: core::fmt::Debug + knotch_kernel::workflow::WorkflowKind> core::fmt::Debug for knotch_observer::subprocess::SubprocessObserver<W>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<W> knotch_observer::Observer<W> for knotch_observer::subprocess::SubprocessObserver<W> where W: knotch_kernel::workflow::WorkflowKind, knotch_kernel::event::Event<W>: serde_core::ser::Serialize, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::name(&self) -> &str
+pub async fn knotch_observer::subprocess::SubprocessObserver<W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::timeout(&self) -> core::time::Duration
+impl<W> core::marker::Freeze for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::Send for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::Sync for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::Unpin for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::marker::UnsafeUnpin for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_observer::subprocess::SubprocessObserver<W>
+impl<W> core::panic::unwind_safe::UnwindSafe for knotch_observer::subprocess::SubprocessObserver<W>
+pub trait knotch_observer::DynObserver<W: knotch_kernel::workflow::WorkflowKind>: core::marker::Send + core::marker::Sync + 'static
+pub fn knotch_observer::DynObserver::name(&self) -> &str
+pub fn knotch_observer::DynObserver::observe_boxed<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> knotch_observer::BoxObserveFuture<'ctx, W>
+pub fn knotch_observer::DynObserver::timeout(&self) -> core::time::Duration
+impl<W, O> knotch_observer::DynObserver<W> for O where W: knotch_kernel::workflow::WorkflowKind, O: knotch_observer::Observer<W>
+pub fn O::name(&self) -> &str
+pub fn O::observe_boxed<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> knotch_observer::BoxObserveFuture<'ctx, W>
+pub fn O::timeout(&self) -> core::time::Duration
+pub trait knotch_observer::FsView: core::marker::Send + core::marker::Sync
+pub fn knotch_observer::FsView::exists(&self, path: &std::path::Path) -> bool
+pub fn knotch_observer::FsView::list_files(&self, root: &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
+impl knotch_observer::context::FsView for knotch_observer::context::StdFsView
+pub fn knotch_observer::context::StdFsView::exists(&self, path: &std::path::Path) -> bool
+pub fn knotch_observer::context::StdFsView::list_files(&self, root: &std::path::Path) -> alloc::vec::Vec<std::path::PathBuf>
+pub trait knotch_observer::Observer<W: knotch_kernel::workflow::WorkflowKind>: core::marker::Send + core::marker::Sync + 'static
+pub fn knotch_observer::Observer::name(&self) -> &str
+pub fn knotch_observer::Observer::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> impl core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>> + core::marker::Send + 'ctx
+pub fn knotch_observer::Observer::timeout(&self) -> core::time::Duration
+impl<V, W> knotch_observer::Observer<W> for knotch_observer::git_log::GitLogObserver<V, W> where V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::name(&self) -> &str
+pub async fn knotch_observer::git_log::GitLogObserver<V, W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::git_log::GitLogObserver<V, W>::timeout(&self) -> core::time::Duration
+impl<V, W> knotch_observer::Observer<W> for knotch_observer::pending_commit::PendingCommitObserver<V, W> where V: knotch_vcs::Vcs, W: knotch_kernel::workflow::WorkflowKind
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::name(&self) -> &str
+pub async fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::pending_commit::PendingCommitObserver<V, W>::timeout(&self) -> core::time::Duration
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_observer::Observer<W> for knotch_observer::artifact::ArtifactObserver<W>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::name(&self) -> &str
+pub async fn knotch_observer::artifact::ArtifactObserver<W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::artifact::ArtifactObserver<W>::timeout(&self) -> core::time::Duration
+impl<W> knotch_observer::Observer<W> for knotch_observer::subprocess::SubprocessObserver<W> where W: knotch_kernel::workflow::WorkflowKind, knotch_kernel::event::Event<W>: serde_core::ser::Serialize, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::name(&self) -> &str
+pub async fn knotch_observer::subprocess::SubprocessObserver<W>::observe<'ctx>(&'ctx self, ctx: &'ctx knotch_observer::context::ObserveContext<'ctx, W>) -> core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>
+pub fn knotch_observer::subprocess::SubprocessObserver<W>::timeout(&self) -> core::time::Duration
+pub type knotch_observer::BoxObserveFuture<'ctx, W> = core::pin::Pin<alloc::boxed::Box<(dyn core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, knotch_observer::error::ObserverError>> + core::marker::Send + 'ctx)>>

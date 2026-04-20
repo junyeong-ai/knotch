@@ -1,0 +1,71 @@
+ Documenting knotch-reconciler v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-reconciler)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.12s
+pub mod knotch_reconciler
+#[non_exhaustive] pub enum knotch_reconciler::ReconcileError
+pub knotch_reconciler::ReconcileError::JoinError(alloc::string::String)
+pub knotch_reconciler::ReconcileError::Repository(knotch_kernel::error::RepositoryError)
+impl core::error::Error for knotch_reconciler::ReconcileError
+pub fn knotch_reconciler::ReconcileError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_reconciler::ReconcileError
+pub fn knotch_reconciler::ReconcileError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_reconciler::ReconcileError
+pub fn knotch_reconciler::ReconcileError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_reconciler::ReconcileError
+impl core::marker::Send for knotch_reconciler::ReconcileError
+impl core::marker::Sync for knotch_reconciler::ReconcileError
+impl core::marker::Unpin for knotch_reconciler::ReconcileError
+impl core::marker::UnsafeUnpin for knotch_reconciler::ReconcileError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_reconciler::ReconcileError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_reconciler::ReconcileError
+pub struct knotch_reconciler::ObserverFailure
+pub knotch_reconciler::ObserverFailure::observer: alloc::string::String
+pub knotch_reconciler::ObserverFailure::source: knotch_observer::error::ObserverError
+impl core::fmt::Debug for knotch_reconciler::ObserverFailure
+pub fn knotch_reconciler::ObserverFailure::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_reconciler::ObserverFailure
+impl core::marker::Send for knotch_reconciler::ObserverFailure
+impl core::marker::Sync for knotch_reconciler::ObserverFailure
+impl core::marker::Unpin for knotch_reconciler::ObserverFailure
+impl core::marker::UnsafeUnpin for knotch_reconciler::ObserverFailure
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_reconciler::ObserverFailure
+impl !core::panic::unwind_safe::UnwindSafe for knotch_reconciler::ObserverFailure
+pub struct knotch_reconciler::ReconcileReport<W: knotch_kernel::workflow::WorkflowKind>
+pub knotch_reconciler::ReconcileReport::append: knotch_kernel::event::AppendReport<W>
+pub knotch_reconciler::ReconcileReport::observer_errors: alloc::vec::Vec<knotch_reconciler::ObserverFailure>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_reconciler::ReconcileReport<W>
+pub fn knotch_reconciler::ReconcileReport<W>::accepted_any(&self) -> bool
+pub fn knotch_reconciler::ReconcileReport<W>::rejected(&self) -> &[knotch_kernel::event::RejectedProposal<W>]
+pub fn knotch_reconciler::ReconcileReport<W>::rejected_count(&self) -> usize
+impl<W: core::fmt::Debug + knotch_kernel::workflow::WorkflowKind> core::fmt::Debug for knotch_reconciler::ReconcileReport<W>
+pub fn knotch_reconciler::ReconcileReport<W>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<W> core::marker::Freeze for knotch_reconciler::ReconcileReport<W>
+impl<W> core::marker::Send for knotch_reconciler::ReconcileReport<W>
+impl<W> core::marker::Sync for knotch_reconciler::ReconcileReport<W>
+impl<W> core::marker::Unpin for knotch_reconciler::ReconcileReport<W> where <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::marker::Unpin, <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::Unpin, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::Unpin, <W as knotch_kernel::workflow::WorkflowKind>::Gate: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_reconciler::ReconcileReport<W>
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_reconciler::ReconcileReport<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_reconciler::ReconcileReport<W>
+pub struct knotch_reconciler::Reconciler<W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>>
+impl<W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>> knotch_reconciler::Reconciler<W, R>
+pub fn knotch_reconciler::Reconciler<W, R>::builder(repo: alloc::sync::Arc<R>) -> knotch_reconciler::ReconcilerBuilder<W, R>
+pub async fn knotch_reconciler::Reconciler<W, R>::reconcile(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<knotch_reconciler::ReconcileReport<W>, knotch_reconciler::ReconcileError>
+impl<W, R> core::marker::Freeze for knotch_reconciler::Reconciler<W, R>
+impl<W, R> core::marker::Send for knotch_reconciler::Reconciler<W, R>
+impl<W, R> core::marker::Sync for knotch_reconciler::Reconciler<W, R>
+impl<W, R> core::marker::Unpin for knotch_reconciler::Reconciler<W, R>
+impl<W, R> core::marker::UnsafeUnpin for knotch_reconciler::Reconciler<W, R>
+impl<W, R> !core::panic::unwind_safe::RefUnwindSafe for knotch_reconciler::Reconciler<W, R>
+impl<W, R> !core::panic::unwind_safe::UnwindSafe for knotch_reconciler::Reconciler<W, R>
+pub struct knotch_reconciler::ReconcilerBuilder<W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>>
+impl<W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>> knotch_reconciler::ReconcilerBuilder<W, R>
+pub fn knotch_reconciler::ReconcilerBuilder<W, R>::append_mode(self, mode: knotch_kernel::event::AppendMode) -> Self
+pub fn knotch_reconciler::ReconcilerBuilder<W, R>::budget(self, budget: knotch_observer::context::ObserveBudget) -> Self
+pub fn knotch_reconciler::ReconcilerBuilder<W, R>::build(self) -> knotch_reconciler::Reconciler<W, R>
+pub fn knotch_reconciler::ReconcilerBuilder<W, R>::observer(self, observer: alloc::sync::Arc<dyn knotch_observer::DynObserver<W>>) -> Self
+impl<W, R> core::marker::Freeze for knotch_reconciler::ReconcilerBuilder<W, R>
+impl<W, R> core::marker::Send for knotch_reconciler::ReconcilerBuilder<W, R>
+impl<W, R> core::marker::Sync for knotch_reconciler::ReconcilerBuilder<W, R>
+impl<W, R> core::marker::Unpin for knotch_reconciler::ReconcilerBuilder<W, R>
+impl<W, R> core::marker::UnsafeUnpin for knotch_reconciler::ReconcilerBuilder<W, R>
+impl<W, R> !core::panic::unwind_safe::RefUnwindSafe for knotch_reconciler::ReconcilerBuilder<W, R>
+impl<W, R> !core::panic::unwind_safe::UnwindSafe for knotch_reconciler::ReconcilerBuilder<W, R>

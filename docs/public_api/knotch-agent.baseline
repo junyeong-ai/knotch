@@ -1,0 +1,409 @@
+    Blocking waiting for file lock on package cache
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
+    Checking knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
+ Documenting knotch-agent v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-agent)
+warning: unresolved link to `HookEvent::agent_id`
+  --> crates/knotch-agent/src/causation.rs:27:8
+   |
+27 | /// ([`HookEvent::agent_id`], currently `SubagentStop` only) and
+   |        ^^^^^^^^^^^^^^^^^^^ no item named `HookEvent` in scope
+   |
+   = note: `#[warn(rustdoc::broken_intra_doc_links)]` on by default
+
+warning: `write` is both a function and a macro
+ --> crates/knotch-agent/src/atomic.rs:4:40
+  |
+4 | //! subagent records) routes through [`write`]. The guarantee:
+  |                                        ^^^^^ ambiguous link
+  |
+help: to link to the function, add parentheses
+  |
+4 | //! subagent records) routes through [`write()`]. The guarantee:
+  |                                             ++
+help: to link to the macro, add an exclamation mark
+  |
+4 | //! subagent records) routes through [`write!`]. The guarantee:
+  |                                             +
+
+warning: `write` is both a function and a macro
+ --> crates/knotch-agent/src/atomic.rs:6:15
+  |
+6 | //! > After [`write`] returns `Ok(())`, either the prior file content
+  |               ^^^^^ ambiguous link
+  |
+help: to link to the function, add parentheses
+  |
+6 | //! > After [`write()`] returns `Ok(())`, either the prior file content
+  |                    ++
+help: to link to the macro, add an exclamation mark
+  |
+6 | //! > After [`write!`] returns `Ok(())`, either the prior file content
+  |                    +
+
+warning: `knotch-agent` (lib doc) generated 3 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.75s
+pub mod knotch_agent
+pub mod knotch_agent::active
+pub enum knotch_agent::active::ActiveUnit
+pub knotch_agent::active::ActiveUnit::Active(knotch_kernel::id::UnitId)
+pub knotch_agent::active::ActiveUnit::NoProject
+pub knotch_agent::active::ActiveUnit::Uninitialized
+impl core::clone::Clone for knotch_agent::active::ActiveUnit
+pub fn knotch_agent::active::ActiveUnit::clone(&self) -> knotch_agent::active::ActiveUnit
+impl core::cmp::Eq for knotch_agent::active::ActiveUnit
+impl core::cmp::PartialEq for knotch_agent::active::ActiveUnit
+pub fn knotch_agent::active::ActiveUnit::eq(&self, other: &knotch_agent::active::ActiveUnit) -> bool
+impl core::fmt::Debug for knotch_agent::active::ActiveUnit
+pub fn knotch_agent::active::ActiveUnit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_agent::active::ActiveUnit
+impl core::marker::Freeze for knotch_agent::active::ActiveUnit
+impl core::marker::Send for knotch_agent::active::ActiveUnit
+impl core::marker::Sync for knotch_agent::active::ActiveUnit
+impl core::marker::Unpin for knotch_agent::active::ActiveUnit
+impl core::marker::UnsafeUnpin for knotch_agent::active::ActiveUnit
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::active::ActiveUnit
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::active::ActiveUnit
+pub struct knotch_agent::active::ActiveToml
+pub knotch_agent::active::ActiveToml::selected_at: core::option::Option<alloc::string::String>
+pub knotch_agent::active::ActiveToml::source: core::option::Option<alloc::string::String>
+pub knotch_agent::active::ActiveToml::unit: alloc::string::String
+impl core::clone::Clone for knotch_agent::active::ActiveToml
+pub fn knotch_agent::active::ActiveToml::clone(&self) -> knotch_agent::active::ActiveToml
+impl core::default::Default for knotch_agent::active::ActiveToml
+pub fn knotch_agent::active::ActiveToml::default() -> knotch_agent::active::ActiveToml
+impl core::fmt::Debug for knotch_agent::active::ActiveToml
+pub fn knotch_agent::active::ActiveToml::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for knotch_agent::active::ActiveToml
+pub fn knotch_agent::active::ActiveToml::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::active::ActiveToml
+pub fn knotch_agent::active::ActiveToml::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::active::ActiveToml
+impl core::marker::Send for knotch_agent::active::ActiveToml
+impl core::marker::Sync for knotch_agent::active::ActiveToml
+impl core::marker::Unpin for knotch_agent::active::ActiveToml
+impl core::marker::UnsafeUnpin for knotch_agent::active::ActiveToml
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::active::ActiveToml
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::active::ActiveToml
+pub const knotch_agent::active::UNIT_ENV_VAR: &str
+pub fn knotch_agent::active::clear_session(project_root: &std::path::Path, session_id: &str) -> core::result::Result<(), knotch_agent::error::HookError>
+pub fn knotch_agent::active::project_root(cwd: &std::path::Path) -> std::path::PathBuf
+pub fn knotch_agent::active::resolve_active(project_root: &std::path::Path) -> core::result::Result<knotch_agent::active::ActiveUnit, knotch_agent::error::HookError>
+pub fn knotch_agent::active::resolve_active_for_hook(project_root: &std::path::Path, session_id: &str) -> core::result::Result<knotch_agent::active::ActiveUnit, knotch_agent::error::HookError>
+pub fn knotch_agent::active::write_active(project_root: &std::path::Path, unit: core::option::Option<&knotch_kernel::id::UnitId>, source: &str) -> core::result::Result<(), knotch_agent::error::HookError>
+pub fn knotch_agent::active::write_active_for_session(project_root: &std::path::Path, unit: core::option::Option<&knotch_kernel::id::UnitId>, session_id: &str, source: &str) -> core::result::Result<(), knotch_agent::error::HookError>
+pub mod knotch_agent::atomic
+pub fn knotch_agent::atomic::write(path: &std::path::Path, bytes: &[u8]) -> std::io::error::Result<()>
+pub mod knotch_agent::causation
+pub fn knotch_agent::causation::hook_causation(input: &knotch_agent::input::HookInput, subcommand: &str) -> knotch_kernel::causation::Causation
+pub mod knotch_agent::commit
+pub async fn knotch_agent::commit::check<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, commit_message: &str) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>
+pub fn knotch_agent::commit::extract_commit_message(cmd: &str) -> core::option::Option<alloc::string::String>
+pub fn knotch_agent::commit::extract_milestone_id(commit_message: &str) -> core::option::Option<alloc::string::String>
+pub fn knotch_agent::commit::parse_conventional(msg: &str) -> core::option::Option<(knotch_kernel::event::CommitKind, alloc::string::String)>
+pub async fn knotch_agent::commit::record_revert<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, revert: knotch_kernel::event::CommitRef, original: knotch_kernel::event::CommitRef, milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
+pub async fn knotch_agent::commit::verify<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, commit_message: &str, commit_sha: knotch_kernel::event::CommitRef, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
+pub mod knotch_agent::context
+pub async fn knotch_agent::context::refresh<W, R>(project_root_override: core::option::Option<&std::path::Path>, cwd: &std::path::Path, session_id: &str, repo: &R) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
+pub mod knotch_agent::error
+#[non_exhaustive] pub enum knotch_agent::error::HookError
+pub knotch_agent::error::HookError::Blocked(alloc::string::String)
+pub knotch_agent::error::HookError::Io(std::io::error::Error)
+pub knotch_agent::error::HookError::Json(serde_json::error::Error)
+pub knotch_agent::error::HookError::NotAProject
+pub knotch_agent::error::HookError::Orphan
+pub knotch_agent::error::HookError::Repository(knotch_kernel::error::RepositoryError)
+pub knotch_agent::error::HookError::Toml(alloc::string::String)
+impl core::convert::From<knotch_kernel::error::RepositoryError> for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::from(source: knotch_kernel::error::RepositoryError) -> Self
+impl core::convert::From<serde_json::error::Error> for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::from(source: serde_json::error::Error) -> Self
+impl core::convert::From<std::io::error::Error> for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::from(source: std::io::error::Error) -> Self
+impl core::error::Error for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_agent::error::HookError
+impl core::marker::Send for knotch_agent::error::HookError
+impl core::marker::Sync for knotch_agent::error::HookError
+impl core::marker::Unpin for knotch_agent::error::HookError
+impl core::marker::UnsafeUnpin for knotch_agent::error::HookError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_agent::error::HookError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_agent::error::HookError
+pub mod knotch_agent::guard
+pub async fn knotch_agent::guard::rewrite<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, cmd: &str) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>
+pub mod knotch_agent::input
+pub enum knotch_agent::input::HookEvent
+pub knotch_agent::input::HookEvent::PostToolUse
+pub knotch_agent::input::HookEvent::PostToolUse::tool_input: core::option::Option<serde_json::value::Value>
+pub knotch_agent::input::HookEvent::PostToolUse::tool_name: compact_str::CompactString
+pub knotch_agent::input::HookEvent::PostToolUse::tool_response: core::option::Option<serde_json::value::Value>
+pub knotch_agent::input::HookEvent::PreToolUse
+pub knotch_agent::input::HookEvent::PreToolUse::tool_input: core::option::Option<serde_json::value::Value>
+pub knotch_agent::input::HookEvent::PreToolUse::tool_name: compact_str::CompactString
+pub knotch_agent::input::HookEvent::SessionEnd
+pub knotch_agent::input::HookEvent::SessionEnd::reason: core::option::Option<compact_str::CompactString>
+pub knotch_agent::input::HookEvent::SessionStart
+pub knotch_agent::input::HookEvent::SessionStart::source: core::option::Option<compact_str::CompactString>
+pub knotch_agent::input::HookEvent::SubagentStop
+pub knotch_agent::input::HookEvent::SubagentStop::agent_id: compact_str::CompactString
+pub knotch_agent::input::HookEvent::SubagentStop::agent_transcript_path: core::option::Option<std::path::PathBuf>
+pub knotch_agent::input::HookEvent::SubagentStop::agent_type: core::option::Option<compact_str::CompactString>
+pub knotch_agent::input::HookEvent::SubagentStop::last_assistant_message: core::option::Option<alloc::string::String>
+pub knotch_agent::input::HookEvent::SubagentStop::stop_hook_active: core::option::Option<bool>
+pub knotch_agent::input::HookEvent::UserPromptSubmit
+pub knotch_agent::input::HookEvent::UserPromptSubmit::prompt: core::option::Option<alloc::string::String>
+impl knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::agent_id(&self) -> core::option::Option<&str>
+pub fn knotch_agent::input::HookEvent::bash_command(&self) -> core::option::Option<&str>
+pub fn knotch_agent::input::HookEvent::bash_response_stdout(&self) -> core::option::Option<&str>
+impl core::clone::Clone for knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::clone(&self) -> knotch_agent::input::HookEvent
+impl core::fmt::Debug for knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::input::HookEvent
+impl core::marker::Send for knotch_agent::input::HookEvent
+impl core::marker::Sync for knotch_agent::input::HookEvent
+impl core::marker::Unpin for knotch_agent::input::HookEvent
+impl core::marker::UnsafeUnpin for knotch_agent::input::HookEvent
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookEvent
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookEvent
+pub struct knotch_agent::input::HookInput
+pub knotch_agent::input::HookInput::cwd: std::path::PathBuf
+pub knotch_agent::input::HookInput::event: knotch_agent::input::HookEvent
+pub knotch_agent::input::HookInput::session_id: compact_str::CompactString
+impl knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::bash_command(&self) -> core::option::Option<&str>
+pub fn knotch_agent::input::HookInput::bash_response_stdout(&self) -> core::option::Option<&str>
+impl core::clone::Clone for knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::clone(&self) -> knotch_agent::input::HookInput
+impl core::fmt::Debug for knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::input::HookInput
+impl core::marker::Send for knotch_agent::input::HookInput
+impl core::marker::Sync for knotch_agent::input::HookInput
+impl core::marker::Unpin for knotch_agent::input::HookInput
+impl core::marker::UnsafeUnpin for knotch_agent::input::HookInput
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookInput
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookInput
+pub mod knotch_agent::orphan
+pub fn knotch_agent::orphan::log_orphan(home: &std::path::Path, event: &str, cwd: &std::path::Path, reason: &str)
+pub mod knotch_agent::output
+pub enum knotch_agent::output::HookOutput
+pub knotch_agent::output::HookOutput::Ask
+pub knotch_agent::output::HookOutput::Ask::reason: alloc::string::String
+pub knotch_agent::output::HookOutput::Block
+pub knotch_agent::output::HookOutput::Block::reason: alloc::string::String
+pub knotch_agent::output::HookOutput::Context(alloc::string::String)
+pub knotch_agent::output::HookOutput::Continue
+pub knotch_agent::output::HookOutput::UpdateInput(serde_json::value::Value)
+impl knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::ask(reason: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn knotch_agent::output::HookOutput::block(reason: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn knotch_agent::output::HookOutput::context(ctx: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn knotch_agent::output::HookOutput::update_input(v: serde_json::value::Value) -> Self
+impl core::clone::Clone for knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::clone(&self) -> knotch_agent::output::HookOutput
+impl core::cmp::Eq for knotch_agent::output::HookOutput
+impl core::cmp::PartialEq for knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::eq(&self, other: &knotch_agent::output::HookOutput) -> bool
+impl core::fmt::Debug for knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_agent::output::HookOutput
+impl core::marker::Freeze for knotch_agent::output::HookOutput
+impl core::marker::Send for knotch_agent::output::HookOutput
+impl core::marker::Sync for knotch_agent::output::HookOutput
+impl core::marker::Unpin for knotch_agent::output::HookOutput
+impl core::marker::UnsafeUnpin for knotch_agent::output::HookOutput
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::output::HookOutput
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::output::HookOutput
+pub mod knotch_agent::queue
+pub struct knotch_agent::queue::QueueEntry
+pub knotch_agent::queue::QueueEntry::proposal: serde_json::value::Value
+pub knotch_agent::queue::QueueEntry::queued_at: alloc::string::String
+pub knotch_agent::queue::QueueEntry::reason: alloc::string::String
+pub knotch_agent::queue::QueueEntry::unit: alloc::string::String
+impl core::fmt::Debug for knotch_agent::queue::QueueEntry
+pub fn knotch_agent::queue::QueueEntry::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for knotch_agent::queue::QueueEntry
+pub fn knotch_agent::queue::QueueEntry::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::queue::QueueEntry
+pub fn knotch_agent::queue::QueueEntry::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::queue::QueueEntry
+impl core::marker::Send for knotch_agent::queue::QueueEntry
+impl core::marker::Sync for knotch_agent::queue::QueueEntry
+impl core::marker::Unpin for knotch_agent::queue::QueueEntry
+impl core::marker::UnsafeUnpin for knotch_agent::queue::QueueEntry
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::queue::QueueEntry
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::queue::QueueEntry
+pub const knotch_agent::queue::QUEUE_WARN_THRESHOLD: usize
+pub async fn knotch_agent::queue::drain<W, R>(queue_dir: &std::path::Path, repo: &R) -> core::result::Result<usize, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
+pub fn knotch_agent::queue::enqueue<W>(queue_dir: &std::path::Path, unit: &knotch_kernel::id::UnitId, proposal: &knotch_kernel::event::Proposal<W>, reason: &str) -> core::result::Result<(), knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
+pub fn knotch_agent::queue::enqueue_raw(queue_dir: &std::path::Path, unit: &knotch_kernel::id::UnitId, proposal_json: serde_json::value::Value, reason: &str) -> core::result::Result<(), knotch_agent::error::HookError>
+pub fn knotch_agent::queue::queue_size(queue_dir: &std::path::Path) -> core::result::Result<usize, knotch_agent::error::HookError>
+pub mod knotch_agent::session
+pub async fn knotch_agent::session::load_context<W, R>(project_root_override: core::option::Option<&std::path::Path>, cwd: &std::path::Path, session_id: &str, repo: &R) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
+pub mod knotch_agent::session_end
+pub fn knotch_agent::session_end::finalize(project_root: &std::path::Path, session_id: &str, reason: core::option::Option<&str>) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError>
+pub mod knotch_agent::subagent
+pub struct knotch_agent::subagent::SubagentRecord
+pub knotch_agent::subagent::SubagentRecord::agent_id: alloc::string::String
+pub knotch_agent::subagent::SubagentRecord::agent_type: alloc::string::String
+pub knotch_agent::subagent::SubagentRecord::last_message: core::option::Option<alloc::string::String>
+pub knotch_agent::subagent::SubagentRecord::stopped_at: alloc::string::String
+pub knotch_agent::subagent::SubagentRecord::transcript_path: core::option::Option<alloc::string::String>
+impl core::fmt::Debug for knotch_agent::subagent::SubagentRecord
+pub fn knotch_agent::subagent::SubagentRecord::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for knotch_agent::subagent::SubagentRecord
+pub fn knotch_agent::subagent::SubagentRecord::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::subagent::SubagentRecord
+pub fn knotch_agent::subagent::SubagentRecord::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::subagent::SubagentRecord
+impl core::marker::Send for knotch_agent::subagent::SubagentRecord
+impl core::marker::Sync for knotch_agent::subagent::SubagentRecord
+impl core::marker::Unpin for knotch_agent::subagent::SubagentRecord
+impl core::marker::UnsafeUnpin for knotch_agent::subagent::SubagentRecord
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::subagent::SubagentRecord
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::subagent::SubagentRecord
+pub fn knotch_agent::subagent::record(project_root: &std::path::Path, agent_id: &str, agent_type: &str, transcript_path: core::option::Option<&std::path::Path>, last_message: core::option::Option<&str>) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError>
+pub enum knotch_agent::ActiveUnit
+pub knotch_agent::ActiveUnit::Active(knotch_kernel::id::UnitId)
+pub knotch_agent::ActiveUnit::NoProject
+pub knotch_agent::ActiveUnit::Uninitialized
+impl core::clone::Clone for knotch_agent::active::ActiveUnit
+pub fn knotch_agent::active::ActiveUnit::clone(&self) -> knotch_agent::active::ActiveUnit
+impl core::cmp::Eq for knotch_agent::active::ActiveUnit
+impl core::cmp::PartialEq for knotch_agent::active::ActiveUnit
+pub fn knotch_agent::active::ActiveUnit::eq(&self, other: &knotch_agent::active::ActiveUnit) -> bool
+impl core::fmt::Debug for knotch_agent::active::ActiveUnit
+pub fn knotch_agent::active::ActiveUnit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_agent::active::ActiveUnit
+impl core::marker::Freeze for knotch_agent::active::ActiveUnit
+impl core::marker::Send for knotch_agent::active::ActiveUnit
+impl core::marker::Sync for knotch_agent::active::ActiveUnit
+impl core::marker::Unpin for knotch_agent::active::ActiveUnit
+impl core::marker::UnsafeUnpin for knotch_agent::active::ActiveUnit
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::active::ActiveUnit
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::active::ActiveUnit
+#[non_exhaustive] pub enum knotch_agent::HookError
+pub knotch_agent::HookError::Blocked(alloc::string::String)
+pub knotch_agent::HookError::Io(std::io::error::Error)
+pub knotch_agent::HookError::Json(serde_json::error::Error)
+pub knotch_agent::HookError::NotAProject
+pub knotch_agent::HookError::Orphan
+pub knotch_agent::HookError::Repository(knotch_kernel::error::RepositoryError)
+pub knotch_agent::HookError::Toml(alloc::string::String)
+impl core::convert::From<knotch_kernel::error::RepositoryError> for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::from(source: knotch_kernel::error::RepositoryError) -> Self
+impl core::convert::From<serde_json::error::Error> for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::from(source: serde_json::error::Error) -> Self
+impl core::convert::From<std::io::error::Error> for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::from(source: std::io::error::Error) -> Self
+impl core::error::Error for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_agent::error::HookError
+pub fn knotch_agent::error::HookError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_agent::error::HookError
+impl core::marker::Send for knotch_agent::error::HookError
+impl core::marker::Sync for knotch_agent::error::HookError
+impl core::marker::Unpin for knotch_agent::error::HookError
+impl core::marker::UnsafeUnpin for knotch_agent::error::HookError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_agent::error::HookError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_agent::error::HookError
+pub enum knotch_agent::HookEvent
+pub knotch_agent::HookEvent::PostToolUse
+pub knotch_agent::HookEvent::PostToolUse::tool_input: core::option::Option<serde_json::value::Value>
+pub knotch_agent::HookEvent::PostToolUse::tool_name: compact_str::CompactString
+pub knotch_agent::HookEvent::PostToolUse::tool_response: core::option::Option<serde_json::value::Value>
+pub knotch_agent::HookEvent::PreToolUse
+pub knotch_agent::HookEvent::PreToolUse::tool_input: core::option::Option<serde_json::value::Value>
+pub knotch_agent::HookEvent::PreToolUse::tool_name: compact_str::CompactString
+pub knotch_agent::HookEvent::SessionEnd
+pub knotch_agent::HookEvent::SessionEnd::reason: core::option::Option<compact_str::CompactString>
+pub knotch_agent::HookEvent::SessionStart
+pub knotch_agent::HookEvent::SessionStart::source: core::option::Option<compact_str::CompactString>
+pub knotch_agent::HookEvent::SubagentStop
+pub knotch_agent::HookEvent::SubagentStop::agent_id: compact_str::CompactString
+pub knotch_agent::HookEvent::SubagentStop::agent_transcript_path: core::option::Option<std::path::PathBuf>
+pub knotch_agent::HookEvent::SubagentStop::agent_type: core::option::Option<compact_str::CompactString>
+pub knotch_agent::HookEvent::SubagentStop::last_assistant_message: core::option::Option<alloc::string::String>
+pub knotch_agent::HookEvent::SubagentStop::stop_hook_active: core::option::Option<bool>
+pub knotch_agent::HookEvent::UserPromptSubmit
+pub knotch_agent::HookEvent::UserPromptSubmit::prompt: core::option::Option<alloc::string::String>
+impl knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::agent_id(&self) -> core::option::Option<&str>
+pub fn knotch_agent::input::HookEvent::bash_command(&self) -> core::option::Option<&str>
+pub fn knotch_agent::input::HookEvent::bash_response_stdout(&self) -> core::option::Option<&str>
+impl core::clone::Clone for knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::clone(&self) -> knotch_agent::input::HookEvent
+impl core::fmt::Debug for knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::input::HookEvent
+pub fn knotch_agent::input::HookEvent::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::input::HookEvent
+impl core::marker::Send for knotch_agent::input::HookEvent
+impl core::marker::Sync for knotch_agent::input::HookEvent
+impl core::marker::Unpin for knotch_agent::input::HookEvent
+impl core::marker::UnsafeUnpin for knotch_agent::input::HookEvent
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookEvent
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookEvent
+pub enum knotch_agent::HookOutput
+pub knotch_agent::HookOutput::Ask
+pub knotch_agent::HookOutput::Ask::reason: alloc::string::String
+pub knotch_agent::HookOutput::Block
+pub knotch_agent::HookOutput::Block::reason: alloc::string::String
+pub knotch_agent::HookOutput::Context(alloc::string::String)
+pub knotch_agent::HookOutput::Continue
+pub knotch_agent::HookOutput::UpdateInput(serde_json::value::Value)
+impl knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::ask(reason: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn knotch_agent::output::HookOutput::block(reason: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn knotch_agent::output::HookOutput::context(ctx: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn knotch_agent::output::HookOutput::update_input(v: serde_json::value::Value) -> Self
+impl core::clone::Clone for knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::clone(&self) -> knotch_agent::output::HookOutput
+impl core::cmp::Eq for knotch_agent::output::HookOutput
+impl core::cmp::PartialEq for knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::eq(&self, other: &knotch_agent::output::HookOutput) -> bool
+impl core::fmt::Debug for knotch_agent::output::HookOutput
+pub fn knotch_agent::output::HookOutput::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_agent::output::HookOutput
+impl core::marker::Freeze for knotch_agent::output::HookOutput
+impl core::marker::Send for knotch_agent::output::HookOutput
+impl core::marker::Sync for knotch_agent::output::HookOutput
+impl core::marker::Unpin for knotch_agent::output::HookOutput
+impl core::marker::UnsafeUnpin for knotch_agent::output::HookOutput
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::output::HookOutput
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::output::HookOutput
+pub struct knotch_agent::HookInput
+pub knotch_agent::HookInput::cwd: std::path::PathBuf
+pub knotch_agent::HookInput::event: knotch_agent::input::HookEvent
+pub knotch_agent::HookInput::session_id: compact_str::CompactString
+impl knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::bash_command(&self) -> core::option::Option<&str>
+pub fn knotch_agent::input::HookInput::bash_response_stdout(&self) -> core::option::Option<&str>
+impl core::clone::Clone for knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::clone(&self) -> knotch_agent::input::HookInput
+impl core::fmt::Debug for knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::input::HookInput
+pub fn knotch_agent::input::HookInput::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_agent::input::HookInput
+impl core::marker::Send for knotch_agent::input::HookInput
+impl core::marker::Sync for knotch_agent::input::HookInput
+impl core::marker::Unpin for knotch_agent::input::HookInput
+impl core::marker::UnsafeUnpin for knotch_agent::input::HookInput
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::input::HookInput
+impl core::panic::unwind_safe::UnwindSafe for knotch_agent::input::HookInput
+pub fn knotch_agent::hook_causation(input: &knotch_agent::input::HookInput, subcommand: &str) -> knotch_kernel::causation::Causation
+pub fn knotch_agent::resolve_active(project_root: &std::path::Path) -> core::result::Result<knotch_agent::active::ActiveUnit, knotch_agent::error::HookError>
+pub fn knotch_agent::write_active(project_root: &std::path::Path, unit: core::option::Option<&knotch_kernel::id::UnitId>, source: &str) -> core::result::Result<(), knotch_agent::error::HookError>

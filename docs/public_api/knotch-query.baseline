@@ -1,0 +1,38 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+ Documenting knotch-query v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-query)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.85s
+pub mod knotch_query
+#[non_exhaustive] pub enum knotch_query::QueryError
+pub knotch_query::QueryError::Repository(knotch_kernel::error::RepositoryError)
+impl core::error::Error for knotch_query::QueryError
+pub fn knotch_query::QueryError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_query::QueryError
+pub fn knotch_query::QueryError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_query::QueryError
+pub fn knotch_query::QueryError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_query::QueryError
+impl core::marker::Send for knotch_query::QueryError
+impl core::marker::Sync for knotch_query::QueryError
+impl core::marker::Unpin for knotch_query::QueryError
+impl core::marker::UnsafeUnpin for knotch_query::QueryError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_query::QueryError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_query::QueryError
+pub struct knotch_query::QueryBuilder<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_query::QueryBuilder<W>
+pub async fn knotch_query::QueryBuilder<W>::execute<R>(self, workflow: &W, repo: &R) -> core::result::Result<alloc::vec::Vec<knotch_kernel::id::UnitId>, knotch_query::QueryError> where R: knotch_kernel::repository::Repository<W>
+pub fn knotch_query::QueryBuilder<W>::limit(self, n: usize) -> Self
+pub fn knotch_query::QueryBuilder<W>::new() -> Self
+pub fn knotch_query::QueryBuilder<W>::since(self, when: jiff::timestamp::Timestamp) -> Self
+pub fn knotch_query::QueryBuilder<W>::until(self, when: jiff::timestamp::Timestamp) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_milestone_shipped(self, milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_phase(self, phase: <W as knotch_kernel::workflow::WorkflowKind>::Phase) -> Self
+pub fn knotch_query::QueryBuilder<W>::where_status(self, status: knotch_kernel::status::StatusId) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> core::default::Default for knotch_query::QueryBuilder<W>
+pub fn knotch_query::QueryBuilder<W>::default() -> Self
+impl<W> core::marker::Freeze for knotch_query::QueryBuilder<W>
+impl<W> core::marker::Send for knotch_query::QueryBuilder<W>
+impl<W> core::marker::Sync for knotch_query::QueryBuilder<W>
+impl<W> core::marker::Unpin for knotch_query::QueryBuilder<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::marker::Unpin, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_query::QueryBuilder<W>
+impl<W> core::panic::unwind_safe::RefUnwindSafe for knotch_query::QueryBuilder<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::RefUnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::RefUnwindSafe
+impl<W> core::panic::unwind_safe::UnwindSafe for knotch_query::QueryBuilder<W> where <W as knotch_kernel::workflow::WorkflowKind>::Phase: core::panic::unwind_safe::UnwindSafe, <W as knotch_kernel::workflow::WorkflowKind>::Milestone: core::panic::unwind_safe::UnwindSafe

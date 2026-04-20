@@ -1,0 +1,182 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
+ Documenting knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.71s
+pub mod knotch_storage
+pub mod knotch_storage::atomic
+pub async fn knotch_storage::atomic::write(target: &std::path::Path, contents: &[u8]) -> std::io::error::Result<()>
+pub mod knotch_storage::file_repository
+pub struct knotch_storage::file_repository::FileRepository<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_storage::file_repository::FileRepository<W>
+pub fn knotch_storage::file_repository::FileRepository<W>::new(root: impl core::convert::Into<std::path::PathBuf>, workflow: W) -> Self
+pub fn knotch_storage::file_repository::FileRepository<W>::storage(&self) -> &knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::file_repository::FileRepository<W>::with_lock_lease(self, lease: core::time::Duration) -> Self
+pub fn knotch_storage::file_repository::FileRepository<W>::with_lock_timeout(self, timeout: core::time::Duration) -> Self
+pub fn knotch_storage::file_repository::FileRepository<W>::workflow(&self) -> &W
+impl<W: knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_storage::file_repository::FileRepository<W>
+pub fn knotch_storage::file_repository::FileRepository<W>::clone(&self) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::repository::Repository<W> for knotch_storage::file_repository::FileRepository<W>
+pub async fn knotch_storage::file_repository::FileRepository<W>::append(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_storage::file_repository::FileRepository<W>::list_units(&self) -> knotch_kernel::repository::PinStream<core::result::Result<knotch_kernel::id::UnitId, knotch_kernel::error::RepositoryError>>
+pub async fn knotch_storage::file_repository::FileRepository<W>::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<alloc::sync::Arc<knotch_kernel::log::Log<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_storage::file_repository::FileRepository<W>::subscribe(&self, unit: &knotch_kernel::id::UnitId, mode: knotch_kernel::event::SubscribeMode) -> core::result::Result<knotch_kernel::repository::PinStream<knotch_kernel::event::SubscribeEvent<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_storage::file_repository::FileRepository<W>::with_cache(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode, mutate_cache: knotch_kernel::repository::CacheMutator) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_storage::file_repository::FileRepository<W>::workflow(&self) -> &W
+impl<W> core::marker::Freeze for knotch_storage::file_repository::FileRepository<W> where W: core::marker::Freeze
+impl<W> core::marker::Send for knotch_storage::file_repository::FileRepository<W>
+impl<W> core::marker::Sync for knotch_storage::file_repository::FileRepository<W>
+impl<W> core::marker::Unpin for knotch_storage::file_repository::FileRepository<W> where W: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_storage::file_repository::FileRepository<W> where W: core::marker::UnsafeUnpin
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_storage::file_repository::FileRepository<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_storage::file_repository::FileRepository<W>
+pub mod knotch_storage::fs_storage
+pub struct knotch_storage::fs_storage::FileSystemStorage
+impl knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::new(root: impl core::convert::Into<std::path::PathBuf>) -> Self
+pub fn knotch_storage::fs_storage::FileSystemStorage::root(&self) -> &std::path::Path
+impl core::clone::Clone for knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::clone(&self) -> knotch_storage::fs_storage::FileSystemStorage
+impl core::fmt::Debug for knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_storage::Storage for knotch_storage::fs_storage::FileSystemStorage
+pub async fn knotch_storage::fs_storage::FileSystemStorage::append(&self, unit: &knotch_kernel::id::UnitId, expected_len: u64, lines: alloc::vec::Vec<alloc::string::String>) -> core::result::Result<(), knotch_storage::StorageError>
+pub fn knotch_storage::fs_storage::FileSystemStorage::list_units(&self) -> core::pin::Pin<alloc::boxed::Box<(dyn futures_core::stream::Stream<Item = core::result::Result<knotch_kernel::id::UnitId, knotch_storage::StorageError>> + core::marker::Send + 'static)>>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<(alloc::vec::Vec<alloc::string::String>, knotch_storage::LoadReport), knotch_storage::StorageError>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::read_cache(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<serde_json::map::Map<alloc::string::String, serde_json::value::Value>, knotch_storage::StorageError>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::write_cache(&self, unit: &knotch_kernel::id::UnitId, cache: serde_json::map::Map<alloc::string::String, serde_json::value::Value>) -> core::result::Result<(), knotch_storage::StorageError>
+impl core::marker::Freeze for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::Send for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::Sync for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::Unpin for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::UnsafeUnpin for knotch_storage::fs_storage::FileSystemStorage
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_storage::fs_storage::FileSystemStorage
+impl core::panic::unwind_safe::UnwindSafe for knotch_storage::fs_storage::FileSystemStorage
+#[non_exhaustive] pub enum knotch_storage::StorageError
+pub knotch_storage::StorageError::Backend(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_storage::StorageError::Io
+pub knotch_storage::StorageError::Io::path: core::option::Option<std::path::PathBuf>
+pub knotch_storage::StorageError::Io::source: std::io::error::Error
+pub knotch_storage::StorageError::LogMutated
+pub knotch_storage::StorageError::LogMutated::expected: u64
+pub knotch_storage::StorageError::LogMutated::on_disk: u64
+pub knotch_storage::StorageError::PermissionDenied
+pub knotch_storage::StorageError::PermissionDenied::path: std::path::PathBuf
+impl core::error::Error for knotch_storage::StorageError
+pub fn knotch_storage::StorageError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_storage::StorageError
+pub fn knotch_storage::StorageError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_storage::StorageError
+pub fn knotch_storage::StorageError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_storage::StorageError
+impl core::marker::Send for knotch_storage::StorageError
+impl core::marker::Sync for knotch_storage::StorageError
+impl core::marker::Unpin for knotch_storage::StorageError
+impl core::marker::UnsafeUnpin for knotch_storage::StorageError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_storage::StorageError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_storage::StorageError
+pub struct knotch_storage::CorruptionSpan
+pub knotch_storage::CorruptionSpan::end: u64
+pub knotch_storage::CorruptionSpan::reason: alloc::string::String
+pub knotch_storage::CorruptionSpan::start: u64
+impl core::clone::Clone for knotch_storage::CorruptionSpan
+pub fn knotch_storage::CorruptionSpan::clone(&self) -> knotch_storage::CorruptionSpan
+impl core::cmp::Eq for knotch_storage::CorruptionSpan
+impl core::cmp::PartialEq for knotch_storage::CorruptionSpan
+pub fn knotch_storage::CorruptionSpan::eq(&self, other: &knotch_storage::CorruptionSpan) -> bool
+impl core::fmt::Debug for knotch_storage::CorruptionSpan
+pub fn knotch_storage::CorruptionSpan::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_storage::CorruptionSpan
+impl serde_core::ser::Serialize for knotch_storage::CorruptionSpan
+pub fn knotch_storage::CorruptionSpan::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_storage::CorruptionSpan
+pub fn knotch_storage::CorruptionSpan::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_storage::CorruptionSpan
+impl core::marker::Send for knotch_storage::CorruptionSpan
+impl core::marker::Sync for knotch_storage::CorruptionSpan
+impl core::marker::Unpin for knotch_storage::CorruptionSpan
+impl core::marker::UnsafeUnpin for knotch_storage::CorruptionSpan
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_storage::CorruptionSpan
+impl core::panic::unwind_safe::UnwindSafe for knotch_storage::CorruptionSpan
+pub struct knotch_storage::FileRepository<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_storage::file_repository::FileRepository<W>
+pub fn knotch_storage::file_repository::FileRepository<W>::new(root: impl core::convert::Into<std::path::PathBuf>, workflow: W) -> Self
+pub fn knotch_storage::file_repository::FileRepository<W>::storage(&self) -> &knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::file_repository::FileRepository<W>::with_lock_lease(self, lease: core::time::Duration) -> Self
+pub fn knotch_storage::file_repository::FileRepository<W>::with_lock_timeout(self, timeout: core::time::Duration) -> Self
+pub fn knotch_storage::file_repository::FileRepository<W>::workflow(&self) -> &W
+impl<W: knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_storage::file_repository::FileRepository<W>
+pub fn knotch_storage::file_repository::FileRepository<W>::clone(&self) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::repository::Repository<W> for knotch_storage::file_repository::FileRepository<W>
+pub async fn knotch_storage::file_repository::FileRepository<W>::append(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_storage::file_repository::FileRepository<W>::list_units(&self) -> knotch_kernel::repository::PinStream<core::result::Result<knotch_kernel::id::UnitId, knotch_kernel::error::RepositoryError>>
+pub async fn knotch_storage::file_repository::FileRepository<W>::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<alloc::sync::Arc<knotch_kernel::log::Log<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_storage::file_repository::FileRepository<W>::subscribe(&self, unit: &knotch_kernel::id::UnitId, mode: knotch_kernel::event::SubscribeMode) -> core::result::Result<knotch_kernel::repository::PinStream<knotch_kernel::event::SubscribeEvent<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_storage::file_repository::FileRepository<W>::with_cache(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode, mutate_cache: knotch_kernel::repository::CacheMutator) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_storage::file_repository::FileRepository<W>::workflow(&self) -> &W
+impl<W> core::marker::Freeze for knotch_storage::file_repository::FileRepository<W> where W: core::marker::Freeze
+impl<W> core::marker::Send for knotch_storage::file_repository::FileRepository<W>
+impl<W> core::marker::Sync for knotch_storage::file_repository::FileRepository<W>
+impl<W> core::marker::Unpin for knotch_storage::file_repository::FileRepository<W> where W: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_storage::file_repository::FileRepository<W> where W: core::marker::UnsafeUnpin
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_storage::file_repository::FileRepository<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_storage::file_repository::FileRepository<W>
+pub struct knotch_storage::FileSystemStorage
+impl knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::new(root: impl core::convert::Into<std::path::PathBuf>) -> Self
+pub fn knotch_storage::fs_storage::FileSystemStorage::root(&self) -> &std::path::Path
+impl core::clone::Clone for knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::clone(&self) -> knotch_storage::fs_storage::FileSystemStorage
+impl core::fmt::Debug for knotch_storage::fs_storage::FileSystemStorage
+pub fn knotch_storage::fs_storage::FileSystemStorage::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_storage::Storage for knotch_storage::fs_storage::FileSystemStorage
+pub async fn knotch_storage::fs_storage::FileSystemStorage::append(&self, unit: &knotch_kernel::id::UnitId, expected_len: u64, lines: alloc::vec::Vec<alloc::string::String>) -> core::result::Result<(), knotch_storage::StorageError>
+pub fn knotch_storage::fs_storage::FileSystemStorage::list_units(&self) -> core::pin::Pin<alloc::boxed::Box<(dyn futures_core::stream::Stream<Item = core::result::Result<knotch_kernel::id::UnitId, knotch_storage::StorageError>> + core::marker::Send + 'static)>>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<(alloc::vec::Vec<alloc::string::String>, knotch_storage::LoadReport), knotch_storage::StorageError>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::read_cache(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<serde_json::map::Map<alloc::string::String, serde_json::value::Value>, knotch_storage::StorageError>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::write_cache(&self, unit: &knotch_kernel::id::UnitId, cache: serde_json::map::Map<alloc::string::String, serde_json::value::Value>) -> core::result::Result<(), knotch_storage::StorageError>
+impl core::marker::Freeze for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::Send for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::Sync for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::Unpin for knotch_storage::fs_storage::FileSystemStorage
+impl core::marker::UnsafeUnpin for knotch_storage::fs_storage::FileSystemStorage
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_storage::fs_storage::FileSystemStorage
+impl core::panic::unwind_safe::UnwindSafe for knotch_storage::fs_storage::FileSystemStorage
+pub struct knotch_storage::LoadReport
+pub knotch_storage::LoadReport::bytes_read: u64
+pub knotch_storage::LoadReport::corrupted: alloc::vec::Vec<knotch_storage::CorruptionSpan>
+impl knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::first_corruption(&self) -> core::option::Option<&knotch_storage::CorruptionSpan>
+pub fn knotch_storage::LoadReport::is_clean(&self) -> bool
+impl core::clone::Clone for knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::clone(&self) -> knotch_storage::LoadReport
+impl core::cmp::Eq for knotch_storage::LoadReport
+impl core::cmp::PartialEq for knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::eq(&self, other: &knotch_storage::LoadReport) -> bool
+impl core::default::Default for knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::default() -> knotch_storage::LoadReport
+impl core::fmt::Debug for knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_storage::LoadReport
+impl serde_core::ser::Serialize for knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_storage::LoadReport
+pub fn knotch_storage::LoadReport::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_storage::LoadReport
+impl core::marker::Send for knotch_storage::LoadReport
+impl core::marker::Sync for knotch_storage::LoadReport
+impl core::marker::Unpin for knotch_storage::LoadReport
+impl core::marker::UnsafeUnpin for knotch_storage::LoadReport
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_storage::LoadReport
+impl core::panic::unwind_safe::UnwindSafe for knotch_storage::LoadReport
+pub trait knotch_storage::Storage: core::marker::Send + core::marker::Sync + 'static
+pub fn knotch_storage::Storage::append(&self, unit: &knotch_kernel::id::UnitId, expected_len: u64, lines: alloc::vec::Vec<alloc::string::String>) -> impl core::future::future::Future<Output = core::result::Result<(), knotch_storage::StorageError>> + core::marker::Send
+pub fn knotch_storage::Storage::list_units(&self) -> core::pin::Pin<alloc::boxed::Box<(dyn futures_core::stream::Stream<Item = core::result::Result<knotch_kernel::id::UnitId, knotch_storage::StorageError>> + core::marker::Send + 'static)>>
+pub fn knotch_storage::Storage::load(&self, unit: &knotch_kernel::id::UnitId) -> impl core::future::future::Future<Output = core::result::Result<(alloc::vec::Vec<alloc::string::String>, knotch_storage::LoadReport), knotch_storage::StorageError>> + core::marker::Send
+pub fn knotch_storage::Storage::read_cache(&self, unit: &knotch_kernel::id::UnitId) -> impl core::future::future::Future<Output = core::result::Result<serde_json::map::Map<alloc::string::String, serde_json::value::Value>, knotch_storage::StorageError>> + core::marker::Send
+pub fn knotch_storage::Storage::write_cache(&self, unit: &knotch_kernel::id::UnitId, cache: serde_json::map::Map<alloc::string::String, serde_json::value::Value>) -> impl core::future::future::Future<Output = core::result::Result<(), knotch_storage::StorageError>> + core::marker::Send
+impl knotch_storage::Storage for knotch_storage::fs_storage::FileSystemStorage
+pub async fn knotch_storage::fs_storage::FileSystemStorage::append(&self, unit: &knotch_kernel::id::UnitId, expected_len: u64, lines: alloc::vec::Vec<alloc::string::String>) -> core::result::Result<(), knotch_storage::StorageError>
+pub fn knotch_storage::fs_storage::FileSystemStorage::list_units(&self) -> core::pin::Pin<alloc::boxed::Box<(dyn futures_core::stream::Stream<Item = core::result::Result<knotch_kernel::id::UnitId, knotch_storage::StorageError>> + core::marker::Send + 'static)>>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<(alloc::vec::Vec<alloc::string::String>, knotch_storage::LoadReport), knotch_storage::StorageError>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::read_cache(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<serde_json::map::Map<alloc::string::String, serde_json::value::Value>, knotch_storage::StorageError>
+pub async fn knotch_storage::fs_storage::FileSystemStorage::write_cache(&self, unit: &knotch_kernel::id::UnitId, cache: serde_json::map::Map<alloc::string::String, serde_json::value::Value>) -> core::result::Result<(), knotch_storage::StorageError>

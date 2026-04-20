@@ -1,0 +1,279 @@
+ Documenting knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.90s
+pub mod knotch_schema
+pub mod knotch_schema::frontmatter
+#[non_exhaustive] pub enum knotch_schema::frontmatter::FieldType
+pub knotch_schema::frontmatter::FieldType::Boolean
+pub knotch_schema::frontmatter::FieldType::Enum(alloc::vec::Vec<compact_str::CompactString>)
+pub knotch_schema::frontmatter::FieldType::Integer
+pub knotch_schema::frontmatter::FieldType::String
+pub knotch_schema::frontmatter::FieldType::StringArray
+impl core::clone::Clone for knotch_schema::frontmatter::FieldType
+pub fn knotch_schema::frontmatter::FieldType::clone(&self) -> knotch_schema::frontmatter::FieldType
+impl core::cmp::Eq for knotch_schema::frontmatter::FieldType
+impl core::cmp::PartialEq for knotch_schema::frontmatter::FieldType
+pub fn knotch_schema::frontmatter::FieldType::eq(&self, other: &knotch_schema::frontmatter::FieldType) -> bool
+impl core::fmt::Debug for knotch_schema::frontmatter::FieldType
+pub fn knotch_schema::frontmatter::FieldType::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_schema::frontmatter::FieldType
+impl core::marker::Freeze for knotch_schema::frontmatter::FieldType
+impl core::marker::Send for knotch_schema::frontmatter::FieldType
+impl core::marker::Sync for knotch_schema::frontmatter::FieldType
+impl core::marker::Unpin for knotch_schema::frontmatter::FieldType
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::FieldType
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::FieldType
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::FieldType
+#[non_exhaustive] pub enum knotch_schema::frontmatter::SchemaError
+pub knotch_schema::frontmatter::SchemaError::MissingField
+pub knotch_schema::frontmatter::SchemaError::MissingField::field: compact_str::CompactString
+pub knotch_schema::frontmatter::SchemaError::Unknown
+pub knotch_schema::frontmatter::SchemaError::Unknown::field: compact_str::CompactString
+pub knotch_schema::frontmatter::SchemaError::WrongType
+pub knotch_schema::frontmatter::SchemaError::WrongType::expected: compact_str::CompactString
+pub knotch_schema::frontmatter::SchemaError::WrongType::field: compact_str::CompactString
+impl core::cmp::Eq for knotch_schema::frontmatter::SchemaError
+impl core::cmp::PartialEq for knotch_schema::frontmatter::SchemaError
+pub fn knotch_schema::frontmatter::SchemaError::eq(&self, other: &knotch_schema::frontmatter::SchemaError) -> bool
+impl core::error::Error for knotch_schema::frontmatter::SchemaError
+impl core::fmt::Debug for knotch_schema::frontmatter::SchemaError
+pub fn knotch_schema::frontmatter::SchemaError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_schema::frontmatter::SchemaError
+pub fn knotch_schema::frontmatter::SchemaError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_schema::frontmatter::SchemaError
+impl core::marker::Freeze for knotch_schema::frontmatter::SchemaError
+impl core::marker::Send for knotch_schema::frontmatter::SchemaError
+impl core::marker::Sync for knotch_schema::frontmatter::SchemaError
+impl core::marker::Unpin for knotch_schema::frontmatter::SchemaError
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::SchemaError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::SchemaError
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::SchemaError
+pub struct knotch_schema::frontmatter::FieldSchema
+impl knotch_schema::frontmatter::FieldSchema
+pub fn knotch_schema::frontmatter::FieldSchema::name(&self) -> &str
+pub fn knotch_schema::frontmatter::FieldSchema::optional(name: impl core::convert::Into<compact_str::CompactString>, ty: knotch_schema::frontmatter::FieldType) -> Self
+pub fn knotch_schema::frontmatter::FieldSchema::required(name: impl core::convert::Into<compact_str::CompactString>, ty: knotch_schema::frontmatter::FieldType) -> Self
+impl core::clone::Clone for knotch_schema::frontmatter::FieldSchema
+pub fn knotch_schema::frontmatter::FieldSchema::clone(&self) -> knotch_schema::frontmatter::FieldSchema
+impl core::fmt::Debug for knotch_schema::frontmatter::FieldSchema
+pub fn knotch_schema::frontmatter::FieldSchema::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::frontmatter::FieldSchema
+impl core::marker::Send for knotch_schema::frontmatter::FieldSchema
+impl core::marker::Sync for knotch_schema::frontmatter::FieldSchema
+impl core::marker::Unpin for knotch_schema::frontmatter::FieldSchema
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::FieldSchema
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::FieldSchema
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::FieldSchema
+pub struct knotch_schema::frontmatter::FrontmatterSchema
+impl knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::builder() -> Self
+pub fn knotch_schema::frontmatter::FrontmatterSchema::field(self, schema: knotch_schema::frontmatter::FieldSchema) -> Self
+pub fn knotch_schema::frontmatter::FrontmatterSchema::validate(&self, object: &serde_json::map::Map<alloc::string::String, serde_json::value::Value>) -> core::result::Result<(), knotch_schema::frontmatter::SchemaError>
+impl core::clone::Clone for knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::clone(&self) -> knotch_schema::frontmatter::FrontmatterSchema
+impl core::default::Default for knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::default() -> knotch_schema::frontmatter::FrontmatterSchema
+impl core::fmt::Debug for knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::Send for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::Sync for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::Unpin for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::FrontmatterSchema
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::FrontmatterSchema
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::FrontmatterSchema
+pub mod knotch_schema::lifecycle
+#[non_exhaustive] pub enum knotch_schema::lifecycle::LifecycleError
+pub knotch_schema::lifecycle::LifecycleError::ForcedWithoutRationale
+pub knotch_schema::lifecycle::LifecycleError::NoOpTransition
+pub knotch_schema::lifecycle::LifecycleError::NoOpTransition::status: knotch_kernel::status::StatusId
+pub knotch_schema::lifecycle::LifecycleError::RequiredPhasesPending
+pub knotch_schema::lifecycle::LifecycleError::RequiredPhasesPending::target: knotch_kernel::status::StatusId
+impl core::cmp::Eq for knotch_schema::lifecycle::LifecycleError
+impl core::cmp::PartialEq for knotch_schema::lifecycle::LifecycleError
+pub fn knotch_schema::lifecycle::LifecycleError::eq(&self, other: &knotch_schema::lifecycle::LifecycleError) -> bool
+impl core::error::Error for knotch_schema::lifecycle::LifecycleError
+impl core::fmt::Debug for knotch_schema::lifecycle::LifecycleError
+pub fn knotch_schema::lifecycle::LifecycleError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_schema::lifecycle::LifecycleError
+pub fn knotch_schema::lifecycle::LifecycleError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Freeze for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Send for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Sync for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Unpin for knotch_schema::lifecycle::LifecycleError
+impl core::marker::UnsafeUnpin for knotch_schema::lifecycle::LifecycleError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::lifecycle::LifecycleError
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::lifecycle::LifecycleError
+pub struct knotch_schema::lifecycle::LifecycleFsm
+impl knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::builder() -> Self
+pub fn knotch_schema::lifecycle::LifecycleFsm::evaluate(&self, request: &knotch_schema::lifecycle::TransitionRequest) -> core::result::Result<(), knotch_schema::lifecycle::LifecycleError>
+pub fn knotch_schema::lifecycle::LifecycleFsm::is_terminal(&self, status: &knotch_kernel::status::StatusId) -> bool
+pub fn knotch_schema::lifecycle::LifecycleFsm::terminal(self, status: impl core::convert::Into<compact_str::CompactString>) -> Self
+impl core::clone::Clone for knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::clone(&self) -> knotch_schema::lifecycle::LifecycleFsm
+impl core::default::Default for knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::default() -> knotch_schema::lifecycle::LifecycleFsm
+impl core::fmt::Debug for knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::Send for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::Sync for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::Unpin for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::UnsafeUnpin for knotch_schema::lifecycle::LifecycleFsm
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::lifecycle::LifecycleFsm
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::lifecycle::LifecycleFsm
+pub struct knotch_schema::lifecycle::TransitionRequest
+pub knotch_schema::lifecycle::TransitionRequest::all_phases_resolved: bool
+pub knotch_schema::lifecycle::TransitionRequest::current: core::option::Option<knotch_kernel::status::StatusId>
+pub knotch_schema::lifecycle::TransitionRequest::forced: bool
+pub knotch_schema::lifecycle::TransitionRequest::rationale: core::option::Option<knotch_kernel::rationale::Rationale>
+pub knotch_schema::lifecycle::TransitionRequest::target: knotch_kernel::status::StatusId
+impl core::clone::Clone for knotch_schema::lifecycle::TransitionRequest
+pub fn knotch_schema::lifecycle::TransitionRequest::clone(&self) -> knotch_schema::lifecycle::TransitionRequest
+impl core::fmt::Debug for knotch_schema::lifecycle::TransitionRequest
+pub fn knotch_schema::lifecycle::TransitionRequest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::Send for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::Sync for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::Unpin for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::UnsafeUnpin for knotch_schema::lifecycle::TransitionRequest
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::lifecycle::TransitionRequest
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::lifecycle::TransitionRequest
+#[non_exhaustive] pub enum knotch_schema::FieldType
+pub knotch_schema::FieldType::Boolean
+pub knotch_schema::FieldType::Enum(alloc::vec::Vec<compact_str::CompactString>)
+pub knotch_schema::FieldType::Integer
+pub knotch_schema::FieldType::String
+pub knotch_schema::FieldType::StringArray
+impl core::clone::Clone for knotch_schema::frontmatter::FieldType
+pub fn knotch_schema::frontmatter::FieldType::clone(&self) -> knotch_schema::frontmatter::FieldType
+impl core::cmp::Eq for knotch_schema::frontmatter::FieldType
+impl core::cmp::PartialEq for knotch_schema::frontmatter::FieldType
+pub fn knotch_schema::frontmatter::FieldType::eq(&self, other: &knotch_schema::frontmatter::FieldType) -> bool
+impl core::fmt::Debug for knotch_schema::frontmatter::FieldType
+pub fn knotch_schema::frontmatter::FieldType::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_schema::frontmatter::FieldType
+impl core::marker::Freeze for knotch_schema::frontmatter::FieldType
+impl core::marker::Send for knotch_schema::frontmatter::FieldType
+impl core::marker::Sync for knotch_schema::frontmatter::FieldType
+impl core::marker::Unpin for knotch_schema::frontmatter::FieldType
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::FieldType
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::FieldType
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::FieldType
+#[non_exhaustive] pub enum knotch_schema::LifecycleError
+pub knotch_schema::LifecycleError::ForcedWithoutRationale
+pub knotch_schema::LifecycleError::NoOpTransition
+pub knotch_schema::LifecycleError::NoOpTransition::status: knotch_kernel::status::StatusId
+pub knotch_schema::LifecycleError::RequiredPhasesPending
+pub knotch_schema::LifecycleError::RequiredPhasesPending::target: knotch_kernel::status::StatusId
+impl core::cmp::Eq for knotch_schema::lifecycle::LifecycleError
+impl core::cmp::PartialEq for knotch_schema::lifecycle::LifecycleError
+pub fn knotch_schema::lifecycle::LifecycleError::eq(&self, other: &knotch_schema::lifecycle::LifecycleError) -> bool
+impl core::error::Error for knotch_schema::lifecycle::LifecycleError
+impl core::fmt::Debug for knotch_schema::lifecycle::LifecycleError
+pub fn knotch_schema::lifecycle::LifecycleError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_schema::lifecycle::LifecycleError
+pub fn knotch_schema::lifecycle::LifecycleError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Freeze for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Send for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Sync for knotch_schema::lifecycle::LifecycleError
+impl core::marker::Unpin for knotch_schema::lifecycle::LifecycleError
+impl core::marker::UnsafeUnpin for knotch_schema::lifecycle::LifecycleError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::lifecycle::LifecycleError
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::lifecycle::LifecycleError
+#[non_exhaustive] pub enum knotch_schema::SchemaError
+pub knotch_schema::SchemaError::MissingField
+pub knotch_schema::SchemaError::MissingField::field: compact_str::CompactString
+pub knotch_schema::SchemaError::Unknown
+pub knotch_schema::SchemaError::Unknown::field: compact_str::CompactString
+pub knotch_schema::SchemaError::WrongType
+pub knotch_schema::SchemaError::WrongType::expected: compact_str::CompactString
+pub knotch_schema::SchemaError::WrongType::field: compact_str::CompactString
+impl core::cmp::Eq for knotch_schema::frontmatter::SchemaError
+impl core::cmp::PartialEq for knotch_schema::frontmatter::SchemaError
+pub fn knotch_schema::frontmatter::SchemaError::eq(&self, other: &knotch_schema::frontmatter::SchemaError) -> bool
+impl core::error::Error for knotch_schema::frontmatter::SchemaError
+impl core::fmt::Debug for knotch_schema::frontmatter::SchemaError
+pub fn knotch_schema::frontmatter::SchemaError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_schema::frontmatter::SchemaError
+pub fn knotch_schema::frontmatter::SchemaError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_schema::frontmatter::SchemaError
+impl core::marker::Freeze for knotch_schema::frontmatter::SchemaError
+impl core::marker::Send for knotch_schema::frontmatter::SchemaError
+impl core::marker::Sync for knotch_schema::frontmatter::SchemaError
+impl core::marker::Unpin for knotch_schema::frontmatter::SchemaError
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::SchemaError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::SchemaError
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::SchemaError
+pub struct knotch_schema::FieldSchema
+impl knotch_schema::frontmatter::FieldSchema
+pub fn knotch_schema::frontmatter::FieldSchema::name(&self) -> &str
+pub fn knotch_schema::frontmatter::FieldSchema::optional(name: impl core::convert::Into<compact_str::CompactString>, ty: knotch_schema::frontmatter::FieldType) -> Self
+pub fn knotch_schema::frontmatter::FieldSchema::required(name: impl core::convert::Into<compact_str::CompactString>, ty: knotch_schema::frontmatter::FieldType) -> Self
+impl core::clone::Clone for knotch_schema::frontmatter::FieldSchema
+pub fn knotch_schema::frontmatter::FieldSchema::clone(&self) -> knotch_schema::frontmatter::FieldSchema
+impl core::fmt::Debug for knotch_schema::frontmatter::FieldSchema
+pub fn knotch_schema::frontmatter::FieldSchema::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::frontmatter::FieldSchema
+impl core::marker::Send for knotch_schema::frontmatter::FieldSchema
+impl core::marker::Sync for knotch_schema::frontmatter::FieldSchema
+impl core::marker::Unpin for knotch_schema::frontmatter::FieldSchema
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::FieldSchema
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::FieldSchema
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::FieldSchema
+pub struct knotch_schema::FrontmatterSchema
+impl knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::builder() -> Self
+pub fn knotch_schema::frontmatter::FrontmatterSchema::field(self, schema: knotch_schema::frontmatter::FieldSchema) -> Self
+pub fn knotch_schema::frontmatter::FrontmatterSchema::validate(&self, object: &serde_json::map::Map<alloc::string::String, serde_json::value::Value>) -> core::result::Result<(), knotch_schema::frontmatter::SchemaError>
+impl core::clone::Clone for knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::clone(&self) -> knotch_schema::frontmatter::FrontmatterSchema
+impl core::default::Default for knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::default() -> knotch_schema::frontmatter::FrontmatterSchema
+impl core::fmt::Debug for knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_schema::frontmatter::FrontmatterSchema::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::Send for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::Sync for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::Unpin for knotch_schema::frontmatter::FrontmatterSchema
+impl core::marker::UnsafeUnpin for knotch_schema::frontmatter::FrontmatterSchema
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::frontmatter::FrontmatterSchema
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::frontmatter::FrontmatterSchema
+pub struct knotch_schema::LifecycleFsm
+impl knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::builder() -> Self
+pub fn knotch_schema::lifecycle::LifecycleFsm::evaluate(&self, request: &knotch_schema::lifecycle::TransitionRequest) -> core::result::Result<(), knotch_schema::lifecycle::LifecycleError>
+pub fn knotch_schema::lifecycle::LifecycleFsm::is_terminal(&self, status: &knotch_kernel::status::StatusId) -> bool
+pub fn knotch_schema::lifecycle::LifecycleFsm::terminal(self, status: impl core::convert::Into<compact_str::CompactString>) -> Self
+impl core::clone::Clone for knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::clone(&self) -> knotch_schema::lifecycle::LifecycleFsm
+impl core::default::Default for knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::default() -> knotch_schema::lifecycle::LifecycleFsm
+impl core::fmt::Debug for knotch_schema::lifecycle::LifecycleFsm
+pub fn knotch_schema::lifecycle::LifecycleFsm::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::Send for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::Sync for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::Unpin for knotch_schema::lifecycle::LifecycleFsm
+impl core::marker::UnsafeUnpin for knotch_schema::lifecycle::LifecycleFsm
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::lifecycle::LifecycleFsm
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::lifecycle::LifecycleFsm
+pub struct knotch_schema::TransitionRequest
+pub knotch_schema::TransitionRequest::all_phases_resolved: bool
+pub knotch_schema::TransitionRequest::current: core::option::Option<knotch_kernel::status::StatusId>
+pub knotch_schema::TransitionRequest::forced: bool
+pub knotch_schema::TransitionRequest::rationale: core::option::Option<knotch_kernel::rationale::Rationale>
+pub knotch_schema::TransitionRequest::target: knotch_kernel::status::StatusId
+impl core::clone::Clone for knotch_schema::lifecycle::TransitionRequest
+pub fn knotch_schema::lifecycle::TransitionRequest::clone(&self) -> knotch_schema::lifecycle::TransitionRequest
+impl core::fmt::Debug for knotch_schema::lifecycle::TransitionRequest
+pub fn knotch_schema::lifecycle::TransitionRequest::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::Send for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::Sync for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::Unpin for knotch_schema::lifecycle::TransitionRequest
+impl core::marker::UnsafeUnpin for knotch_schema::lifecycle::TransitionRequest
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_schema::lifecycle::TransitionRequest
+impl core::panic::unwind_safe::UnwindSafe for knotch_schema::lifecycle::TransitionRequest

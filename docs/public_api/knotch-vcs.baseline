@@ -1,0 +1,277 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+ Documenting knotch-vcs v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-vcs)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.10s
+pub mod knotch_vcs
+pub use knotch_vcs::CommitStatus
+pub mod knotch_vcs::commit
+pub use knotch_vcs::commit::CommitStatus
+pub struct knotch_vcs::commit::Commit
+pub knotch_vcs::commit::Commit::body: compact_str::CompactString
+pub knotch_vcs::commit::Commit::committed_at: jiff::timestamp::Timestamp
+pub knotch_vcs::commit::Commit::parents: alloc::vec::Vec<knotch_kernel::event::CommitRef>
+pub knotch_vcs::commit::Commit::sha: knotch_kernel::event::CommitRef
+pub knotch_vcs::commit::Commit::subject: compact_str::CompactString
+impl core::clone::Clone for knotch_vcs::commit::Commit
+pub fn knotch_vcs::commit::Commit::clone(&self) -> knotch_vcs::commit::Commit
+impl core::cmp::Eq for knotch_vcs::commit::Commit
+impl core::cmp::PartialEq for knotch_vcs::commit::Commit
+pub fn knotch_vcs::commit::Commit::eq(&self, other: &knotch_vcs::commit::Commit) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::Commit
+pub fn knotch_vcs::commit::Commit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::Commit
+impl core::marker::Freeze for knotch_vcs::commit::Commit
+impl core::marker::Send for knotch_vcs::commit::Commit
+impl core::marker::Sync for knotch_vcs::commit::Commit
+impl core::marker::Unpin for knotch_vcs::commit::Commit
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::Commit
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::Commit
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::Commit
+pub struct knotch_vcs::commit::ParsedCommit
+pub knotch_vcs::commit::ParsedCommit::body: compact_str::CompactString
+pub knotch_vcs::commit::ParsedCommit::breaking: bool
+pub knotch_vcs::commit::ParsedCommit::kind: knotch_kernel::event::CommitKind
+pub knotch_vcs::commit::ParsedCommit::reverts: core::option::Option<knotch_kernel::event::CommitRef>
+pub knotch_vcs::commit::ParsedCommit::scope: core::option::Option<compact_str::CompactString>
+pub knotch_vcs::commit::ParsedCommit::sha: knotch_kernel::event::CommitRef
+pub knotch_vcs::commit::ParsedCommit::subject: compact_str::CompactString
+impl core::clone::Clone for knotch_vcs::commit::ParsedCommit
+pub fn knotch_vcs::commit::ParsedCommit::clone(&self) -> knotch_vcs::commit::ParsedCommit
+impl core::cmp::Eq for knotch_vcs::commit::ParsedCommit
+impl core::cmp::PartialEq for knotch_vcs::commit::ParsedCommit
+pub fn knotch_vcs::commit::ParsedCommit::eq(&self, other: &knotch_vcs::commit::ParsedCommit) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::ParsedCommit
+pub fn knotch_vcs::commit::ParsedCommit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::ParsedCommit
+impl core::marker::Freeze for knotch_vcs::commit::ParsedCommit
+impl core::marker::Send for knotch_vcs::commit::ParsedCommit
+impl core::marker::Sync for knotch_vcs::commit::ParsedCommit
+impl core::marker::Unpin for knotch_vcs::commit::ParsedCommit
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::ParsedCommit
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::ParsedCommit
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::ParsedCommit
+pub struct knotch_vcs::commit::RevertLink
+pub knotch_vcs::commit::RevertLink::original: knotch_kernel::event::CommitRef
+pub knotch_vcs::commit::RevertLink::revert: knotch_kernel::event::CommitRef
+impl core::clone::Clone for knotch_vcs::commit::RevertLink
+pub fn knotch_vcs::commit::RevertLink::clone(&self) -> knotch_vcs::commit::RevertLink
+impl core::cmp::Eq for knotch_vcs::commit::RevertLink
+impl core::cmp::PartialEq for knotch_vcs::commit::RevertLink
+pub fn knotch_vcs::commit::RevertLink::eq(&self, other: &knotch_vcs::commit::RevertLink) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::RevertLink
+pub fn knotch_vcs::commit::RevertLink::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::RevertLink
+impl core::marker::Freeze for knotch_vcs::commit::RevertLink
+impl core::marker::Send for knotch_vcs::commit::RevertLink
+impl core::marker::Sync for knotch_vcs::commit::RevertLink
+impl core::marker::Unpin for knotch_vcs::commit::RevertLink
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::RevertLink
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::RevertLink
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::RevertLink
+pub struct knotch_vcs::commit::Watermark
+pub knotch_vcs::commit::Watermark::head: knotch_kernel::event::CommitRef
+pub knotch_vcs::commit::Watermark::taken_at: jiff::timestamp::Timestamp
+impl core::clone::Clone for knotch_vcs::commit::Watermark
+pub fn knotch_vcs::commit::Watermark::clone(&self) -> knotch_vcs::commit::Watermark
+impl core::cmp::Eq for knotch_vcs::commit::Watermark
+impl core::cmp::PartialEq for knotch_vcs::commit::Watermark
+pub fn knotch_vcs::commit::Watermark::eq(&self, other: &knotch_vcs::commit::Watermark) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::Watermark
+pub fn knotch_vcs::commit::Watermark::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::Watermark
+impl core::marker::Freeze for knotch_vcs::commit::Watermark
+impl core::marker::Send for knotch_vcs::commit::Watermark
+impl core::marker::Sync for knotch_vcs::commit::Watermark
+impl core::marker::Unpin for knotch_vcs::commit::Watermark
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::Watermark
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::Watermark
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::Watermark
+pub mod knotch_vcs::error
+#[non_exhaustive] pub enum knotch_vcs::error::VcsError
+pub knotch_vcs::error::VcsError::Backend(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_vcs::error::VcsError::HeadUnresolvable
+pub knotch_vcs::error::VcsError::HeadUnresolvable::source: alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>
+pub knotch_vcs::error::VcsError::OpenRepository
+pub knotch_vcs::error::VcsError::OpenRepository::path: std::path::PathBuf
+pub knotch_vcs::error::VcsError::OpenRepository::source: alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>
+impl core::error::Error for knotch_vcs::error::VcsError
+pub fn knotch_vcs::error::VcsError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_vcs::error::VcsError
+pub fn knotch_vcs::error::VcsError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_vcs::error::VcsError
+pub fn knotch_vcs::error::VcsError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_vcs::error::VcsError
+impl core::marker::Send for knotch_vcs::error::VcsError
+impl core::marker::Sync for knotch_vcs::error::VcsError
+impl core::marker::Unpin for knotch_vcs::error::VcsError
+impl core::marker::UnsafeUnpin for knotch_vcs::error::VcsError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::error::VcsError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_vcs::error::VcsError
+pub mod knotch_vcs::parse
+#[non_exhaustive] pub enum knotch_vcs::parse::ParseError
+pub knotch_vcs::parse::ParseError::InvalidHeader(alloc::string::String)
+impl core::cmp::Eq for knotch_vcs::parse::ParseError
+impl core::cmp::PartialEq for knotch_vcs::parse::ParseError
+pub fn knotch_vcs::parse::ParseError::eq(&self, other: &knotch_vcs::parse::ParseError) -> bool
+impl core::error::Error for knotch_vcs::parse::ParseError
+impl core::fmt::Debug for knotch_vcs::parse::ParseError
+pub fn knotch_vcs::parse::ParseError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_vcs::parse::ParseError
+pub fn knotch_vcs::parse::ParseError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::parse::ParseError
+impl core::marker::Freeze for knotch_vcs::parse::ParseError
+impl core::marker::Send for knotch_vcs::parse::ParseError
+impl core::marker::Sync for knotch_vcs::parse::ParseError
+impl core::marker::Unpin for knotch_vcs::parse::ParseError
+impl core::marker::UnsafeUnpin for knotch_vcs::parse::ParseError
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::parse::ParseError
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::parse::ParseError
+pub fn knotch_vcs::parse::parse_commit_message(sha: knotch_kernel::event::CommitRef, message: &str) -> core::result::Result<knotch_vcs::commit::ParsedCommit, knotch_vcs::parse::ParseError>
+#[non_exhaustive] pub enum knotch_vcs::VcsError
+pub knotch_vcs::VcsError::Backend(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_vcs::VcsError::HeadUnresolvable
+pub knotch_vcs::VcsError::HeadUnresolvable::source: alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>
+pub knotch_vcs::VcsError::OpenRepository
+pub knotch_vcs::VcsError::OpenRepository::path: std::path::PathBuf
+pub knotch_vcs::VcsError::OpenRepository::source: alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>
+impl core::error::Error for knotch_vcs::error::VcsError
+pub fn knotch_vcs::error::VcsError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_vcs::error::VcsError
+pub fn knotch_vcs::error::VcsError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_vcs::error::VcsError
+pub fn knotch_vcs::error::VcsError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_vcs::error::VcsError
+impl core::marker::Send for knotch_vcs::error::VcsError
+impl core::marker::Sync for knotch_vcs::error::VcsError
+impl core::marker::Unpin for knotch_vcs::error::VcsError
+impl core::marker::UnsafeUnpin for knotch_vcs::error::VcsError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::error::VcsError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_vcs::error::VcsError
+pub struct knotch_vcs::Commit
+pub knotch_vcs::Commit::body: compact_str::CompactString
+pub knotch_vcs::Commit::committed_at: jiff::timestamp::Timestamp
+pub knotch_vcs::Commit::parents: alloc::vec::Vec<knotch_kernel::event::CommitRef>
+pub knotch_vcs::Commit::sha: knotch_kernel::event::CommitRef
+pub knotch_vcs::Commit::subject: compact_str::CompactString
+impl core::clone::Clone for knotch_vcs::commit::Commit
+pub fn knotch_vcs::commit::Commit::clone(&self) -> knotch_vcs::commit::Commit
+impl core::cmp::Eq for knotch_vcs::commit::Commit
+impl core::cmp::PartialEq for knotch_vcs::commit::Commit
+pub fn knotch_vcs::commit::Commit::eq(&self, other: &knotch_vcs::commit::Commit) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::Commit
+pub fn knotch_vcs::commit::Commit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::Commit
+impl core::marker::Freeze for knotch_vcs::commit::Commit
+impl core::marker::Send for knotch_vcs::commit::Commit
+impl core::marker::Sync for knotch_vcs::commit::Commit
+impl core::marker::Unpin for knotch_vcs::commit::Commit
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::Commit
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::Commit
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::Commit
+pub struct knotch_vcs::CommitFilter
+pub knotch_vcs::CommitFilter::kinds: alloc::vec::Vec<knotch_kernel::event::CommitKind>
+pub knotch_vcs::CommitFilter::limit: core::option::Option<usize>
+impl core::clone::Clone for knotch_vcs::CommitFilter
+pub fn knotch_vcs::CommitFilter::clone(&self) -> knotch_vcs::CommitFilter
+impl core::default::Default for knotch_vcs::CommitFilter
+pub fn knotch_vcs::CommitFilter::default() -> knotch_vcs::CommitFilter
+impl core::fmt::Debug for knotch_vcs::CommitFilter
+pub fn knotch_vcs::CommitFilter::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_vcs::CommitFilter
+impl core::marker::Send for knotch_vcs::CommitFilter
+impl core::marker::Sync for knotch_vcs::CommitFilter
+impl core::marker::Unpin for knotch_vcs::CommitFilter
+impl core::marker::UnsafeUnpin for knotch_vcs::CommitFilter
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::CommitFilter
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::CommitFilter
+pub struct knotch_vcs::GixVcs
+impl knotch_vcs::GixVcs
+pub fn knotch_vcs::GixVcs::open(path: impl core::convert::AsRef<std::path::Path>) -> core::result::Result<Self, knotch_vcs::error::VcsError>
+pub fn knotch_vcs::GixVcs::path(&self) -> &std::path::Path
+impl core::clone::Clone for knotch_vcs::GixVcs
+pub fn knotch_vcs::GixVcs::clone(&self) -> knotch_vcs::GixVcs
+impl core::fmt::Debug for knotch_vcs::GixVcs
+pub fn knotch_vcs::GixVcs::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_vcs::Vcs for knotch_vcs::GixVcs
+pub async fn knotch_vcs::GixVcs::current_head(&self) -> core::result::Result<knotch_kernel::event::CommitRef, knotch_vcs::error::VcsError>
+pub fn knotch_vcs::GixVcs::detect_revert(&self, commit: &knotch_vcs::commit::ParsedCommit) -> core::option::Option<knotch_vcs::commit::RevertLink>
+pub async fn knotch_vcs::GixVcs::log_since(&self, since: core::option::Option<&knotch_kernel::event::CommitRef>, filter: &knotch_vcs::CommitFilter) -> core::result::Result<alloc::vec::Vec<knotch_vcs::commit::Commit>, knotch_vcs::error::VcsError>
+pub async fn knotch_vcs::GixVcs::log_watermark(&self) -> core::result::Result<knotch_vcs::commit::Watermark, knotch_vcs::error::VcsError>
+pub async fn knotch_vcs::GixVcs::verify_commit(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_vcs::error::VcsError>
+impl core::marker::Freeze for knotch_vcs::GixVcs
+impl core::marker::Send for knotch_vcs::GixVcs
+impl core::marker::Sync for knotch_vcs::GixVcs
+impl core::marker::Unpin for knotch_vcs::GixVcs
+impl core::marker::UnsafeUnpin for knotch_vcs::GixVcs
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::GixVcs
+impl !core::panic::unwind_safe::UnwindSafe for knotch_vcs::GixVcs
+pub struct knotch_vcs::ParsedCommit
+pub knotch_vcs::ParsedCommit::body: compact_str::CompactString
+pub knotch_vcs::ParsedCommit::breaking: bool
+pub knotch_vcs::ParsedCommit::kind: knotch_kernel::event::CommitKind
+pub knotch_vcs::ParsedCommit::reverts: core::option::Option<knotch_kernel::event::CommitRef>
+pub knotch_vcs::ParsedCommit::scope: core::option::Option<compact_str::CompactString>
+pub knotch_vcs::ParsedCommit::sha: knotch_kernel::event::CommitRef
+pub knotch_vcs::ParsedCommit::subject: compact_str::CompactString
+impl core::clone::Clone for knotch_vcs::commit::ParsedCommit
+pub fn knotch_vcs::commit::ParsedCommit::clone(&self) -> knotch_vcs::commit::ParsedCommit
+impl core::cmp::Eq for knotch_vcs::commit::ParsedCommit
+impl core::cmp::PartialEq for knotch_vcs::commit::ParsedCommit
+pub fn knotch_vcs::commit::ParsedCommit::eq(&self, other: &knotch_vcs::commit::ParsedCommit) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::ParsedCommit
+pub fn knotch_vcs::commit::ParsedCommit::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::ParsedCommit
+impl core::marker::Freeze for knotch_vcs::commit::ParsedCommit
+impl core::marker::Send for knotch_vcs::commit::ParsedCommit
+impl core::marker::Sync for knotch_vcs::commit::ParsedCommit
+impl core::marker::Unpin for knotch_vcs::commit::ParsedCommit
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::ParsedCommit
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::ParsedCommit
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::ParsedCommit
+pub struct knotch_vcs::RevertLink
+pub knotch_vcs::RevertLink::original: knotch_kernel::event::CommitRef
+pub knotch_vcs::RevertLink::revert: knotch_kernel::event::CommitRef
+impl core::clone::Clone for knotch_vcs::commit::RevertLink
+pub fn knotch_vcs::commit::RevertLink::clone(&self) -> knotch_vcs::commit::RevertLink
+impl core::cmp::Eq for knotch_vcs::commit::RevertLink
+impl core::cmp::PartialEq for knotch_vcs::commit::RevertLink
+pub fn knotch_vcs::commit::RevertLink::eq(&self, other: &knotch_vcs::commit::RevertLink) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::RevertLink
+pub fn knotch_vcs::commit::RevertLink::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::RevertLink
+impl core::marker::Freeze for knotch_vcs::commit::RevertLink
+impl core::marker::Send for knotch_vcs::commit::RevertLink
+impl core::marker::Sync for knotch_vcs::commit::RevertLink
+impl core::marker::Unpin for knotch_vcs::commit::RevertLink
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::RevertLink
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::RevertLink
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::RevertLink
+pub struct knotch_vcs::Watermark
+pub knotch_vcs::Watermark::head: knotch_kernel::event::CommitRef
+pub knotch_vcs::Watermark::taken_at: jiff::timestamp::Timestamp
+impl core::clone::Clone for knotch_vcs::commit::Watermark
+pub fn knotch_vcs::commit::Watermark::clone(&self) -> knotch_vcs::commit::Watermark
+impl core::cmp::Eq for knotch_vcs::commit::Watermark
+impl core::cmp::PartialEq for knotch_vcs::commit::Watermark
+pub fn knotch_vcs::commit::Watermark::eq(&self, other: &knotch_vcs::commit::Watermark) -> bool
+impl core::fmt::Debug for knotch_vcs::commit::Watermark
+pub fn knotch_vcs::commit::Watermark::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_vcs::commit::Watermark
+impl core::marker::Freeze for knotch_vcs::commit::Watermark
+impl core::marker::Send for knotch_vcs::commit::Watermark
+impl core::marker::Sync for knotch_vcs::commit::Watermark
+impl core::marker::Unpin for knotch_vcs::commit::Watermark
+impl core::marker::UnsafeUnpin for knotch_vcs::commit::Watermark
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_vcs::commit::Watermark
+impl core::panic::unwind_safe::UnwindSafe for knotch_vcs::commit::Watermark
+pub trait knotch_vcs::Vcs: core::marker::Send + core::marker::Sync + 'static
+pub fn knotch_vcs::Vcs::current_head(&self) -> impl core::future::future::Future<Output = core::result::Result<knotch_kernel::event::CommitRef, knotch_vcs::error::VcsError>> + core::marker::Send
+pub fn knotch_vcs::Vcs::detect_revert(&self, commit: &knotch_vcs::commit::ParsedCommit) -> core::option::Option<knotch_vcs::commit::RevertLink>
+pub fn knotch_vcs::Vcs::log_since(&self, since: core::option::Option<&knotch_kernel::event::CommitRef>, filter: &knotch_vcs::CommitFilter) -> impl core::future::future::Future<Output = core::result::Result<alloc::vec::Vec<knotch_vcs::commit::Commit>, knotch_vcs::error::VcsError>> + core::marker::Send
+pub fn knotch_vcs::Vcs::log_watermark(&self) -> impl core::future::future::Future<Output = core::result::Result<knotch_vcs::commit::Watermark, knotch_vcs::error::VcsError>> + core::marker::Send
+pub fn knotch_vcs::Vcs::verify_commit(&self, sha: &knotch_kernel::event::CommitRef) -> impl core::future::future::Future<Output = core::result::Result<knotch_kernel::event::CommitStatus, knotch_vcs::error::VcsError>> + core::marker::Send
+impl knotch_vcs::Vcs for knotch_vcs::GixVcs
+pub async fn knotch_vcs::GixVcs::current_head(&self) -> core::result::Result<knotch_kernel::event::CommitRef, knotch_vcs::error::VcsError>
+pub fn knotch_vcs::GixVcs::detect_revert(&self, commit: &knotch_vcs::commit::ParsedCommit) -> core::option::Option<knotch_vcs::commit::RevertLink>
+pub async fn knotch_vcs::GixVcs::log_since(&self, since: core::option::Option<&knotch_kernel::event::CommitRef>, filter: &knotch_vcs::CommitFilter) -> core::result::Result<alloc::vec::Vec<knotch_vcs::commit::Commit>, knotch_vcs::error::VcsError>
+pub async fn knotch_vcs::GixVcs::log_watermark(&self) -> core::result::Result<knotch_vcs::commit::Watermark, knotch_vcs::error::VcsError>
+pub async fn knotch_vcs::GixVcs::verify_commit(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_vcs::error::VcsError>

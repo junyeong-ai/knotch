@@ -1,0 +1,113 @@
+    Checking knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
+    Checking knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
+ Documenting knotch-adr v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-adr)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.29s
+pub mod knotch_adr
+pub enum knotch_adr::AdrGate
+impl core::clone::Clone for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::clone(&self) -> knotch_adr::AdrGate
+impl core::cmp::Eq for knotch_adr::AdrGate
+impl core::cmp::PartialEq for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::eq(&self, other: &knotch_adr::AdrGate) -> bool
+impl core::fmt::Debug for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_adr::AdrGate
+impl knotch_kernel::workflow::GateKind for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::id(&self) -> alloc::borrow::Cow<'_, str>
+impl serde_core::ser::Serialize for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_adr::AdrGate
+pub fn knotch_adr::AdrGate::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_adr::AdrGate
+impl core::marker::Send for knotch_adr::AdrGate
+impl core::marker::Sync for knotch_adr::AdrGate
+impl core::marker::Unpin for knotch_adr::AdrGate
+impl core::marker::UnsafeUnpin for knotch_adr::AdrGate
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_adr::AdrGate
+impl core::panic::unwind_safe::UnwindSafe for knotch_adr::AdrGate
+pub enum knotch_adr::AdrPhase
+pub knotch_adr::AdrPhase::Decided
+impl core::clone::Clone for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::clone(&self) -> knotch_adr::AdrPhase
+impl core::cmp::Eq for knotch_adr::AdrPhase
+impl core::cmp::Ord for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::cmp(&self, other: &knotch_adr::AdrPhase) -> core::cmp::Ordering
+impl core::cmp::PartialEq for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::eq(&self, other: &knotch_adr::AdrPhase) -> bool
+impl core::cmp::PartialOrd for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::partial_cmp(&self, other: &knotch_adr::AdrPhase) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for knotch_adr::AdrPhase
+impl core::marker::StructuralPartialEq for knotch_adr::AdrPhase
+impl knotch_kernel::workflow::PhaseKind for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::id(&self) -> alloc::borrow::Cow<'_, str>
+pub fn knotch_adr::AdrPhase::is_skippable(&self, _reason: &knotch_kernel::event::SkipKind) -> bool
+impl serde_core::ser::Serialize for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_adr::AdrPhase
+pub fn knotch_adr::AdrPhase::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_adr::AdrPhase
+impl core::marker::Send for knotch_adr::AdrPhase
+impl core::marker::Sync for knotch_adr::AdrPhase
+impl core::marker::Unpin for knotch_adr::AdrPhase
+impl core::marker::UnsafeUnpin for knotch_adr::AdrPhase
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_adr::AdrPhase
+impl core::panic::unwind_safe::UnwindSafe for knotch_adr::AdrPhase
+pub struct knotch_adr::Adr
+impl core::clone::Clone for knotch_adr::Adr
+pub fn knotch_adr::Adr::clone(&self) -> knotch_adr::Adr
+impl core::default::Default for knotch_adr::Adr
+pub fn knotch_adr::Adr::default() -> knotch_adr::Adr
+impl core::fmt::Debug for knotch_adr::Adr
+pub fn knotch_adr::Adr::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_adr::Adr
+impl knotch_kernel::workflow::WorkflowKind for knotch_adr::Adr
+pub type knotch_adr::Adr::Extension = ()
+pub type knotch_adr::Adr::Gate = knotch_adr::AdrGate
+pub type knotch_adr::Adr::Milestone = knotch_adr::AdrId
+pub type knotch_adr::Adr::Phase = knotch_adr::AdrPhase
+pub fn knotch_adr::Adr::is_terminal_status(&self, status: &knotch_kernel::status::StatusId) -> bool
+pub fn knotch_adr::Adr::known_statuses(&self) -> alloc::vec::Vec<alloc::borrow::Cow<'_, str>>
+pub fn knotch_adr::Adr::name(&self) -> alloc::borrow::Cow<'_, str>
+pub fn knotch_adr::Adr::required_phases(&self, _: &knotch_kernel::scope::Scope) -> alloc::borrow::Cow<'_, [Self::Phase]>
+pub fn knotch_adr::Adr::schema_version(&self) -> u32
+impl core::marker::Freeze for knotch_adr::Adr
+impl core::marker::Send for knotch_adr::Adr
+impl core::marker::Sync for knotch_adr::Adr
+impl core::marker::Unpin for knotch_adr::Adr
+impl core::marker::UnsafeUnpin for knotch_adr::Adr
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_adr::Adr
+impl core::panic::unwind_safe::UnwindSafe for knotch_adr::Adr
+pub struct knotch_adr::AdrId(pub compact_str::CompactString)
+impl core::clone::Clone for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::clone(&self) -> knotch_adr::AdrId
+impl core::cmp::Eq for knotch_adr::AdrId
+impl core::cmp::PartialEq for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::eq(&self, other: &knotch_adr::AdrId) -> bool
+impl core::fmt::Debug for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for knotch_adr::AdrId
+impl knotch_kernel::workflow::MilestoneKind for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::id(&self) -> alloc::borrow::Cow<'_, str>
+impl serde_core::ser::Serialize for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_adr::AdrId
+pub fn knotch_adr::AdrId::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_adr::AdrId
+impl core::marker::Send for knotch_adr::AdrId
+impl core::marker::Sync for knotch_adr::AdrId
+impl core::marker::Unpin for knotch_adr::AdrId
+impl core::marker::UnsafeUnpin for knotch_adr::AdrId
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_adr::AdrId
+impl core::panic::unwind_safe::UnwindSafe for knotch_adr::AdrId
+pub const knotch_adr::TEMPLATE: &str
+pub fn knotch_adr::build_repository(root: impl core::convert::Into<std::path::PathBuf>) -> knotch_storage::file_repository::FileRepository<knotch_adr::Adr>
+pub fn knotch_adr::frontmatter_schema() -> knotch_schema::frontmatter::FrontmatterSchema
+pub fn knotch_adr::lifecycle_fsm() -> knotch_schema::lifecycle::LifecycleFsm

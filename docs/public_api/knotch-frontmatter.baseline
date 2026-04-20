@@ -1,0 +1,59 @@
+ Documenting knotch-frontmatter v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-frontmatter)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.93s
+pub mod knotch_frontmatter
+pub use knotch_frontmatter::FieldSchema
+pub use knotch_frontmatter::FieldType
+pub use knotch_frontmatter::FrontmatterSchema
+pub use knotch_frontmatter::SchemaError
+pub use knotch_frontmatter::__compact_str
+#[non_exhaustive] pub enum knotch_frontmatter::FrontmatterError
+pub knotch_frontmatter::FrontmatterError::Io
+pub knotch_frontmatter::FrontmatterError::Io::source: std::io::error::Error
+pub knotch_frontmatter::FrontmatterError::NoFrontmatter
+pub knotch_frontmatter::FrontmatterError::NotAnObject
+pub knotch_frontmatter::FrontmatterError::Schema
+pub knotch_frontmatter::FrontmatterError::Schema::source: knotch_schema::frontmatter::SchemaError
+pub knotch_frontmatter::FrontmatterError::Yaml
+pub knotch_frontmatter::FrontmatterError::Yaml::source: yaml_serde::error::Error
+impl core::convert::From<knotch_schema::frontmatter::SchemaError> for knotch_frontmatter::FrontmatterError
+pub fn knotch_frontmatter::FrontmatterError::from(source: knotch_schema::frontmatter::SchemaError) -> Self
+impl core::convert::From<std::io::error::Error> for knotch_frontmatter::FrontmatterError
+pub fn knotch_frontmatter::FrontmatterError::from(source: std::io::error::Error) -> Self
+impl core::convert::From<yaml_serde::error::Error> for knotch_frontmatter::FrontmatterError
+pub fn knotch_frontmatter::FrontmatterError::from(source: yaml_serde::error::Error) -> Self
+impl core::error::Error for knotch_frontmatter::FrontmatterError
+pub fn knotch_frontmatter::FrontmatterError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_frontmatter::FrontmatterError
+pub fn knotch_frontmatter::FrontmatterError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_frontmatter::FrontmatterError
+pub fn knotch_frontmatter::FrontmatterError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_frontmatter::FrontmatterError
+impl core::marker::Send for knotch_frontmatter::FrontmatterError
+impl core::marker::Sync for knotch_frontmatter::FrontmatterError
+impl core::marker::Unpin for knotch_frontmatter::FrontmatterError
+impl core::marker::UnsafeUnpin for knotch_frontmatter::FrontmatterError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_frontmatter::FrontmatterError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_frontmatter::FrontmatterError
+pub struct knotch_frontmatter::Document
+impl knotch_frontmatter::Document
+pub fn knotch_frontmatter::Document::body(&self) -> &str
+pub fn knotch_frontmatter::Document::get(&self, key: &str) -> core::option::Option<&serde_json::value::Value>
+pub fn knotch_frontmatter::Document::header(&self) -> &serde_json::map::Map<alloc::string::String, serde_json::value::Value>
+pub fn knotch_frontmatter::Document::parse(markdown: &str) -> core::result::Result<Self, knotch_frontmatter::FrontmatterError>
+pub fn knotch_frontmatter::Document::remove(&mut self, key: &str) -> core::option::Option<serde_json::value::Value>
+pub fn knotch_frontmatter::Document::set(&mut self, key: impl core::convert::Into<alloc::string::String>, value: serde_json::value::Value) -> core::option::Option<serde_json::value::Value>
+pub fn knotch_frontmatter::Document::to_markdown(&self) -> core::result::Result<alloc::string::String, knotch_frontmatter::FrontmatterError>
+pub fn knotch_frontmatter::Document::validate(&self, schema: &knotch_schema::frontmatter::FrontmatterSchema) -> core::result::Result<(), knotch_frontmatter::FrontmatterError>
+impl core::clone::Clone for knotch_frontmatter::Document
+pub fn knotch_frontmatter::Document::clone(&self) -> knotch_frontmatter::Document
+impl core::fmt::Debug for knotch_frontmatter::Document
+pub fn knotch_frontmatter::Document::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_frontmatter::Document
+impl core::marker::Send for knotch_frontmatter::Document
+impl core::marker::Sync for knotch_frontmatter::Document
+impl core::marker::Unpin for knotch_frontmatter::Document
+impl core::marker::UnsafeUnpin for knotch_frontmatter::Document
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_frontmatter::Document
+impl core::panic::unwind_safe::UnwindSafe for knotch_frontmatter::Document
+pub async fn knotch_frontmatter::atomic_write(path: &std::path::Path, bytes: &[u8]) -> core::result::Result<(), knotch_frontmatter::FrontmatterError>
+pub async fn knotch_frontmatter::sync_status_on_file(path: impl core::convert::AsRef<std::path::Path>, new_status: &str) -> core::result::Result<(), knotch_frontmatter::FrontmatterError>

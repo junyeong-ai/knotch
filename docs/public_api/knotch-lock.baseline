@@ -1,0 +1,167 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+ Documenting knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.87s
+pub mod knotch_lock
+pub mod knotch_lock::metadata
+pub struct knotch_lock::metadata::LockMetadata
+pub knotch_lock::metadata::LockMetadata::acquired_at: jiff::timestamp::Timestamp
+pub knotch_lock::metadata::LockMetadata::lease: core::time::Duration
+pub knotch_lock::metadata::LockMetadata::owner: knotch_lock::metadata::LockOwner
+impl knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::is_expired(&self, now: jiff::timestamp::Timestamp) -> bool
+impl core::clone::Clone for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::clone(&self) -> knotch_lock::metadata::LockMetadata
+impl core::cmp::Eq for knotch_lock::metadata::LockMetadata
+impl core::cmp::PartialEq for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::eq(&self, other: &knotch_lock::metadata::LockMetadata) -> bool
+impl core::fmt::Debug for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_lock::metadata::LockMetadata
+impl serde_core::ser::Serialize for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_lock::metadata::LockMetadata
+impl core::marker::Send for knotch_lock::metadata::LockMetadata
+impl core::marker::Sync for knotch_lock::metadata::LockMetadata
+impl core::marker::Unpin for knotch_lock::metadata::LockMetadata
+impl core::marker::UnsafeUnpin for knotch_lock::metadata::LockMetadata
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_lock::metadata::LockMetadata
+impl core::panic::unwind_safe::UnwindSafe for knotch_lock::metadata::LockMetadata
+pub struct knotch_lock::metadata::LockOwner
+pub knotch_lock::metadata::LockOwner::hostname: core::option::Option<alloc::string::String>
+pub knotch_lock::metadata::LockOwner::pid: u32
+impl knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::current() -> Self
+impl core::clone::Clone for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::clone(&self) -> knotch_lock::metadata::LockOwner
+impl core::cmp::Eq for knotch_lock::metadata::LockOwner
+impl core::cmp::PartialEq for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::eq(&self, other: &knotch_lock::metadata::LockOwner) -> bool
+impl core::fmt::Debug for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_lock::metadata::LockOwner
+impl serde_core::ser::Serialize for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_lock::metadata::LockOwner
+impl core::marker::Send for knotch_lock::metadata::LockOwner
+impl core::marker::Sync for knotch_lock::metadata::LockOwner
+impl core::marker::Unpin for knotch_lock::metadata::LockOwner
+impl core::marker::UnsafeUnpin for knotch_lock::metadata::LockOwner
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_lock::metadata::LockOwner
+impl core::panic::unwind_safe::UnwindSafe for knotch_lock::metadata::LockOwner
+#[non_exhaustive] pub enum knotch_lock::LockError
+pub knotch_lock::LockError::Contended
+pub knotch_lock::LockError::Contended::holder_host: core::option::Option<alloc::string::String>
+pub knotch_lock::LockError::Contended::holder_pid: u32
+pub knotch_lock::LockError::Contended::unit: alloc::string::String
+pub knotch_lock::LockError::Io
+pub knotch_lock::LockError::Io::path: core::option::Option<std::path::PathBuf>
+pub knotch_lock::LockError::Io::source: std::io::error::Error
+pub knotch_lock::LockError::MalformedMetadata
+pub knotch_lock::LockError::MalformedMetadata::path: std::path::PathBuf
+pub knotch_lock::LockError::MalformedMetadata::source: serde_json::error::Error
+pub knotch_lock::LockError::Timeout
+pub knotch_lock::LockError::Timeout::unit: alloc::string::String
+pub knotch_lock::LockError::Timeout::waited: core::time::Duration
+impl core::error::Error for knotch_lock::LockError
+pub fn knotch_lock::LockError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_lock::LockError
+pub fn knotch_lock::LockError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_lock::LockError
+pub fn knotch_lock::LockError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_lock::LockError
+impl core::marker::Send for knotch_lock::LockError
+impl core::marker::Sync for knotch_lock::LockError
+impl core::marker::Unpin for knotch_lock::LockError
+impl core::marker::UnsafeUnpin for knotch_lock::LockError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_lock::LockError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_lock::LockError
+pub struct knotch_lock::FileLock
+impl knotch_lock::FileLock
+pub fn knotch_lock::FileLock::new(root: impl core::convert::Into<std::path::PathBuf>) -> Self
+pub fn knotch_lock::FileLock::with_poll_interval(self, interval: core::time::Duration) -> Self
+impl core::clone::Clone for knotch_lock::FileLock
+pub fn knotch_lock::FileLock::clone(&self) -> knotch_lock::FileLock
+impl core::fmt::Debug for knotch_lock::FileLock
+pub fn knotch_lock::FileLock::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_lock::Lock for knotch_lock::FileLock
+pub async fn knotch_lock::FileLock::acquire(&self, unit: &knotch_kernel::id::UnitId, timeout: core::time::Duration, lease: core::time::Duration) -> core::result::Result<knotch_lock::LockGuard, knotch_lock::LockError>
+impl core::marker::Freeze for knotch_lock::FileLock
+impl core::marker::Send for knotch_lock::FileLock
+impl core::marker::Sync for knotch_lock::FileLock
+impl core::marker::Unpin for knotch_lock::FileLock
+impl core::marker::UnsafeUnpin for knotch_lock::FileLock
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_lock::FileLock
+impl !core::panic::unwind_safe::UnwindSafe for knotch_lock::FileLock
+pub struct knotch_lock::LockGuard
+impl knotch_lock::LockGuard
+pub async fn knotch_lock::LockGuard::release(self)
+pub fn knotch_lock::LockGuard::unit(&self) -> &knotch_kernel::id::UnitId
+pub fn knotch_lock::LockGuard::was_reclaimed(&self) -> bool
+impl core::fmt::Debug for knotch_lock::LockGuard
+pub fn knotch_lock::LockGuard::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::drop::Drop for knotch_lock::LockGuard
+pub fn knotch_lock::LockGuard::drop(&mut self)
+impl !core::marker::Freeze for knotch_lock::LockGuard
+impl core::marker::Send for knotch_lock::LockGuard
+impl core::marker::Sync for knotch_lock::LockGuard
+impl core::marker::Unpin for knotch_lock::LockGuard
+impl core::marker::UnsafeUnpin for knotch_lock::LockGuard
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_lock::LockGuard
+impl !core::panic::unwind_safe::UnwindSafe for knotch_lock::LockGuard
+pub struct knotch_lock::LockMetadata
+pub knotch_lock::LockMetadata::acquired_at: jiff::timestamp::Timestamp
+pub knotch_lock::LockMetadata::lease: core::time::Duration
+pub knotch_lock::LockMetadata::owner: knotch_lock::metadata::LockOwner
+impl knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::is_expired(&self, now: jiff::timestamp::Timestamp) -> bool
+impl core::clone::Clone for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::clone(&self) -> knotch_lock::metadata::LockMetadata
+impl core::cmp::Eq for knotch_lock::metadata::LockMetadata
+impl core::cmp::PartialEq for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::eq(&self, other: &knotch_lock::metadata::LockMetadata) -> bool
+impl core::fmt::Debug for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_lock::metadata::LockMetadata
+impl serde_core::ser::Serialize for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_lock::metadata::LockMetadata
+pub fn knotch_lock::metadata::LockMetadata::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_lock::metadata::LockMetadata
+impl core::marker::Send for knotch_lock::metadata::LockMetadata
+impl core::marker::Sync for knotch_lock::metadata::LockMetadata
+impl core::marker::Unpin for knotch_lock::metadata::LockMetadata
+impl core::marker::UnsafeUnpin for knotch_lock::metadata::LockMetadata
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_lock::metadata::LockMetadata
+impl core::panic::unwind_safe::UnwindSafe for knotch_lock::metadata::LockMetadata
+pub struct knotch_lock::LockOwner
+pub knotch_lock::LockOwner::hostname: core::option::Option<alloc::string::String>
+pub knotch_lock::LockOwner::pid: u32
+impl knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::current() -> Self
+impl core::clone::Clone for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::clone(&self) -> knotch_lock::metadata::LockOwner
+impl core::cmp::Eq for knotch_lock::metadata::LockOwner
+impl core::cmp::PartialEq for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::eq(&self, other: &knotch_lock::metadata::LockOwner) -> bool
+impl core::fmt::Debug for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for knotch_lock::metadata::LockOwner
+impl serde_core::ser::Serialize for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_lock::metadata::LockOwner
+pub fn knotch_lock::metadata::LockOwner::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_lock::metadata::LockOwner
+impl core::marker::Send for knotch_lock::metadata::LockOwner
+impl core::marker::Sync for knotch_lock::metadata::LockOwner
+impl core::marker::Unpin for knotch_lock::metadata::LockOwner
+impl core::marker::UnsafeUnpin for knotch_lock::metadata::LockOwner
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_lock::metadata::LockOwner
+impl core::panic::unwind_safe::UnwindSafe for knotch_lock::metadata::LockOwner
+pub trait knotch_lock::Lock: core::marker::Send + core::marker::Sync + 'static
+pub fn knotch_lock::Lock::acquire(&self, unit: &knotch_kernel::id::UnitId, timeout: core::time::Duration, lease: core::time::Duration) -> impl core::future::future::Future<Output = core::result::Result<knotch_lock::LockGuard, knotch_lock::LockError>> + core::marker::Send
+impl knotch_lock::Lock for knotch_lock::FileLock
+pub async fn knotch_lock::FileLock::acquire(&self, unit: &knotch_kernel::id::UnitId, timeout: core::time::Duration, lease: core::time::Duration) -> core::result::Result<knotch_lock::LockGuard, knotch_lock::LockError>

@@ -1,0 +1,151 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+    Checking knotch-lock v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-lock)
+    Checking knotch-vcs v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-vcs)
+    Checking knotch-storage v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-storage)
+    Checking knotch-workflow v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-workflow)
+    Checking knotch-schema v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-schema)
+    Checking knotch-observer v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-observer)
+    Checking knotch-reconciler v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-reconciler)
+ Documenting knotch-testing v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-testing)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.70s
+pub mod knotch_testing
+pub mod knotch_testing::repo
+pub struct knotch_testing::repo::InMemoryRepository<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_testing::repo::InMemoryRepository<W>
+pub fn knotch_testing::repo::InMemoryRepository<W>::new(workflow: W) -> Self
+pub fn knotch_testing::repo::InMemoryRepository<W>::with_capacity(workflow: W, capacity: usize) -> Self
+pub fn knotch_testing::repo::InMemoryRepository<W>::workflow(&self) -> &W
+impl<W: knotch_kernel::workflow::WorkflowKind + core::default::Default> core::default::Default for knotch_testing::repo::InMemoryRepository<W>
+pub fn knotch_testing::repo::InMemoryRepository<W>::default() -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_testing::repo::InMemoryRepository<W>
+pub fn knotch_testing::repo::InMemoryRepository<W>::clone(&self) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::repository::Repository<W> for knotch_testing::repo::InMemoryRepository<W>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::append(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_testing::repo::InMemoryRepository<W>::list_units(&self) -> knotch_kernel::repository::PinStream<core::result::Result<knotch_kernel::id::UnitId, knotch_kernel::error::RepositoryError>>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<alloc::sync::Arc<knotch_kernel::log::Log<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::subscribe(&self, unit: &knotch_kernel::id::UnitId, mode: knotch_kernel::event::SubscribeMode) -> core::result::Result<knotch_kernel::repository::PinStream<knotch_kernel::event::SubscribeEvent<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::with_cache(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode, mutate_cache: knotch_kernel::repository::CacheMutator) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_testing::repo::InMemoryRepository<W>::workflow(&self) -> &W
+impl<W> core::marker::Freeze for knotch_testing::repo::InMemoryRepository<W> where W: core::marker::Freeze
+impl<W> core::marker::Send for knotch_testing::repo::InMemoryRepository<W>
+impl<W> core::marker::Sync for knotch_testing::repo::InMemoryRepository<W>
+impl<W> core::marker::Unpin for knotch_testing::repo::InMemoryRepository<W> where W: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_testing::repo::InMemoryRepository<W> where W: core::marker::UnsafeUnpin
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_testing::repo::InMemoryRepository<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_testing::repo::InMemoryRepository<W>
+pub const knotch_testing::repo::DEFAULT_BROADCAST_CAPACITY: usize
+pub mod knotch_testing::sim
+pub mod knotch_testing::vcs
+pub struct knotch_testing::vcs::InMemoryVcs
+impl knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::is_empty(&self) -> bool
+pub fn knotch_testing::vcs::InMemoryVcs::len(&self) -> usize
+pub fn knotch_testing::vcs::InMemoryVcs::new() -> Self
+pub fn knotch_testing::vcs::InMemoryVcs::push_commit(&self, fixture: knotch_testing::vcs::VcsFixture)
+pub fn knotch_testing::vcs::InMemoryVcs::set_head(&self, head: knotch_kernel::event::CommitRef)
+impl core::clone::Clone for knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::clone(&self) -> knotch_testing::vcs::InMemoryVcs
+impl core::default::Default for knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::default() -> knotch_testing::vcs::InMemoryVcs
+impl core::fmt::Debug for knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_vcs::Vcs for knotch_testing::vcs::InMemoryVcs
+pub async fn knotch_testing::vcs::InMemoryVcs::current_head(&self) -> core::result::Result<knotch_kernel::event::CommitRef, knotch_vcs::error::VcsError>
+pub async fn knotch_testing::vcs::InMemoryVcs::log_since(&self, since: core::option::Option<&knotch_kernel::event::CommitRef>, filter: &knotch_vcs::CommitFilter) -> core::result::Result<alloc::vec::Vec<knotch_vcs::commit::Commit>, knotch_vcs::error::VcsError>
+pub async fn knotch_testing::vcs::InMemoryVcs::log_watermark(&self) -> core::result::Result<knotch_vcs::commit::Watermark, knotch_vcs::error::VcsError>
+pub async fn knotch_testing::vcs::InMemoryVcs::verify_commit(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_vcs::error::VcsError>
+impl core::marker::Freeze for knotch_testing::vcs::InMemoryVcs
+impl core::marker::Send for knotch_testing::vcs::InMemoryVcs
+impl core::marker::Sync for knotch_testing::vcs::InMemoryVcs
+impl core::marker::Unpin for knotch_testing::vcs::InMemoryVcs
+impl core::marker::UnsafeUnpin for knotch_testing::vcs::InMemoryVcs
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_testing::vcs::InMemoryVcs
+impl core::panic::unwind_safe::UnwindSafe for knotch_testing::vcs::InMemoryVcs
+pub struct knotch_testing::vcs::VcsFixture
+pub knotch_testing::vcs::VcsFixture::commit: knotch_vcs::commit::Commit
+pub knotch_testing::vcs::VcsFixture::kind: core::option::Option<knotch_kernel::event::CommitKind>
+pub knotch_testing::vcs::VcsFixture::status: knotch_kernel::event::CommitStatus
+impl knotch_testing::vcs::VcsFixture
+pub fn knotch_testing::vcs::VcsFixture::pending(self) -> Self
+pub fn knotch_testing::vcs::VcsFixture::verified(sha: impl core::convert::Into<compact_str::CompactString>, subject: impl core::convert::Into<compact_str::CompactString>, committed_at: jiff::timestamp::Timestamp) -> Self
+pub fn knotch_testing::vcs::VcsFixture::with_body(self, body: impl core::convert::Into<compact_str::CompactString>) -> Self
+pub fn knotch_testing::vcs::VcsFixture::with_kind(self, kind: knotch_kernel::event::CommitKind) -> Self
+impl core::clone::Clone for knotch_testing::vcs::VcsFixture
+pub fn knotch_testing::vcs::VcsFixture::clone(&self) -> knotch_testing::vcs::VcsFixture
+impl core::fmt::Debug for knotch_testing::vcs::VcsFixture
+pub fn knotch_testing::vcs::VcsFixture::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_testing::vcs::VcsFixture
+impl core::marker::Send for knotch_testing::vcs::VcsFixture
+impl core::marker::Sync for knotch_testing::vcs::VcsFixture
+impl core::marker::Unpin for knotch_testing::vcs::VcsFixture
+impl core::marker::UnsafeUnpin for knotch_testing::vcs::VcsFixture
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_testing::vcs::VcsFixture
+impl core::panic::unwind_safe::UnwindSafe for knotch_testing::vcs::VcsFixture
+pub struct knotch_testing::InMemoryRepository<W: knotch_kernel::workflow::WorkflowKind>
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_testing::repo::InMemoryRepository<W>
+pub fn knotch_testing::repo::InMemoryRepository<W>::new(workflow: W) -> Self
+pub fn knotch_testing::repo::InMemoryRepository<W>::with_capacity(workflow: W, capacity: usize) -> Self
+pub fn knotch_testing::repo::InMemoryRepository<W>::workflow(&self) -> &W
+impl<W: knotch_kernel::workflow::WorkflowKind + core::default::Default> core::default::Default for knotch_testing::repo::InMemoryRepository<W>
+pub fn knotch_testing::repo::InMemoryRepository<W>::default() -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> core::clone::Clone for knotch_testing::repo::InMemoryRepository<W>
+pub fn knotch_testing::repo::InMemoryRepository<W>::clone(&self) -> Self
+impl<W: knotch_kernel::workflow::WorkflowKind> knotch_kernel::repository::Repository<W> for knotch_testing::repo::InMemoryRepository<W>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::append(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_testing::repo::InMemoryRepository<W>::list_units(&self) -> knotch_kernel::repository::PinStream<core::result::Result<knotch_kernel::id::UnitId, knotch_kernel::error::RepositoryError>>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::load(&self, unit: &knotch_kernel::id::UnitId) -> core::result::Result<alloc::sync::Arc<knotch_kernel::log::Log<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::subscribe(&self, unit: &knotch_kernel::id::UnitId, mode: knotch_kernel::event::SubscribeMode) -> core::result::Result<knotch_kernel::repository::PinStream<knotch_kernel::event::SubscribeEvent<W>>, knotch_kernel::error::RepositoryError>
+pub async fn knotch_testing::repo::InMemoryRepository<W>::with_cache(&self, unit: &knotch_kernel::id::UnitId, proposals: alloc::vec::Vec<knotch_kernel::event::Proposal<W>>, mode: knotch_kernel::event::AppendMode, mutate_cache: knotch_kernel::repository::CacheMutator) -> core::result::Result<knotch_kernel::event::AppendReport<W>, knotch_kernel::error::RepositoryError>
+pub fn knotch_testing::repo::InMemoryRepository<W>::workflow(&self) -> &W
+impl<W> core::marker::Freeze for knotch_testing::repo::InMemoryRepository<W> where W: core::marker::Freeze
+impl<W> core::marker::Send for knotch_testing::repo::InMemoryRepository<W>
+impl<W> core::marker::Sync for knotch_testing::repo::InMemoryRepository<W>
+impl<W> core::marker::Unpin for knotch_testing::repo::InMemoryRepository<W> where W: core::marker::Unpin
+impl<W> core::marker::UnsafeUnpin for knotch_testing::repo::InMemoryRepository<W> where W: core::marker::UnsafeUnpin
+impl<W> !core::panic::unwind_safe::RefUnwindSafe for knotch_testing::repo::InMemoryRepository<W>
+impl<W> !core::panic::unwind_safe::UnwindSafe for knotch_testing::repo::InMemoryRepository<W>
+pub struct knotch_testing::InMemoryVcs
+impl knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::is_empty(&self) -> bool
+pub fn knotch_testing::vcs::InMemoryVcs::len(&self) -> usize
+pub fn knotch_testing::vcs::InMemoryVcs::new() -> Self
+pub fn knotch_testing::vcs::InMemoryVcs::push_commit(&self, fixture: knotch_testing::vcs::VcsFixture)
+pub fn knotch_testing::vcs::InMemoryVcs::set_head(&self, head: knotch_kernel::event::CommitRef)
+impl core::clone::Clone for knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::clone(&self) -> knotch_testing::vcs::InMemoryVcs
+impl core::default::Default for knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::default() -> knotch_testing::vcs::InMemoryVcs
+impl core::fmt::Debug for knotch_testing::vcs::InMemoryVcs
+pub fn knotch_testing::vcs::InMemoryVcs::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_vcs::Vcs for knotch_testing::vcs::InMemoryVcs
+pub async fn knotch_testing::vcs::InMemoryVcs::current_head(&self) -> core::result::Result<knotch_kernel::event::CommitRef, knotch_vcs::error::VcsError>
+pub async fn knotch_testing::vcs::InMemoryVcs::log_since(&self, since: core::option::Option<&knotch_kernel::event::CommitRef>, filter: &knotch_vcs::CommitFilter) -> core::result::Result<alloc::vec::Vec<knotch_vcs::commit::Commit>, knotch_vcs::error::VcsError>
+pub async fn knotch_testing::vcs::InMemoryVcs::log_watermark(&self) -> core::result::Result<knotch_vcs::commit::Watermark, knotch_vcs::error::VcsError>
+pub async fn knotch_testing::vcs::InMemoryVcs::verify_commit(&self, sha: &knotch_kernel::event::CommitRef) -> core::result::Result<knotch_kernel::event::CommitStatus, knotch_vcs::error::VcsError>
+impl core::marker::Freeze for knotch_testing::vcs::InMemoryVcs
+impl core::marker::Send for knotch_testing::vcs::InMemoryVcs
+impl core::marker::Sync for knotch_testing::vcs::InMemoryVcs
+impl core::marker::Unpin for knotch_testing::vcs::InMemoryVcs
+impl core::marker::UnsafeUnpin for knotch_testing::vcs::InMemoryVcs
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_testing::vcs::InMemoryVcs
+impl core::panic::unwind_safe::UnwindSafe for knotch_testing::vcs::InMemoryVcs
+pub struct knotch_testing::VcsFixture
+pub knotch_testing::VcsFixture::commit: knotch_vcs::commit::Commit
+pub knotch_testing::VcsFixture::kind: core::option::Option<knotch_kernel::event::CommitKind>
+pub knotch_testing::VcsFixture::status: knotch_kernel::event::CommitStatus
+impl knotch_testing::vcs::VcsFixture
+pub fn knotch_testing::vcs::VcsFixture::pending(self) -> Self
+pub fn knotch_testing::vcs::VcsFixture::verified(sha: impl core::convert::Into<compact_str::CompactString>, subject: impl core::convert::Into<compact_str::CompactString>, committed_at: jiff::timestamp::Timestamp) -> Self
+pub fn knotch_testing::vcs::VcsFixture::with_body(self, body: impl core::convert::Into<compact_str::CompactString>) -> Self
+pub fn knotch_testing::vcs::VcsFixture::with_kind(self, kind: knotch_kernel::event::CommitKind) -> Self
+impl core::clone::Clone for knotch_testing::vcs::VcsFixture
+pub fn knotch_testing::vcs::VcsFixture::clone(&self) -> knotch_testing::vcs::VcsFixture
+impl core::fmt::Debug for knotch_testing::vcs::VcsFixture
+pub fn knotch_testing::vcs::VcsFixture::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_testing::vcs::VcsFixture
+impl core::marker::Send for knotch_testing::vcs::VcsFixture
+impl core::marker::Sync for knotch_testing::vcs::VcsFixture
+impl core::marker::Unpin for knotch_testing::vcs::VcsFixture
+impl core::marker::UnsafeUnpin for knotch_testing::vcs::VcsFixture
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_testing::vcs::VcsFixture
+impl core::panic::unwind_safe::UnwindSafe for knotch_testing::vcs::VcsFixture

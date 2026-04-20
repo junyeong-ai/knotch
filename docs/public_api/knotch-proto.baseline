@@ -1,0 +1,64 @@
+ Documenting knotch-proto v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-proto)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.80s
+pub mod knotch_proto
+pub mod knotch_proto::canonical
+pub fn knotch_proto::canonical::canonicalize<T: serde_core::ser::Serialize + ?core::marker::Sized>(value: &T) -> core::result::Result<alloc::vec::Vec<u8>, serde_json::error::Error>
+pub mod knotch_proto::header
+pub struct knotch_proto::header::Header
+pub knotch_proto::header::Header::fingerprint_salt: compact_str::CompactString
+pub knotch_proto::header::Header::schema_version: u32
+pub knotch_proto::header::Header::workflow: compact_str::CompactString
+impl core::clone::Clone for knotch_proto::header::Header
+pub fn knotch_proto::header::Header::clone(&self) -> knotch_proto::header::Header
+impl core::fmt::Debug for knotch_proto::header::Header
+pub fn knotch_proto::header::Header::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for knotch_proto::header::Header
+pub fn knotch_proto::header::Header::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for knotch_proto::header::Header
+pub fn knotch_proto::header::Header::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for knotch_proto::header::Header
+impl core::marker::Send for knotch_proto::header::Header
+impl core::marker::Sync for knotch_proto::header::Header
+impl core::marker::Unpin for knotch_proto::header::Header
+impl core::marker::UnsafeUnpin for knotch_proto::header::Header
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_proto::header::Header
+impl core::panic::unwind_safe::UnwindSafe for knotch_proto::header::Header
+pub mod knotch_proto::migration
+#[non_exhaustive] pub enum knotch_proto::migration::MigrationError
+pub knotch_proto::migration::MigrationError::Custom(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_proto::migration::MigrationError::MissingLink
+pub knotch_proto::migration::MigrationError::MissingLink::from: u32
+pub knotch_proto::migration::MigrationError::MissingLink::to: u32
+pub knotch_proto::migration::MigrationError::Overlap
+pub knotch_proto::migration::MigrationError::Overlap::from: u32
+impl core::error::Error for knotch_proto::migration::MigrationError
+pub fn knotch_proto::migration::MigrationError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_proto::migration::MigrationError
+pub fn knotch_proto::migration::MigrationError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_proto::migration::MigrationError
+pub fn knotch_proto::migration::MigrationError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_proto::migration::MigrationError
+impl core::marker::Send for knotch_proto::migration::MigrationError
+impl core::marker::Sync for knotch_proto::migration::MigrationError
+impl core::marker::Unpin for knotch_proto::migration::MigrationError
+impl core::marker::UnsafeUnpin for knotch_proto::migration::MigrationError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_proto::migration::MigrationError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_proto::migration::MigrationError
+pub struct knotch_proto::migration::Registry
+impl knotch_proto::migration::Registry
+pub const fn knotch_proto::migration::Registry::new() -> Self
+pub fn knotch_proto::migration::Registry::register(&mut self, migrator: alloc::boxed::Box<dyn knotch_proto::migration::SchemaMigrator>) -> core::result::Result<(), knotch_proto::migration::MigrationError>
+impl core::default::Default for knotch_proto::migration::Registry
+pub fn knotch_proto::migration::Registry::default() -> knotch_proto::migration::Registry
+impl core::marker::Freeze for knotch_proto::migration::Registry
+impl core::marker::Send for knotch_proto::migration::Registry
+impl core::marker::Sync for knotch_proto::migration::Registry
+impl core::marker::Unpin for knotch_proto::migration::Registry
+impl core::marker::UnsafeUnpin for knotch_proto::migration::Registry
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_proto::migration::Registry
+impl !core::panic::unwind_safe::UnwindSafe for knotch_proto::migration::Registry
+pub trait knotch_proto::migration::SchemaMigrator: core::marker::Send + core::marker::Sync
+pub fn knotch_proto::migration::SchemaMigrator::from(&self) -> u32
+pub fn knotch_proto::migration::SchemaMigrator::migrate(&self, value: serde_json::value::Value) -> core::result::Result<serde_json::value::Value, knotch_proto::migration::MigrationError>
+pub fn knotch_proto::migration::SchemaMigrator::to(&self) -> u32
+pub const knotch_proto::SCHEMA_VERSION: u32

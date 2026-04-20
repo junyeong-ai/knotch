@@ -1,0 +1,280 @@
+ Documenting knotch-linter v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-linter)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.85s
+pub mod knotch_linter
+pub mod knotch_linter::report
+pub enum knotch_linter::report::Severity
+pub knotch_linter::report::Severity::Error
+pub knotch_linter::report::Severity::Warning
+impl core::clone::Clone for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::clone(&self) -> knotch_linter::report::Severity
+impl core::cmp::Eq for knotch_linter::report::Severity
+impl core::cmp::PartialEq for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::eq(&self, other: &knotch_linter::report::Severity) -> bool
+impl core::fmt::Debug for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_linter::report::Severity
+impl core::marker::StructuralPartialEq for knotch_linter::report::Severity
+impl core::marker::Freeze for knotch_linter::report::Severity
+impl core::marker::Send for knotch_linter::report::Severity
+impl core::marker::Sync for knotch_linter::report::Severity
+impl core::marker::Unpin for knotch_linter::report::Severity
+impl core::marker::UnsafeUnpin for knotch_linter::report::Severity
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::Severity
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::Severity
+pub struct knotch_linter::report::LintReport
+pub knotch_linter::report::LintReport::violations: alloc::vec::Vec<knotch_linter::report::Violation>
+impl knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::error_count(&self) -> usize
+pub fn knotch_linter::report::LintReport::extend(&mut self, findings: impl core::iter::traits::collect::IntoIterator<Item = knotch_linter::report::Violation>)
+pub fn knotch_linter::report::LintReport::is_clean(&self) -> bool
+pub fn knotch_linter::report::LintReport::new() -> Self
+impl core::default::Default for knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::default() -> knotch_linter::report::LintReport
+impl core::fmt::Debug for knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_linter::report::LintReport
+impl core::marker::Send for knotch_linter::report::LintReport
+impl core::marker::Sync for knotch_linter::report::LintReport
+impl core::marker::Unpin for knotch_linter::report::LintReport
+impl core::marker::UnsafeUnpin for knotch_linter::report::LintReport
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::LintReport
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::LintReport
+pub struct knotch_linter::report::RuleId(pub &'static str)
+impl core::clone::Clone for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::clone(&self) -> knotch_linter::report::RuleId
+impl core::cmp::Eq for knotch_linter::report::RuleId
+impl core::cmp::PartialEq for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::eq(&self, other: &knotch_linter::report::RuleId) -> bool
+impl core::fmt::Debug for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for knotch_linter::report::RuleId
+impl core::marker::StructuralPartialEq for knotch_linter::report::RuleId
+impl core::marker::Freeze for knotch_linter::report::RuleId
+impl core::marker::Send for knotch_linter::report::RuleId
+impl core::marker::Sync for knotch_linter::report::RuleId
+impl core::marker::Unpin for knotch_linter::report::RuleId
+impl core::marker::UnsafeUnpin for knotch_linter::report::RuleId
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::RuleId
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::RuleId
+pub struct knotch_linter::report::Violation
+pub knotch_linter::report::Violation::column: u32
+pub knotch_linter::report::Violation::line: u32
+pub knotch_linter::report::Violation::message: compact_str::CompactString
+pub knotch_linter::report::Violation::path: std::path::PathBuf
+pub knotch_linter::report::Violation::rule: knotch_linter::report::RuleId
+pub knotch_linter::report::Violation::severity: knotch_linter::report::Severity
+impl knotch_linter::report::Violation
+pub fn knotch_linter::report::Violation::render(&self) -> alloc::string::String
+impl core::clone::Clone for knotch_linter::report::Violation
+pub fn knotch_linter::report::Violation::clone(&self) -> knotch_linter::report::Violation
+impl core::fmt::Debug for knotch_linter::report::Violation
+pub fn knotch_linter::report::Violation::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_linter::report::Violation
+impl core::marker::Send for knotch_linter::report::Violation
+impl core::marker::Sync for knotch_linter::report::Violation
+impl core::marker::Unpin for knotch_linter::report::Violation
+impl core::marker::UnsafeUnpin for knotch_linter::report::Violation
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::Violation
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::Violation
+pub mod knotch_linter::rules
+pub struct knotch_linter::rules::DirectLogWriteRule
+pub knotch_linter::rules::DirectLogWriteRule::allowlist: std::collections::hash::set::HashSet<alloc::string::String>
+pub knotch_linter::rules::DirectLogWriteRule::path_needles: alloc::vec::Vec<compact_str::CompactString>
+impl core::clone::Clone for knotch_linter::rules::DirectLogWriteRule
+pub fn knotch_linter::rules::DirectLogWriteRule::clone(&self) -> knotch_linter::rules::DirectLogWriteRule
+impl core::default::Default for knotch_linter::rules::DirectLogWriteRule
+pub fn knotch_linter::rules::DirectLogWriteRule::default() -> Self
+impl core::fmt::Debug for knotch_linter::rules::DirectLogWriteRule
+pub fn knotch_linter::rules::DirectLogWriteRule::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_linter::Rule for knotch_linter::rules::DirectLogWriteRule
+pub fn knotch_linter::rules::DirectLogWriteRule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::rules::DirectLogWriteRule::description(&self) -> &'static str
+pub fn knotch_linter::rules::DirectLogWriteRule::id(&self) -> knotch_linter::report::RuleId
+impl core::marker::Freeze for knotch_linter::rules::DirectLogWriteRule
+impl core::marker::Send for knotch_linter::rules::DirectLogWriteRule
+impl core::marker::Sync for knotch_linter::rules::DirectLogWriteRule
+impl core::marker::Unpin for knotch_linter::rules::DirectLogWriteRule
+impl core::marker::UnsafeUnpin for knotch_linter::rules::DirectLogWriteRule
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::rules::DirectLogWriteRule
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::rules::DirectLogWriteRule
+pub struct knotch_linter::rules::ForbiddenNameRule
+pub knotch_linter::rules::ForbiddenNameRule::suffixes: alloc::vec::Vec<&'static str>
+impl core::clone::Clone for knotch_linter::rules::ForbiddenNameRule
+pub fn knotch_linter::rules::ForbiddenNameRule::clone(&self) -> knotch_linter::rules::ForbiddenNameRule
+impl core::default::Default for knotch_linter::rules::ForbiddenNameRule
+pub fn knotch_linter::rules::ForbiddenNameRule::default() -> Self
+impl core::fmt::Debug for knotch_linter::rules::ForbiddenNameRule
+pub fn knotch_linter::rules::ForbiddenNameRule::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_linter::Rule for knotch_linter::rules::ForbiddenNameRule
+pub fn knotch_linter::rules::ForbiddenNameRule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::rules::ForbiddenNameRule::description(&self) -> &'static str
+pub fn knotch_linter::rules::ForbiddenNameRule::id(&self) -> knotch_linter::report::RuleId
+impl core::marker::Freeze for knotch_linter::rules::ForbiddenNameRule
+impl core::marker::Send for knotch_linter::rules::ForbiddenNameRule
+impl core::marker::Sync for knotch_linter::rules::ForbiddenNameRule
+impl core::marker::Unpin for knotch_linter::rules::ForbiddenNameRule
+impl core::marker::UnsafeUnpin for knotch_linter::rules::ForbiddenNameRule
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::rules::ForbiddenNameRule
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::rules::ForbiddenNameRule
+pub struct knotch_linter::rules::KernelNoIoRule
+pub knotch_linter::rules::KernelNoIoRule::active_in: alloc::vec::Vec<&'static str>
+pub knotch_linter::rules::KernelNoIoRule::forbidden_prefixes: alloc::vec::Vec<alloc::vec::Vec<&'static str>>
+impl core::clone::Clone for knotch_linter::rules::KernelNoIoRule
+pub fn knotch_linter::rules::KernelNoIoRule::clone(&self) -> knotch_linter::rules::KernelNoIoRule
+impl core::default::Default for knotch_linter::rules::KernelNoIoRule
+pub fn knotch_linter::rules::KernelNoIoRule::default() -> Self
+impl core::fmt::Debug for knotch_linter::rules::KernelNoIoRule
+pub fn knotch_linter::rules::KernelNoIoRule::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl knotch_linter::Rule for knotch_linter::rules::KernelNoIoRule
+pub fn knotch_linter::rules::KernelNoIoRule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::rules::KernelNoIoRule::description(&self) -> &'static str
+pub fn knotch_linter::rules::KernelNoIoRule::id(&self) -> knotch_linter::report::RuleId
+impl core::marker::Freeze for knotch_linter::rules::KernelNoIoRule
+impl core::marker::Send for knotch_linter::rules::KernelNoIoRule
+impl core::marker::Sync for knotch_linter::rules::KernelNoIoRule
+impl core::marker::Unpin for knotch_linter::rules::KernelNoIoRule
+impl core::marker::UnsafeUnpin for knotch_linter::rules::KernelNoIoRule
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::rules::KernelNoIoRule
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::rules::KernelNoIoRule
+#[non_exhaustive] pub enum knotch_linter::LintError
+pub knotch_linter::LintError::Io
+pub knotch_linter::LintError::Io::path: std::path::PathBuf
+pub knotch_linter::LintError::Io::source: std::io::error::Error
+pub knotch_linter::LintError::Parse
+pub knotch_linter::LintError::Parse::path: std::path::PathBuf
+pub knotch_linter::LintError::Parse::source: syn::error::Error
+impl core::error::Error for knotch_linter::LintError
+pub fn knotch_linter::LintError::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for knotch_linter::LintError
+pub fn knotch_linter::LintError::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::LintError
+pub fn knotch_linter::LintError::fmt(&self, __formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_linter::LintError
+impl core::marker::Send for knotch_linter::LintError
+impl core::marker::Sync for knotch_linter::LintError
+impl core::marker::Unpin for knotch_linter::LintError
+impl core::marker::UnsafeUnpin for knotch_linter::LintError
+impl !core::panic::unwind_safe::RefUnwindSafe for knotch_linter::LintError
+impl !core::panic::unwind_safe::UnwindSafe for knotch_linter::LintError
+pub enum knotch_linter::Severity
+pub knotch_linter::Severity::Error
+pub knotch_linter::Severity::Warning
+impl core::clone::Clone for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::clone(&self) -> knotch_linter::report::Severity
+impl core::cmp::Eq for knotch_linter::report::Severity
+impl core::cmp::PartialEq for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::eq(&self, other: &knotch_linter::report::Severity) -> bool
+impl core::fmt::Debug for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::report::Severity
+pub fn knotch_linter::report::Severity::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for knotch_linter::report::Severity
+impl core::marker::StructuralPartialEq for knotch_linter::report::Severity
+impl core::marker::Freeze for knotch_linter::report::Severity
+impl core::marker::Send for knotch_linter::report::Severity
+impl core::marker::Sync for knotch_linter::report::Severity
+impl core::marker::Unpin for knotch_linter::report::Severity
+impl core::marker::UnsafeUnpin for knotch_linter::report::Severity
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::Severity
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::Severity
+pub struct knotch_linter::LintContext
+pub knotch_linter::LintContext::crate_name: core::option::Option<alloc::string::String>
+pub knotch_linter::LintContext::path: std::path::PathBuf
+impl core::clone::Clone for knotch_linter::LintContext
+pub fn knotch_linter::LintContext::clone(&self) -> knotch_linter::LintContext
+impl core::fmt::Debug for knotch_linter::LintContext
+pub fn knotch_linter::LintContext::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_linter::LintContext
+impl core::marker::Send for knotch_linter::LintContext
+impl core::marker::Sync for knotch_linter::LintContext
+impl core::marker::Unpin for knotch_linter::LintContext
+impl core::marker::UnsafeUnpin for knotch_linter::LintContext
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::LintContext
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::LintContext
+pub struct knotch_linter::LintReport
+pub knotch_linter::LintReport::violations: alloc::vec::Vec<knotch_linter::report::Violation>
+impl knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::error_count(&self) -> usize
+pub fn knotch_linter::report::LintReport::extend(&mut self, findings: impl core::iter::traits::collect::IntoIterator<Item = knotch_linter::report::Violation>)
+pub fn knotch_linter::report::LintReport::is_clean(&self) -> bool
+pub fn knotch_linter::report::LintReport::new() -> Self
+impl core::default::Default for knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::default() -> knotch_linter::report::LintReport
+impl core::fmt::Debug for knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::report::LintReport
+pub fn knotch_linter::report::LintReport::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_linter::report::LintReport
+impl core::marker::Send for knotch_linter::report::LintReport
+impl core::marker::Sync for knotch_linter::report::LintReport
+impl core::marker::Unpin for knotch_linter::report::LintReport
+impl core::marker::UnsafeUnpin for knotch_linter::report::LintReport
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::LintReport
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::LintReport
+pub struct knotch_linter::RuleId(pub &'static str)
+impl core::clone::Clone for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::clone(&self) -> knotch_linter::report::RuleId
+impl core::cmp::Eq for knotch_linter::report::RuleId
+impl core::cmp::PartialEq for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::eq(&self, other: &knotch_linter::report::RuleId) -> bool
+impl core::fmt::Debug for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for knotch_linter::report::RuleId
+pub fn knotch_linter::report::RuleId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for knotch_linter::report::RuleId
+impl core::marker::StructuralPartialEq for knotch_linter::report::RuleId
+impl core::marker::Freeze for knotch_linter::report::RuleId
+impl core::marker::Send for knotch_linter::report::RuleId
+impl core::marker::Sync for knotch_linter::report::RuleId
+impl core::marker::Unpin for knotch_linter::report::RuleId
+impl core::marker::UnsafeUnpin for knotch_linter::report::RuleId
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::RuleId
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::RuleId
+pub struct knotch_linter::Violation
+pub knotch_linter::Violation::column: u32
+pub knotch_linter::Violation::line: u32
+pub knotch_linter::Violation::message: compact_str::CompactString
+pub knotch_linter::Violation::path: std::path::PathBuf
+pub knotch_linter::Violation::rule: knotch_linter::report::RuleId
+pub knotch_linter::Violation::severity: knotch_linter::report::Severity
+impl knotch_linter::report::Violation
+pub fn knotch_linter::report::Violation::render(&self) -> alloc::string::String
+impl core::clone::Clone for knotch_linter::report::Violation
+pub fn knotch_linter::report::Violation::clone(&self) -> knotch_linter::report::Violation
+impl core::fmt::Debug for knotch_linter::report::Violation
+pub fn knotch_linter::report::Violation::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for knotch_linter::report::Violation
+impl core::marker::Send for knotch_linter::report::Violation
+impl core::marker::Sync for knotch_linter::report::Violation
+impl core::marker::Unpin for knotch_linter::report::Violation
+impl core::marker::UnsafeUnpin for knotch_linter::report::Violation
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_linter::report::Violation
+impl core::panic::unwind_safe::UnwindSafe for knotch_linter::report::Violation
+pub trait knotch_linter::Rule: core::marker::Send + core::marker::Sync
+pub fn knotch_linter::Rule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::Rule::description(&self) -> &'static str
+pub fn knotch_linter::Rule::id(&self) -> knotch_linter::report::RuleId
+impl knotch_linter::Rule for knotch_linter::rules::DirectLogWriteRule
+pub fn knotch_linter::rules::DirectLogWriteRule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::rules::DirectLogWriteRule::description(&self) -> &'static str
+pub fn knotch_linter::rules::DirectLogWriteRule::id(&self) -> knotch_linter::report::RuleId
+impl knotch_linter::Rule for knotch_linter::rules::ForbiddenNameRule
+pub fn knotch_linter::rules::ForbiddenNameRule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::rules::ForbiddenNameRule::description(&self) -> &'static str
+pub fn knotch_linter::rules::ForbiddenNameRule::id(&self) -> knotch_linter::report::RuleId
+impl knotch_linter::Rule for knotch_linter::rules::KernelNoIoRule
+pub fn knotch_linter::rules::KernelNoIoRule::check(&self, ctx: &knotch_linter::LintContext, file: &syn::file::File) -> alloc::vec::Vec<knotch_linter::report::Violation>
+pub fn knotch_linter::rules::KernelNoIoRule::description(&self) -> &'static str
+pub fn knotch_linter::rules::KernelNoIoRule::id(&self) -> knotch_linter::report::RuleId
+pub fn knotch_linter::default_rules() -> alloc::vec::Vec<alloc::boxed::Box<dyn knotch_linter::Rule>>
+pub fn knotch_linter::lint_file(path: &std::path::Path, rules: &[alloc::boxed::Box<dyn knotch_linter::Rule>]) -> core::result::Result<alloc::vec::Vec<knotch_linter::report::Violation>, knotch_linter::LintError>

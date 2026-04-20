@@ -1,0 +1,66 @@
+    Checking knotch-kernel v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-kernel)
+ Documenting knotch-tracing v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-tracing)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.87s
+pub mod knotch_tracing
+pub mod knotch_tracing::attrs
+pub struct knotch_tracing::attrs::Attrs
+impl knotch_tracing::attrs::Attrs
+pub const knotch_tracing::attrs::Attrs::AGENT_HARNESS: &'static str
+pub const knotch_tracing::attrs::Attrs::AGENT_ID_HASH: &'static str
+pub const knotch_tracing::attrs::Attrs::AGENT_MODEL: &'static str
+pub const knotch_tracing::attrs::Attrs::COST_TOKENS_IN: &'static str
+pub const knotch_tracing::attrs::Attrs::COST_TOKENS_OUT: &'static str
+pub const knotch_tracing::attrs::Attrs::COST_USD: &'static str
+pub const knotch_tracing::attrs::Attrs::EVENT_ID: &'static str
+pub const knotch_tracing::attrs::Attrs::EVENT_KIND: &'static str
+pub const knotch_tracing::attrs::Attrs::OBSERVER_NAME: &'static str
+pub const knotch_tracing::attrs::Attrs::PRINCIPAL_KIND: &'static str
+pub const knotch_tracing::attrs::Attrs::RECONCILE_ACCEPTED: &'static str
+pub const knotch_tracing::attrs::Attrs::RECONCILE_REJECTED: &'static str
+pub const knotch_tracing::attrs::Attrs::REPOSITORY_OP: &'static str
+pub const knotch_tracing::attrs::Attrs::REPOSITORY_OUTCOME: &'static str
+pub const knotch_tracing::attrs::Attrs::SESSION_ID: &'static str
+pub const knotch_tracing::attrs::Attrs::STATUS_FORCED: &'static str
+pub const knotch_tracing::attrs::Attrs::TRACE_ID: &'static str
+pub const knotch_tracing::attrs::Attrs::UNIT_ID: &'static str
+impl core::marker::Freeze for knotch_tracing::attrs::Attrs
+impl core::marker::Send for knotch_tracing::attrs::Attrs
+impl core::marker::Sync for knotch_tracing::attrs::Attrs
+impl core::marker::Unpin for knotch_tracing::attrs::Attrs
+impl core::marker::UnsafeUnpin for knotch_tracing::attrs::Attrs
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_tracing::attrs::Attrs
+impl core::panic::unwind_safe::UnwindSafe for knotch_tracing::attrs::Attrs
+pub mod knotch_tracing::spans
+pub fn knotch_tracing::spans::emit_append<W: knotch_kernel::workflow::WorkflowKind>(unit: &knotch_kernel::id::UnitId, accepted: usize, rejected: usize, kind_tag: &str)
+pub fn knotch_tracing::spans::emit_event<W: knotch_kernel::workflow::WorkflowKind>(unit: &knotch_kernel::id::UnitId, event: &knotch_kernel::event::Event<W>)
+pub fn knotch_tracing::spans::emit_reconcile(unit: &knotch_kernel::id::UnitId, accepted: usize, rejected: usize)
+pub struct knotch_tracing::Attrs
+impl knotch_tracing::attrs::Attrs
+pub const knotch_tracing::attrs::Attrs::AGENT_HARNESS: &'static str
+pub const knotch_tracing::attrs::Attrs::AGENT_ID_HASH: &'static str
+pub const knotch_tracing::attrs::Attrs::AGENT_MODEL: &'static str
+pub const knotch_tracing::attrs::Attrs::COST_TOKENS_IN: &'static str
+pub const knotch_tracing::attrs::Attrs::COST_TOKENS_OUT: &'static str
+pub const knotch_tracing::attrs::Attrs::COST_USD: &'static str
+pub const knotch_tracing::attrs::Attrs::EVENT_ID: &'static str
+pub const knotch_tracing::attrs::Attrs::EVENT_KIND: &'static str
+pub const knotch_tracing::attrs::Attrs::OBSERVER_NAME: &'static str
+pub const knotch_tracing::attrs::Attrs::PRINCIPAL_KIND: &'static str
+pub const knotch_tracing::attrs::Attrs::RECONCILE_ACCEPTED: &'static str
+pub const knotch_tracing::attrs::Attrs::RECONCILE_REJECTED: &'static str
+pub const knotch_tracing::attrs::Attrs::REPOSITORY_OP: &'static str
+pub const knotch_tracing::attrs::Attrs::REPOSITORY_OUTCOME: &'static str
+pub const knotch_tracing::attrs::Attrs::SESSION_ID: &'static str
+pub const knotch_tracing::attrs::Attrs::STATUS_FORCED: &'static str
+pub const knotch_tracing::attrs::Attrs::TRACE_ID: &'static str
+pub const knotch_tracing::attrs::Attrs::UNIT_ID: &'static str
+impl core::marker::Freeze for knotch_tracing::attrs::Attrs
+impl core::marker::Send for knotch_tracing::attrs::Attrs
+impl core::marker::Sync for knotch_tracing::attrs::Attrs
+impl core::marker::Unpin for knotch_tracing::attrs::Attrs
+impl core::marker::UnsafeUnpin for knotch_tracing::attrs::Attrs
+impl core::panic::unwind_safe::RefUnwindSafe for knotch_tracing::attrs::Attrs
+impl core::panic::unwind_safe::UnwindSafe for knotch_tracing::attrs::Attrs
+pub fn knotch_tracing::emit_append<W: knotch_kernel::workflow::WorkflowKind>(unit: &knotch_kernel::id::UnitId, accepted: usize, rejected: usize, kind_tag: &str)
+pub fn knotch_tracing::emit_reconcile(unit: &knotch_kernel::id::UnitId, accepted: usize, rejected: usize)
+pub fn knotch_tracing::install_default() -> core::result::Result<(), alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>>

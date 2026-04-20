@@ -1,0 +1,8 @@
+ Documenting knotch-derive v0.1.0 (/Users/mac/workspace/knotch/crates/knotch-derive)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.81s
+pub mod knotch_derive
+pub proc macro knotch_derive::#[derive(GateKind)]
+pub proc macro knotch_derive::#[derive(MilestoneKind)]
+pub proc macro knotch_derive::#[derive(PhaseKind)]
+pub proc macro knotch_derive::#[derive(Sensitive)]
+pub proc macro knotch_derive::#[workflow]
