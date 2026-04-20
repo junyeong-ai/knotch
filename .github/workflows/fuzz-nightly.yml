@@ -1,0 +1,29 @@
+name: Fuzz (nightly)
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # 03:00 UTC daily
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fuzz:
+    name: cargo-fuzz
+    runs-on: ubuntu-latest
+    timeout-minutes: 1500  # 25h budget for a 24h run
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-fuzz
+      - name: List fuzz targets
+        working-directory: fuzz
+        run: cargo fuzz list
+      - name: Run each target for 86400 s total
+        working-directory: fuzz
+        run: |
+          for t in $(cargo fuzz list); do
+            cargo fuzz run "$t" -- -max_total_time=3600 -timeout=60
+          done

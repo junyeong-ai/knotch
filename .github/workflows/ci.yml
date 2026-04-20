@@ -1,0 +1,172 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+  RUST_BACKTRACE: short
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  clippy:
+    name: clippy (${{ matrix.toolchain }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [stable, beta]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  test:
+    name: test (${{ matrix.os }} / ${{ matrix.toolchain }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        toolchain: [stable]
+        include:
+          - os: ubuntu-latest
+            toolchain: "1.85"   # MSRV
+          - os: ubuntu-latest
+            toolchain: beta
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+      - run: cargo nextest run --workspace --all-features
+      - run: cargo test --workspace --all-features --doc
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - uses: taiki-e/install-action@nextest
+      - run: cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info nextest
+      - uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info
+          fail_ci_if_error: false
+
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: EmbarkStudios/cargo-deny-action@v2
+
+  knotch-linter:
+    name: knotch-linter (R1/R2/R3)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: install knotch-linter
+        run: cargo install --path crates/knotch-linter --bin cargo-knotch-linter --locked
+      - name: cargo knotch-linter
+        run: cargo knotch-linter
+
+  machete:
+    name: cargo-machete
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: bnjbvr/cargo-machete@main
+
+  semver:
+    name: cargo-semver-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: obi1kenobi/cargo-semver-checks-action@v2
+
+  public-api:
+    name: cargo-public-api (baseline diff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-public-api
+      - name: Diff every published crate against its baseline
+        run: |
+          set -euo pipefail
+          for crate in knotch-kernel knotch-proto knotch-derive knotch-storage \
+                       knotch-lock knotch-vcs knotch-workflow knotch-schema \
+                       knotch-observer knotch-reconciler knotch-query \
+                       knotch-tracing knotch-testing knotch-linter \
+                       knotch-agent knotch-frontmatter knotch-adr; do
+            baseline="docs/public_api/${crate}.baseline"
+            if [ ! -f "${baseline}" ]; then
+              echo "::notice::no baseline for ${crate} — run the regeneration script"
+              continue
+            fi
+            actual=$(mktemp)
+            cargo public-api --manifest-path "crates/${crate}/Cargo.toml" \
+                             --simplified > "${actual}"
+            if ! diff -u "${baseline}" "${actual}"; then
+              echo "::error::public-api drift in ${crate}"
+              exit 1
+            fi
+          done
+
+  msrv:
+    name: cargo-msrv (verify 1.85)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-msrv
+      - run: cargo msrv verify --workspace
+
+  audit:
+    name: cargo-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

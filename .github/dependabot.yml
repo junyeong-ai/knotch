@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # GitHub Actions referenced by workflow files under .github/workflows/.
+  # Weekly PRs keep action tag references fresh; branch protection that
+  # requires CI pass before merging is the enforcement layer — a hijacked
+  # action version cannot reach main without a green build.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "chore(ci)"
+      include: scope
+
+  # Cargo workspace dependencies. Grouped so routine compatible updates
+  # land in one PR; security-only updates surface separately and
+  # immediately (Dependabot filters outside the group).
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      cargo:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
