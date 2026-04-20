@@ -484,14 +484,13 @@ binary = "./tools/artifact-scan.py"
 |---|---|---|
 | `KNOTCH_ROOT` | Global `--root` override | walks up from cwd to `knotch.toml` |
 | `KNOTCH_UNIT` | Active-unit resolution (top priority in the hook chain) | `.knotch/sessions/<id>.toml` → `.knotch/active.toml` |
-| `KNOTCH_MODEL` | `hook_causation.principal.model` | `"unknown"` |
-| `KNOTCH_HARNESS` | `hook_causation.principal.harness` | `"claude-code"` |
 
-Export `KNOTCH_MODEL` + `KNOTCH_HARNESS` in your shell profile
-(or `.envrc`) so every hook-emitted event records accurate
-attribution. Without them, downstream "which model did what"
-queries collapse to `"unknown"`. `knotch doctor` warns when
-either is unset.
+Model attribution is zero-config: Claude Code stamps the active
+model on every `SessionStart` payload, and the `load-context`
+hook appends a `ModelSwitched` event whenever the payload value
+differs from the last one recorded. No shell / `.envrc` setup
+required — just make sure `knotch init --with-hooks` wired the
+`SessionStart` hook into your Claude Code settings.
 
 ### Guard policy
 

@@ -58,6 +58,6 @@ both surfaces through one enum.
   `knotch supersede <event-id>` to mark it no-longer-effective,
   then record a fresh approval if needed.
 - Recording that an agent reviewed an artifact — use
-  `/knotch-mark completed review` instead; approvals specifically
-  carry a `Person` identity and are meaningless for agent-only
-  flows.
+  `/knotch-mark completed review` instead; `ApprovalRecorded`
+  is specifically for a named human reviewer signing off,
+  and is meaningless for agent-only flows.

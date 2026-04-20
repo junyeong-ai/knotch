@@ -39,9 +39,11 @@ that only use `tracing` pay zero cost.
 - Rename an existing attribute without a `SCHEMA_VERSION`-style
   bump on the tracing crate itself — external dashboards break
   silently.
-- Route sensitive fields (`Principal::Person`, `Principal::Agent`
-  raw identifiers) through the un-hashed path — the subscriber
-  must hash `Sensitive` markers before emission.
+- Log `AgentId` values unredacted to external sinks — the
+  subscriber is responsible for hashing / truncating if the
+  adopter's compliance surface demands it. `AgentId` itself is
+  a plain newtype; no trait-driven redaction hook on the
+  kernel side.
 - Pull an OTel / metrics bridge into this crate directly —
   adopters wire those into their own subscriber stack; this
   crate stays a pure attribute-schema + span-helper surface.

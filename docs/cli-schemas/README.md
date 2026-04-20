@@ -99,8 +99,7 @@ insertion order. Each element matches the `Event<W>` schema from
     {"name": "units",        "status": "ok",   "detail": "3 healthy"},
     {"name": ".gitignore",   "status": "ok",   "detail": "contains .knotch/"},
     {"name": "queue",        "status": "ok",   "detail": "empty"},
-    {"name": "secret scan",  "status": "warn", "detail": "no scanner in .git/hooks/pre-commit — ..."},
-    {"name": "agent env",    "status": "ok",   "detail": "KNOTCH_MODEL=claude-opus-4-7 KNOTCH_HARNESS=claude-code/2.1"}
+    {"name": "secret scan",  "status": "warn", "detail": "no scanner in .git/hooks/pre-commit — ..."}
   ],
   "ok": true
 }

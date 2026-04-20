@@ -56,8 +56,9 @@ the prior phase exits cleanly.
    observer, and log writer.
 4. **Hook / skill install.** Run `knotch init --with-hooks` or
    install `plugins/knotch/`. Replace adopter skill bodies with
-   thin wrappers around `/knotch-*`. Export `KNOTCH_MODEL` +
-   `KNOTCH_HARNESS` in shells and CI.
+   thin wrappers around `/knotch-*`. Model attribution is
+   zero-config — the `load-context` hook reads
+   `SessionStart.model` directly from every Claude Code payload.
 5. **Cleanup.** Delete code that only existed to support the
    internal layer. `@`-import knotch's rules from the adopter's
    `.claude/rules/` tree so principles load automatically.

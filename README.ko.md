@@ -489,14 +489,13 @@ binary = "./tools/artifact-scan.py"
 |---|---|---|
 | `KNOTCH_ROOT` | 전역 `--root` 오버라이드 | cwd 에서 `knotch.toml` 까지 상위 탐색 |
 | `KNOTCH_UNIT` | active-unit 해결 (hook 체인의 최우선) | `.knotch/sessions/<id>.toml` → `.knotch/active.toml` |
-| `KNOTCH_MODEL` | `hook_causation.principal.model` | `"unknown"` |
-| `KNOTCH_HARNESS` | `hook_causation.principal.harness` | `"claude-code"` |
 
-쉘 프로파일 (또는 `.envrc`) 에 `KNOTCH_MODEL` + `KNOTCH_HARNESS` 를
-export 하면, hook 이 방출하는 모든 이벤트에 정확한 attribution 이
-기록됩니다. 이 두 값이 없으면 downstream 의 "어떤 모델이 무엇을 했나"
-질의가 `"unknown"` 으로 붕괴합니다. 두 값이 설정되지 않으면
-`knotch doctor` 가 경고합니다.
+모델 attribution 은 zero-config 입니다: Claude Code 가 모든
+`SessionStart` payload 에 현재 모델을 스탬프하고,
+`load-context` hook 이 마지막 기록된 값과 다를 때 `ModelSwitched`
+이벤트를 append 합니다. 쉘 / `.envrc` 세팅 불필요 — `knotch init
+--with-hooks` 가 Claude Code 설정에 `SessionStart` hook 을
+연결했는지만 확인하면 됩니다.
 
 ### Guard 정책
 

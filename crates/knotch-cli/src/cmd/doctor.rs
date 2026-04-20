@@ -64,7 +64,6 @@ pub(crate) async fn run(config: &Config, out: OutputMode, _args: Args) -> anyhow
     checks.push(check_gitignore(&config.root).await);
     checks.push(check_queue_stale(&config.root).await);
     checks.push(check_secret_scanner(&config.root).await);
-    checks.push(check_agent_env());
 
     let has_fail = checks.iter().any(|c| c.status == Status::Fail);
 
@@ -395,36 +394,6 @@ async fn check_queue_stale(root: &Path) -> Check {
         name: "queue",
         status: Status::Ok,
         detail: format!("{total} entry(ies), drains pending"),
-    }
-}
-
-/// Warn when `KNOTCH_MODEL` / `KNOTCH_HARNESS` are unset —
-/// `hook_causation` falls back to `"unknown"` / `"claude-code"`
-/// respectively, which loses fidelity in downstream attribution
-/// queries.
-fn check_agent_env() -> Check {
-    let model = std::env::var("KNOTCH_MODEL").ok();
-    let harness = std::env::var("KNOTCH_HARNESS").ok();
-    match (model.as_deref(), harness.as_deref()) {
-        (Some(m), Some(h)) if !m.is_empty() && !h.is_empty() => Check {
-            name: "agent env",
-            status: Status::Ok,
-            detail: format!("KNOTCH_MODEL={m} KNOTCH_HARNESS={h}"),
-        },
-        (Some(m), None) if !m.is_empty() => Check {
-            name: "agent env",
-            status: Status::Warn,
-            detail: format!(
-                "KNOTCH_MODEL={m} but KNOTCH_HARNESS unset — harness will record as `claude-code`"
-            ),
-        },
-        _ => Check {
-            name: "agent env",
-            status: Status::Warn,
-            detail: "KNOTCH_MODEL / KNOTCH_HARNESS unset — export them in your shell \
-                     profile so hook causations record accurate attribution"
-                .into(),
-        },
     }
 }
 
