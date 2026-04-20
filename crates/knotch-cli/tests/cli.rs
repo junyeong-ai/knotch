@@ -261,6 +261,57 @@ fn reconcile_queue_only_flag_skips_observer_pass() {
 }
 
 #[test]
+fn supersede_records_event_superseded_through_config_workflow() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    bin().current_dir(dir.path()).args(["init"]).assert().success();
+    bin().current_dir(dir.path()).args(["unit", "init", "feat-s"]).assert().success();
+
+    // Grab the UnitCreated event id via --json log.
+    let output =
+        bin().current_dir(dir.path()).args(["--json", "log", "feat-s"]).output().expect("run");
+    let stdout = String::from_utf8(output.stdout).expect("utf8");
+    let parsed: Value = serde_json::from_str(stdout.trim()).expect("valid JSON");
+    let event_id = parsed[0]["id"].as_str().expect("id").to_owned();
+
+    bin()
+        .current_dir(dir.path())
+        .args([
+            "supersede",
+            "feat-s",
+            event_id.as_str(),
+            "UnitCreated scope was wrong — retry via repair flow",
+        ])
+        .assert()
+        .success()
+        .stdout(str::contains("accepted"));
+
+    // Second UnitCreated should NOT be appended — but the
+    // EventSuperseded we just recorded must be present.
+    let output =
+        bin().current_dir(dir.path()).args(["--json", "log", "feat-s"]).output().expect("run");
+    let stdout = String::from_utf8(output.stdout).expect("utf8");
+    let parsed: Value = serde_json::from_str(stdout.trim()).expect("valid JSON");
+    let events = parsed.as_array().expect("array");
+    assert_eq!(events.len(), 2);
+    assert_eq!(events[1]["body"]["type"], "event_superseded");
+    assert_eq!(events[1]["body"]["target"], event_id);
+}
+
+#[test]
+fn supersede_rejects_invalid_event_id() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    bin().current_dir(dir.path()).args(["init"]).assert().success();
+    bin().current_dir(dir.path()).args(["unit", "init", "feat-s"]).assert().success();
+
+    bin()
+        .current_dir(dir.path())
+        .args(["supersede", "feat-s", "not-a-uuid", "rationale that is long enough"])
+        .assert()
+        .failure()
+        .stderr(str::contains("invalid event id"));
+}
+
+#[test]
 fn completions_emits_script() {
     bin().args(["completions", "bash"]).assert().success().stdout(str::contains("complete"));
 }

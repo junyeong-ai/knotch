@@ -82,6 +82,14 @@ impl fmt::Display for EventId {
     }
 }
 
+impl std::str::FromStr for EventId {
+    type Err = uuid::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Uuid::parse_str(s).map(Self)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

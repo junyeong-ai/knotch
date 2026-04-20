@@ -829,6 +829,9 @@ impl core::hash::Hash for knotch_kernel::id::EventId
 pub fn knotch_kernel::id::EventId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::Copy for knotch_kernel::id::EventId
 impl core::marker::StructuralPartialEq for knotch_kernel::id::EventId
+impl core::str::traits::FromStr for knotch_kernel::id::EventId
+pub type knotch_kernel::id::EventId::Err = uuid::error::Error
+pub fn knotch_kernel::id::EventId::from_str(s: &str) -> core::result::Result<Self, Self::Err>
 impl serde_core::ser::Serialize for knotch_kernel::id::EventId
 pub fn knotch_kernel::id::EventId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
 impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::id::EventId
@@ -1051,6 +1054,7 @@ pub knotch_kernel::scope::Scope::Epic
 pub knotch_kernel::scope::Scope::Standard
 pub knotch_kernel::scope::Scope::Tiny
 impl knotch_kernel::scope::Scope
+pub fn knotch_kernel::scope::Scope::from_tag(tag: &str) -> Self
 pub fn knotch_kernel::scope::Scope::tag(&self) -> &str
 impl core::clone::Clone for knotch_kernel::scope::Scope
 pub fn knotch_kernel::scope::Scope::clone(&self) -> knotch_kernel::scope::Scope
@@ -1547,6 +1551,7 @@ pub knotch_kernel::Scope::Epic
 pub knotch_kernel::Scope::Standard
 pub knotch_kernel::Scope::Tiny
 impl knotch_kernel::scope::Scope
+pub fn knotch_kernel::scope::Scope::from_tag(tag: &str) -> Self
 pub fn knotch_kernel::scope::Scope::tag(&self) -> &str
 impl core::clone::Clone for knotch_kernel::scope::Scope
 pub fn knotch_kernel::scope::Scope::clone(&self) -> knotch_kernel::scope::Scope
@@ -1921,6 +1926,9 @@ impl core::hash::Hash for knotch_kernel::id::EventId
 pub fn knotch_kernel::id::EventId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
 impl core::marker::Copy for knotch_kernel::id::EventId
 impl core::marker::StructuralPartialEq for knotch_kernel::id::EventId
+impl core::str::traits::FromStr for knotch_kernel::id::EventId
+pub type knotch_kernel::id::EventId::Err = uuid::error::Error
+pub fn knotch_kernel::id::EventId::from_str(s: &str) -> core::result::Result<Self, Self::Err>
 impl serde_core::ser::Serialize for knotch_kernel::id::EventId
 pub fn knotch_kernel::id::EventId::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
 impl<'de> serde_core::de::Deserialize<'de> for knotch_kernel::id::EventId
