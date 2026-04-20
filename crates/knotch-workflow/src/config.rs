@@ -103,7 +103,11 @@ pub struct WorkflowSpec {
     pub required_phases: HashMap<CompactString, Vec<CompactString>>,
     /// Scope key used when `knotch unit init` runs without
     /// `--scope`. MUST be a key declared in `required_phases`;
-    /// enforced by [`ConfigWorkflow::from_spec`].
+    /// enforced by [`ConfigWorkflow::from_spec`]. `#[serde(default)]`
+    /// allows [`ConfigWorkflow::from_spec`] to surface an actionable
+    /// "missing `default_scope`" error with a concrete suggestion,
+    /// rather than the opaque serde "missing field" message.
+    #[serde(default)]
     pub default_scope: CompactString,
     /// Gate list with prerequisite edges.
     #[serde(default)]
@@ -230,15 +234,25 @@ impl ConfigWorkflow {
                 "required_phases must declare at least one scope key".into(),
             ));
         }
+        // Sort scope keys for deterministic error output — HashMap
+        // iteration is unordered (constitution §IX).
+        let mut declared_keys: Vec<&str> =
+            spec.required_phases.keys().map(CompactString::as_str).collect();
+        declared_keys.sort_unstable();
+        if spec.default_scope.is_empty() {
+            let suggestion = declared_keys
+                .first()
+                .map(|k| format!(" — declare e.g. `default_scope = \"{k}\"`"))
+                .unwrap_or_default();
+            return Err(ConfigError::Invalid(format!(
+                "missing required field `default_scope` in [workflow]{suggestion}",
+            )));
+        }
         if !spec.required_phases.contains_key(&spec.default_scope) {
             return Err(ConfigError::Invalid(format!(
                 "default_scope `{}` is not declared in required_phases (declared keys: {})",
                 spec.default_scope,
-                spec.required_phases
-                    .keys()
-                    .map(CompactString::as_str)
-                    .collect::<Vec<_>>()
-                    .join(", "),
+                declared_keys.join(", "),
             )));
         }
         let mut required_by_scope: HashMap<CompactString, Vec<DynamicPhase>> = HashMap::new();
@@ -477,6 +491,31 @@ mod tests {
         let spec = spec_with("empty", vec![phase_spec("a")], vec![], "standard", vec![]);
         let err = ConfigWorkflow::from_spec(spec).expect_err("empty required_phases must fail");
         assert!(matches!(err, ConfigError::Invalid(_)));
+    }
+
+    #[test]
+    fn from_spec_rejects_missing_default_scope_with_concrete_suggestion() {
+        // `default_scope = ""` stands in for the "field absent from
+        // TOML" case — `#[serde(default)]` yields CompactString::new()
+        // there, which is what we normalize against.
+        let spec = spec_with(
+            "missing-default",
+            vec![phase_spec("a")],
+            vec![("standard", vec!["a"]), ("tiny", vec!["a"])],
+            "",
+            vec![],
+        );
+        let err = ConfigWorkflow::from_spec(spec).expect_err("missing default must fail");
+        let ConfigError::Invalid(msg) = err else {
+            panic!("expected Invalid, got {err:?}");
+        };
+        assert!(msg.contains("missing required field `default_scope`"));
+        // Sorted-keys-first yields `standard` (standard < tiny
+        // lexicographically). Deterministic output per §IX.
+        assert!(
+            msg.contains("default_scope = \"standard\""),
+            "expected concrete suggestion in error, got: {msg}",
+        );
     }
 
     #[test]
