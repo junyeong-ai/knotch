@@ -1,0 +1,25 @@
+[package]
+name = "knotch-proto"
+description = "Wire format, JCS canonicalization, schema versioning, and migration registry for knotch."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+serde_jcs.workspace = true
+thiserror.workspace = true
+blake3.workspace = true
+compact_str.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+proptest.workspace = true
