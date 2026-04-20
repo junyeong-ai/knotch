@@ -9,7 +9,7 @@
 
 ## Reporting a vulnerability
 
-Use GitHub's **private vulnerability reporting** on the `knotch-rs/knotch`
+Use GitHub's **private vulnerability reporting** on the `junyeong-ai/knotch`
 repository, or email security@knotch.dev.
 
 We operate a **90-day coordinated disclosure** window. Reporters are

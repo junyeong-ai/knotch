@@ -22,7 +22,7 @@ Knotch 는 Rust 라이브러리이자 `knotch` CLI 입니다. AI 에이전트에
 
 ```bash
 # 1. 바이너리 + Claude Code 플러그인 설치 (macOS / Linux)
-curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.sh | bash
 
 # 2. 프로젝트에 워크스페이스 스캐폴딩
 knotch init --with-hooks
@@ -327,12 +327,12 @@ knotch hook <load-context|check-commit|verify-commit|record-revert|
 
 **macOS / Linux**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell 7+)**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.ps1 | iex
 ```
 
 인스톨러는 플랫폼을 감지하고, prebuilt 바이너리 + Claude Code 플러그인
@@ -382,7 +382,7 @@ cargo binstall knotch-cli
 ```bash
 VERSION=0.1.0
 TARGET=x86_64-unknown-linux-musl
-BASE="https://github.com/knotch-rs/knotch/releases/download/v$VERSION"
+BASE="https://github.com/junyeong-ai/knotch/releases/download/v$VERSION"
 curl -fLO "$BASE/knotch-v$VERSION-$TARGET.tar.gz"
 curl -fLO "$BASE/knotch-v$VERSION-$TARGET.tar.gz.sha256"
 shasum -a 256 -c "knotch-v$VERSION-$TARGET.tar.gz.sha256"
@@ -398,7 +398,7 @@ install -m 755 knotch "$HOME/.local/bin/knotch"
 ### 소스에서 빌드
 
 ```bash
-git clone https://github.com/knotch-rs/knotch
+git clone https://github.com/junyeong-ai/knotch
 cd knotch
 ./scripts/install.sh --from-source
 # 또는: cargo install --path crates/knotch-cli --locked
@@ -408,10 +408,10 @@ cd knotch
 
 ```bash
 # macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/uninstall.sh | bash
 
 # Windows
-iwr -useb https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/uninstall.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/uninstall.ps1 | iex
 ```
 
 ---

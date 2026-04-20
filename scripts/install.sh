@@ -5,7 +5,7 @@ set -euo pipefail
 # Repository is overridable via $KNOTCH_REPO so forks / mirrors can use the
 # same script without editing. The default is the canonical distribution
 # point; edit this line only when republishing the script to a fork.
-REPO="${KNOTCH_REPO:-knotch-rs/knotch}"
+REPO="${KNOTCH_REPO:-junyeong-ai/knotch}"
 BINARY_NAME="knotch"
 PLUGIN_NAME="knotch"
 API_BASE="https://api.github.com/repos/${REPO}"
@@ -345,7 +345,7 @@ print_usage() {
 knotch installer
 
 Usage:
-  curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.sh | bash
   ./scripts/install.sh [flags]
 
 Flags:
@@ -361,7 +361,7 @@ Flags:
 Environment variables (flags win over env, env wins over defaults):
   KNOTCH_INSTALL_DIR, KNOTCH_VERSION, KNOTCH_PLUGIN_LEVEL,
   KNOTCH_FROM_SOURCE, KNOTCH_FORCE, KNOTCH_YES, KNOTCH_DRY_RUN,
-  KNOTCH_REPO (override release source; default: knotch-rs/knotch),
+  KNOTCH_REPO (override release source; default: junyeong-ai/knotch),
   NO_COLOR
 USAGE
 }

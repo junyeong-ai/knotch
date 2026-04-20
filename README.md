@@ -21,7 +21,7 @@ performs zero I/O so the invariants hold under replay.
 
 ```bash
 # 1. Install the binary + Claude Code plugin (macOS / Linux)
-curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.sh | bash
 
 # 2. Scaffold a workspace in your project
 knotch init --with-hooks
@@ -323,12 +323,12 @@ knotch hook <load-context|check-commit|verify-commit|record-revert|
 
 **macOS / Linux**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell 7+)**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.ps1 | iex
 ```
 
 The installer detects your platform, downloads the prebuilt binary
@@ -378,7 +378,7 @@ by `[package.metadata.binstall]` in `crates/knotch-cli/Cargo.toml`.
 ```bash
 VERSION=0.1.0
 TARGET=x86_64-unknown-linux-musl
-BASE="https://github.com/knotch-rs/knotch/releases/download/v$VERSION"
+BASE="https://github.com/junyeong-ai/knotch/releases/download/v$VERSION"
 curl -fLO "$BASE/knotch-v$VERSION-$TARGET.tar.gz"
 curl -fLO "$BASE/knotch-v$VERSION-$TARGET.tar.gz.sha256"
 shasum -a 256 -c "knotch-v$VERSION-$TARGET.tar.gz.sha256"
@@ -393,7 +393,7 @@ provenance (`actions/attest-build-provenance`) — verify with
 ### Build from source
 
 ```bash
-git clone https://github.com/knotch-rs/knotch
+git clone https://github.com/junyeong-ai/knotch
 cd knotch
 ./scripts/install.sh --from-source
 # or: cargo install --path crates/knotch-cli --locked
@@ -403,10 +403,10 @@ cd knotch
 
 ```bash
 # macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/uninstall.sh | bash
 
 # Windows
-iwr -useb https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/uninstall.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/uninstall.ps1 | iex
 ```
 
 ---

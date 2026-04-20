@@ -119,7 +119,7 @@ print_usage() {
 knotch uninstaller
 
 Usage:
-  curl -fsSL https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/uninstall.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/uninstall.sh | bash
   ./scripts/uninstall.sh [flags]
 
 Flags:

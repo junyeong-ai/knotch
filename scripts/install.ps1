@@ -30,7 +30,7 @@
     Print plan, do not execute.
 
 .EXAMPLE
-    iwr -useb https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/install.ps1 | iex
+    iwr -useb https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/install.ps1 | iex
 
 .EXAMPLE
     .\scripts\install.ps1 -Plugin project -Yes
@@ -54,7 +54,7 @@ Set-StrictMode -Version Latest
 # Repository is overridable via $env:KNOTCH_REPO so forks / mirrors can
 # use the same script without editing. Default is the canonical
 # distribution point.
-$Script:Repo        = if ($env:KNOTCH_REPO) { $env:KNOTCH_REPO } else { "knotch-rs/knotch" }
+$Script:Repo        = if ($env:KNOTCH_REPO) { $env:KNOTCH_REPO } else { "junyeong-ai/knotch" }
 $Script:BinaryName  = "knotch"
 $Script:PluginName  = "knotch"
 $Script:ApiBase     = "https://api.github.com/repos/$Script:Repo"

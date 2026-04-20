@@ -6,6 +6,6 @@
     "name": "Knotch contributors"
   },
   "homepage": "https://knotch.dev",
-  "repository": "https://github.com/knotch-rs/knotch",
+  "repository": "https://github.com/junyeong-ai/knotch",
   "license": "MIT OR Apache-2.0"
 }
