@@ -52,12 +52,12 @@ pub fn knotch_agent::atomic::write(path: &std::path::Path, bytes: &[u8]) -> std:
 pub mod knotch_agent::causation
 pub fn knotch_agent::causation::hook_causation(input: &knotch_agent::input::HookInput, subcommand: &str) -> knotch_kernel::causation::Causation
 pub mod knotch_agent::commit
+pub fn knotch_agent::commit::build_revert_proposal<W>(revert: knotch_kernel::event::CommitRef, original: knotch_kernel::event::CommitRef, milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone, causation: knotch_kernel::causation::Causation) -> knotch_kernel::event::Proposal<W> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default
+pub fn knotch_agent::commit::build_verify_proposal<W>(workflow: &W, commit_message: &str, commit_sha: knotch_kernel::event::CommitRef, causation: knotch_kernel::causation::Causation) -> core::option::Option<knotch_kernel::event::Proposal<W>> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default
 pub async fn knotch_agent::commit::check<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, commit_message: &str) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>
 pub fn knotch_agent::commit::extract_commit_message(cmd: &str) -> core::option::Option<alloc::string::String>
 pub fn knotch_agent::commit::extract_milestone_id(commit_message: &str) -> core::option::Option<alloc::string::String>
 pub fn knotch_agent::commit::parse_conventional(msg: &str) -> core::option::Option<(knotch_kernel::event::CommitKind, alloc::string::String)>
-pub async fn knotch_agent::commit::record_revert<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, revert: knotch_kernel::event::CommitRef, original: knotch_kernel::event::CommitRef, milestone: <W as knotch_kernel::workflow::WorkflowKind>::Milestone, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
-pub async fn knotch_agent::commit::verify<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, commit_message: &str, commit_sha: knotch_kernel::event::CommitRef, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
 pub mod knotch_agent::context
 pub async fn knotch_agent::context::refresh<W, R>(project_root_override: core::option::Option<&std::path::Path>, cwd: &std::path::Path, session_id: &str, repo: &R) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
 pub mod knotch_agent::error
@@ -208,6 +208,24 @@ impl core::marker::Unpin for knotch_agent::queue::OverflowPolicy
 impl core::marker::UnsafeUnpin for knotch_agent::queue::OverflowPolicy
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::queue::OverflowPolicy
 impl core::panic::unwind_safe::UnwindSafe for knotch_agent::queue::OverflowPolicy
+pub struct knotch_agent::queue::PostToolContext<'a>
+pub knotch_agent::queue::PostToolContext::cwd: &'a std::path::Path
+pub knotch_agent::queue::PostToolContext::home: &'a std::path::Path
+pub knotch_agent::queue::PostToolContext::hook_name: &'a str
+pub knotch_agent::queue::PostToolContext::queue_config: &'a knotch_agent::queue::QueueConfig
+pub knotch_agent::queue::PostToolContext::queue_dir: &'a std::path::Path
+impl<'a> core::clone::Clone for knotch_agent::queue::PostToolContext<'a>
+pub fn knotch_agent::queue::PostToolContext<'a>::clone(&self) -> knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::fmt::Debug for knotch_agent::queue::PostToolContext<'a>
+pub fn knotch_agent::queue::PostToolContext<'a>::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'a> core::marker::Copy for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::marker::Freeze for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::marker::Send for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::marker::Sync for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::marker::Unpin for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::marker::UnsafeUnpin for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for knotch_agent::queue::PostToolContext<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for knotch_agent::queue::PostToolContext<'a>
 pub struct knotch_agent::queue::QueueConfig
 pub knotch_agent::queue::QueueConfig::max_entries: usize
 pub knotch_agent::queue::QueueConfig::overflow: knotch_agent::queue::OverflowPolicy
@@ -248,10 +266,13 @@ impl core::marker::UnsafeUnpin for knotch_agent::queue::QueueEntry
 impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::queue::QueueEntry
 impl core::panic::unwind_safe::UnwindSafe for knotch_agent::queue::QueueEntry
 pub const knotch_agent::queue::DEFAULT_MAX_ENTRIES: usize
+pub const knotch_agent::queue::POST_TOOL_BASE_DELAY: core::time::Duration
+pub const knotch_agent::queue::POST_TOOL_MAX_ATTEMPTS: u32
 pub const knotch_agent::queue::QUEUE_WARN_THRESHOLD: usize
 pub async fn knotch_agent::queue::drain<W, R>(queue_dir: &std::path::Path, repo: &R) -> core::result::Result<usize, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned
 pub fn knotch_agent::queue::enqueue<W>(queue_dir: &std::path::Path, unit: &knotch_kernel::id::UnitId, proposal: &knotch_kernel::event::Proposal<W>, reason: &str, config: &knotch_agent::queue::QueueConfig) -> core::result::Result<(), knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
 pub fn knotch_agent::queue::enqueue_raw(queue_dir: &std::path::Path, unit: &knotch_kernel::id::UnitId, proposal_json: serde_json::value::Value, reason: &str, config: &knotch_agent::queue::QueueConfig) -> core::result::Result<(), knotch_agent::error::HookError>
+pub async fn knotch_agent::queue::post_tool_append<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, proposal: knotch_kernel::event::Proposal<W>, ctx: knotch_agent::queue::PostToolContext<'_>) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
 pub fn knotch_agent::queue::queue_size(queue_dir: &std::path::Path) -> core::result::Result<usize, knotch_agent::error::HookError>
 pub mod knotch_agent::session
 pub async fn knotch_agent::session::load_context<W, R>(project_root_override: core::option::Option<&std::path::Path>, cwd: &std::path::Path, session_id: &str, repo: &R) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::de::DeserializeOwned

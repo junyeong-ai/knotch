@@ -4,11 +4,12 @@ use knotch_agent::{
     HookInput, HookOutput,
     active::{ActiveUnit, project_root, resolve_active_for_hook},
     causation::hook_causation,
+    queue::{PostToolContext, post_tool_append},
 };
 use knotch_kernel::CommitRef;
 use knotch_workflow::ConfigWorkflow;
 
-use crate::config::Config;
+use crate::{config::Config, home::user_home};
 
 pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<HookOutput> {
     let Some(command) = input.bash_command() else {
@@ -31,8 +32,24 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
     let causation = hook_causation(&input, "verify-commit");
     let commit_ref = CommitRef::new(compact_str::CompactString::from(sha));
     let repo = config.build_repository()?;
-    Ok(knotch_agent::commit::verify::<ConfigWorkflow, _>(&repo, &unit, &msg, commit_ref, causation)
-        .await?)
+    let Some(proposal) = knotch_agent::commit::build_verify_proposal::<ConfigWorkflow>(
+        repo.workflow(),
+        &msg,
+        commit_ref,
+        causation,
+    ) else {
+        return Ok(HookOutput::Continue);
+    };
+    let queue_dir = root.join(".knotch").join("queue");
+    let home = user_home().unwrap_or_else(|| root.clone());
+    let ctx = PostToolContext {
+        queue_dir: &queue_dir,
+        queue_config: &config.queue,
+        home: &home,
+        cwd: &input.cwd,
+        hook_name: "verify-commit",
+    };
+    Ok(post_tool_append::<ConfigWorkflow, _>(&repo, &unit, proposal, ctx).await?)
 }
 
 /// Extract the commit SHA from `git commit` stdout.

@@ -5,10 +5,13 @@
 //! - [`check`] — `PreToolUse(git commit *)`. Validates that the proposed milestone (if
 //!   the commit carries a trailer) is not already in the unit's shipped set. Emits no
 //!   events.
-//! - [`verify`] — `PostToolUse(git commit *)`. Appends `MilestoneShipped { status:
-//!   Verified }` when the commit's `Knotch-Milestone:` trailer names a milestone.
-//! - [`record_revert`] — `PostToolUse(git revert *)`. Appends `MilestoneReverted` tying
-//!   the revert SHA to the original.
+//! - [`build_verify_proposal`] — `PostToolUse(git commit *)`. Produces the
+//!   `MilestoneShipped { status: Verified }` proposal when the commit's
+//!   `Knotch-Milestone:` trailer names a milestone. The CLI layer passes it to
+//!   [`crate::queue::post_tool_append`] so the append runs under the retry + queue +
+//!   orphan contract (`.claude/rules/hook-integration.md`).
+//! - [`build_revert_proposal`] — `PostToolUse(git revert *)`. Produces the
+//!   `MilestoneReverted` proposal tying the revert SHA to the original.
 //!
 //! ## Milestone opt-in
 //!
@@ -25,10 +28,9 @@
 //! description.
 
 use knotch_kernel::{
-    AppendMode, Causation, CommitKind, CommitRef, CommitStatus, EventBody, MilestoneKind, Proposal,
-    Repository, RepositoryError, UnitId, WorkflowKind, project::shipped_milestones,
+    Causation, CommitKind, CommitRef, CommitStatus, EventBody, MilestoneKind, Proposal, Repository,
+    UnitId, WorkflowKind, project::shipped_milestones,
 };
-use serde::Serialize;
 
 use crate::{error::HookError, output::HookOutput};
 
@@ -67,39 +69,38 @@ where
     Ok(HookOutput::Continue)
 }
 
-/// `PostToolUse(git commit)` entry.
+/// Build a `MilestoneShipped { Verified }` proposal from a
+/// `PostToolUse(git commit)` invocation.
 ///
-/// Appends `MilestoneShipped { status: Verified }` **only** when the
-/// commit carries a `Knotch-Milestone:` trailer. Non-trailer commits
-/// return [`HookOutput::Continue`] without touching the ledger.
-pub async fn verify<W, R>(
-    repo: &R,
-    unit: &UnitId,
+/// Returns `None` when the commit carries no `Knotch-Milestone:`
+/// trailer, when the workflow rejects the milestone id, or when the
+/// commit message lacks a recognized Conventional-Commits prefix
+/// (`MilestoneShipped` requires a valid `CommitKind`). In every
+/// `None` case the hook falls back to [`HookOutput::Continue`] at
+/// the CLI boundary — a non-milestone commit is a silent no-op by
+/// design.
+///
+/// The CLI layer wraps the returned proposal with the retry + queue
+/// + orphan contract in [`crate::queue::post_tool_append`].
+#[must_use]
+pub fn build_verify_proposal<W>(
+    workflow: &W,
     commit_message: &str,
     commit_sha: CommitRef,
     causation: Causation,
-) -> Result<HookOutput, HookError>
+) -> Option<Proposal<W>>
 where
     W: WorkflowKind,
     W::Extension: Default,
-    R: Repository<W>,
-    Proposal<W>: Serialize,
 {
-    let Some(id) = extract_milestone_id(commit_message) else {
-        return Ok(HookOutput::Continue);
-    };
-    let Some(milestone) = repo.workflow().parse_milestone(&id) else {
-        let workflow_name = repo.workflow().name().into_owned();
+    let id = extract_milestone_id(commit_message)?;
+    let Some(milestone) = workflow.parse_milestone(&id) else {
+        let workflow_name = workflow.name().into_owned();
         tracing::warn!(workflow = %workflow_name, id, "verify: workflow rejected milestone id");
-        return Ok(HookOutput::Continue);
+        return None;
     };
-    let Some((kind, _)) = parse_conventional(commit_message) else {
-        // Trailer present but no conventional prefix — unusual. We
-        // refuse to guess the commit kind; the milestone event needs
-        // a valid `CommitKind` to pass the kernel precondition.
-        return Ok(HookOutput::Continue);
-    };
-    let proposal = Proposal {
+    let (kind, _) = parse_conventional(commit_message)?;
+    Some(Proposal {
         causation,
         extension: <W::Extension as Default>::default(),
         body: EventBody::MilestoneShipped {
@@ -109,40 +110,32 @@ where
             status: CommitStatus::Verified,
         },
         supersedes: None,
-    };
-    match repo.append(unit, vec![proposal], AppendMode::BestEffort).await {
-        Ok(_) => Ok(HookOutput::Continue),
-        Err(RepositoryError::Precondition(e)) => {
-            tracing::warn!("verify: precondition: {e}");
-            Err(HookError::Repository(RepositoryError::Precondition(e)))
-        }
-        Err(other) => Err(other.into()),
-    }
+    })
 }
 
-/// `PostToolUse(git revert)` entry. Appends `MilestoneReverted`.
-pub async fn record_revert<W, R>(
-    repo: &R,
-    unit: &UnitId,
+/// Build a `MilestoneReverted` proposal from a
+/// `PostToolUse(git revert)` invocation. The caller resolves the
+/// `milestone` back-reference by scanning the unit's log for the
+/// matching prior `MilestoneShipped`; passing a mismatched milestone
+/// produces a proposal whose kernel precondition will reject on
+/// append.
+#[must_use]
+pub fn build_revert_proposal<W>(
     revert: CommitRef,
     original: CommitRef,
     milestone: W::Milestone,
     causation: Causation,
-) -> Result<HookOutput, HookError>
+) -> Proposal<W>
 where
     W: WorkflowKind,
     W::Extension: Default,
-    R: Repository<W>,
-    Proposal<W>: Serialize,
 {
-    let proposal = Proposal {
+    Proposal {
         causation,
         extension: <W::Extension as Default>::default(),
         body: EventBody::MilestoneReverted { milestone, original, revert },
         supersedes: None,
-    };
-    repo.append(unit, vec![proposal], AppendMode::BestEffort).await?;
-    Ok(HookOutput::Continue)
+    }
 }
 
 /// Parse the first line of a conventional-commit message into

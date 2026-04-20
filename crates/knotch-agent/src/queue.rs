@@ -28,13 +28,15 @@
 //!    (`Reject`, the default) and dropping the oldest entry to make
 //!    room (`SpillOldest`).
 
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
-use knotch_kernel::{AppendMode, Proposal, Repository, UnitId, WorkflowKind};
+use knotch_kernel::{
+    AppendMode, Proposal, Repository, RepositoryError, UnitId, WorkflowKind,
+};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use uuid::Uuid;
 
-use crate::error::HookError;
+use crate::{error::HookError, orphan, output::HookOutput};
 
 /// Queue-size threshold at which `enqueue_raw` emits a warning log.
 /// Crossing this means `SessionStart` auto-drain is failing and the
@@ -308,6 +310,148 @@ where
         }
     }
     Ok(drained)
+}
+
+/// Number of append attempts for `post_tool_append`. The first is the
+/// initial try; the remaining attempts back off exponentially.
+pub const POST_TOOL_MAX_ATTEMPTS: u32 = 3;
+
+/// Base delay between `post_tool_append` retries — 50 ms, then 200 ms,
+/// then 800 ms (4× factor). Total wait before giving up: 1 s.
+pub const POST_TOOL_BASE_DELAY: Duration = Duration::from_millis(50);
+
+/// Backoff factor between attempts. Matches the hook-integration.md
+/// schedule (50 / 200 / 800 ms).
+const POST_TOOL_BACKOFF_FACTOR: u32 = 4;
+
+fn post_tool_backoff(attempt: u32) -> Duration {
+    // attempt = 0 → base, 1 → base×4, 2 → base×16, etc.
+    let factor = POST_TOOL_BACKOFF_FACTOR.checked_pow(attempt).unwrap_or(u32::MAX);
+    POST_TOOL_BASE_DELAY.saturating_mul(factor)
+}
+
+/// Operator-facing context carried alongside a `post_tool_append`
+/// call. Keeps the helper signature narrow and lets the caller pin
+/// every side-channel (queue dir, queue policy, orphan log path, hook
+/// name tag, cwd for diagnostics) without a long parameter list.
+#[derive(Debug, Clone, Copy)]
+pub struct PostToolContext<'a> {
+    /// Queue directory (usually `<project>/.knotch/queue`).
+    pub queue_dir: &'a Path,
+    /// Operator-tunable queue policy.
+    pub queue_config: &'a QueueConfig,
+    /// Home directory for the orphan log fallback (usually `$HOME`).
+    pub home: &'a Path,
+    /// Working directory at the time the hook fired — logged in the
+    /// orphan record so operators can locate the affected project.
+    pub cwd: &'a Path,
+    /// Hook name tag, e.g. `"verify-commit"` / `"record-revert"`.
+    /// Surfaces in the orphan log record and tracing spans.
+    pub hook_name: &'a str,
+}
+
+/// Append a proposal under the PostToolUse contract
+/// (`.claude/rules/hook-integration.md`):
+///
+/// 1. Retry up to [`POST_TOOL_MAX_ATTEMPTS`] times on transient
+///    failures (`RepositoryError::Storage` / `Lock` / `Codec` /
+///    `Corrupted`, `HookError::Io`). `RepositoryError::Precondition`
+///    is **not** retried — preconditions are permanent policy
+///    rejections (e.g. "milestone already shipped"), not transient.
+/// 2. On retry exhaustion, enqueue via [`enqueue_raw`] so the
+///    reconciler can drain on the next `SessionStart` /
+///    `knotch reconcile`.
+/// 3. On [`HookError::QueueFull`], fall back to the orphan log at
+///    `~/.knotch/orphan.log` so the event is never silently dropped.
+///
+/// The helper returns [`HookOutput::Continue`] in every terminal path
+/// (success, queued, orphaned) so the PostToolUse exit code stays 0
+/// per the exit-code contract. Precondition rejections surface as
+/// [`HookError::Repository`] for the CLI to decide on visibility.
+pub async fn post_tool_append<W, R>(
+    repo: &R,
+    unit: &UnitId,
+    proposal: Proposal<W>,
+    ctx: PostToolContext<'_>,
+) -> Result<HookOutput, HookError>
+where
+    W: WorkflowKind,
+    R: Repository<W>,
+    Proposal<W>: Serialize,
+{
+    let mut last_err: Option<RepositoryError> = None;
+    for attempt in 0..POST_TOOL_MAX_ATTEMPTS {
+        match repo.append(unit, vec![proposal.clone()], AppendMode::BestEffort).await {
+            Ok(_) => return Ok(HookOutput::Continue),
+            Err(RepositoryError::Precondition(e)) => {
+                // Permanent rejection — retry cannot help and the
+                // queue would rediscover the same failure on drain.
+                tracing::warn!(
+                    hook = ctx.hook_name,
+                    unit = unit.as_str(),
+                    "{}: precondition rejected: {e}",
+                    ctx.hook_name
+                );
+                return Err(HookError::Repository(RepositoryError::Precondition(e)));
+            }
+            Err(other) => {
+                tracing::debug!(
+                    hook = ctx.hook_name,
+                    unit = unit.as_str(),
+                    attempt = attempt + 1,
+                    error = %other,
+                    "{}: transient append failure, retrying",
+                    ctx.hook_name,
+                );
+                last_err = Some(other);
+                if attempt + 1 < POST_TOOL_MAX_ATTEMPTS {
+                    tokio::time::sleep(post_tool_backoff(attempt)).await;
+                }
+            }
+        }
+    }
+
+    // Retry exhausted — fall through to the queue. The caller's
+    // failure signal is preserved in `reason` so operators can
+    // correlate queue entries with the original error.
+    let reason = last_err
+        .as_ref()
+        .map(|e| format!("{e}"))
+        .unwrap_or_else(|| "retry exhausted without specific error".to_owned());
+
+    match enqueue(ctx.queue_dir, unit, &proposal, &reason, ctx.queue_config) {
+        Ok(()) => {
+            tracing::info!(
+                hook = ctx.hook_name,
+                unit = unit.as_str(),
+                "{}: append failed after retries, queued for reconcile",
+                ctx.hook_name,
+            );
+            Ok(HookOutput::Continue)
+        }
+        Err(HookError::QueueFull { size, max }) => {
+            // Queue cap hit under `OverflowPolicy::Reject` — the event
+            // would otherwise be lost. Orphan-log it so the operator
+            // sees the drop and can recover by hand.
+            let orphan_reason = format!("queue-full size={size} max={max}; append reason: {reason}");
+            orphan::log_orphan(
+                ctx.home,
+                &format!("knotch hook {}", ctx.hook_name),
+                ctx.cwd,
+                &orphan_reason,
+            );
+            tracing::warn!(
+                hook = ctx.hook_name,
+                unit = unit.as_str(),
+                size,
+                max,
+                "{}: queue full — recorded in ~/.knotch/orphan.log",
+                ctx.hook_name,
+            );
+            Ok(HookOutput::Continue)
+        }
+        Err(other) => Err(other),
+    }
 }
 
 #[cfg(test)]

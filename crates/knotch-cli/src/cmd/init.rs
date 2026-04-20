@@ -374,9 +374,8 @@ const OPTIONAL_EXAMPLE_JSONC: &str = r#"// Optional knotch hooks. Copy any block
 "#;
 
 fn home_dir() -> anyhow::Result<PathBuf> {
-    std::env::var_os("HOME")
-        .map(PathBuf::from)
-        .ok_or_else(|| anyhow!("HOME env var not set — cannot resolve user settings"))
+    crate::home::user_home()
+        .ok_or_else(|| anyhow!("HOME / USERPROFILE env var not set — cannot resolve user settings"))
 }
 
 /// Ensure the `.knotch/` runtime directory is gitignored. Idempotent.

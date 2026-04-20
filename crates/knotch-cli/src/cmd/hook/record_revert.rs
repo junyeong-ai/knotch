@@ -11,11 +11,12 @@ use knotch_agent::{
     HookInput, HookOutput,
     active::{ActiveUnit, project_root, resolve_active_for_hook},
     causation::hook_causation,
+    queue::{PostToolContext, post_tool_append},
 };
 use knotch_kernel::{CommitRef, EventBody, Repository, UnitId, WorkflowKind};
 use knotch_workflow::ConfigWorkflow;
 
-use crate::config::Config;
+use crate::{config::Config, home::user_home};
 
 pub(crate) async fn run(config: &Config, input: HookInput) -> Result<HookOutput> {
     let Some(command) = input.bash_command() else {
@@ -39,16 +40,32 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> Result<HookOutput>
     let original_ref = CommitRef::new(CompactString::from(original));
     let revert_ref = CommitRef::new(CompactString::from(revert_sha));
     let repo = config.build_repository()?;
-    dispatch::<ConfigWorkflow, _>(&repo, &unit, revert_ref, original_ref, causation).await
+    dispatch::<ConfigWorkflow, _>(
+        &repo,
+        DispatchArgs {
+            config,
+            root: &root,
+            cwd: &input.cwd,
+            unit: &unit,
+            revert: revert_ref,
+            original: original_ref,
+            causation,
+        },
+    )
+    .await
 }
 
-async fn dispatch<W, R>(
-    repo: &R,
-    unit: &UnitId,
+struct DispatchArgs<'a> {
+    config: &'a Config,
+    root: &'a std::path::Path,
+    cwd: &'a std::path::Path,
+    unit: &'a UnitId,
     revert: CommitRef,
     original: CommitRef,
     causation: knotch_kernel::Causation,
-) -> Result<HookOutput>
+}
+
+async fn dispatch<W, R>(repo: &R, args: DispatchArgs<'_>) -> Result<HookOutput>
 where
     W: WorkflowKind,
     W::Extension: Default,
@@ -57,9 +74,9 @@ where
 {
     // Find the matching MilestoneShipped event so we can name the
     // milestone on the revert event.
-    let log = repo.load(unit).await?;
+    let log = repo.load(args.unit).await?;
     let milestone = log.events().iter().rev().find_map(|evt| match &evt.body {
-        EventBody::MilestoneShipped { milestone, commit, .. } if commit == &original => {
+        EventBody::MilestoneShipped { milestone, commit, .. } if commit == &args.original => {
             Some(milestone.clone())
         }
         _ => None,
@@ -68,15 +85,27 @@ where
         // Revert targets a commit outside knotch's awareness —
         // non-blocking silent skip.
         tracing::info!(
-            original = original.as_str(),
+            original = args.original.as_str(),
             "knotch record-revert: no MilestoneShipped back-reference — skipped"
         );
         return Ok(HookOutput::Continue);
     };
-    Ok(knotch_agent::commit::record_revert::<W, R>(
-        repo, unit, revert, original, milestone, causation,
-    )
-    .await?)
+    let proposal = knotch_agent::commit::build_revert_proposal::<W>(
+        args.revert,
+        args.original,
+        milestone,
+        args.causation,
+    );
+    let queue_dir = args.root.join(".knotch").join("queue");
+    let home = user_home().unwrap_or_else(|| args.root.to_path_buf());
+    let ctx = PostToolContext {
+        queue_dir: &queue_dir,
+        queue_config: &args.config.queue,
+        home: &home,
+        cwd: args.cwd,
+        hook_name: "record-revert",
+    };
+    Ok(post_tool_append::<W, R>(repo, args.unit, proposal, ctx).await?)
 }
 
 fn extract_revert_target_from_cmd(cmd: &str) -> Option<String> {

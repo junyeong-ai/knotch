@@ -12,6 +12,7 @@
 
 mod cmd;
 mod config;
+mod home;
 
 use std::{io, process::ExitCode};
 
