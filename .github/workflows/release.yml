@@ -89,25 +89,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # `actions-rust-lang/setup-rust-toolchain@v1` respects
+      # `rust-toolchain.toml` when `toolchain` is omitted and adds
+      # the requested targets to that channel — one install, no
+      # post-hoc `rustup target add`.
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: ${{ matrix.builder == 'lipo' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
-
-      # `rust-toolchain.toml` pins channel = 1.94.0, which rustup
-      # resolves at the first cargo invocation — overriding whatever
-      # `dtolnay/rust-toolchain@stable` just installed. The overridden
-      # toolchain does not inherit the action's `targets` input, so
-      # add the targets explicitly against the project-pinned
-      # channel. No-op when the target is already present.
-      - name: Install cross-compile targets for the pinned toolchain
-        shell: bash
-        run: |
-          if [ "${{ matrix.builder }}" = "lipo" ]; then
-            rustup target add aarch64-apple-darwin x86_64-apple-darwin
-          elif [ "${{ matrix.builder }}" = "cargo" ]; then
-            rustup target add "${{ matrix.target }}"
-          fi
+          target: ${{ matrix.builder == 'lipo' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
+          cache: false
 
       - uses: Swatinem/rust-cache@v2.9.1
         with:

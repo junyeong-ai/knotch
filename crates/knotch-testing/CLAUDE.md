@@ -34,7 +34,8 @@ that needs an in-memory path should ask why (usually it doesn't).
   gate is load-bearing. A runtime use would mean "we have
   production code that accepts unsynced in-memory state", which
   violates constitution §I.
-- Add adopter-specific fixtures — a test fixture for
-  webloom-shaped units lives in webloom's test tree, not here.
+- Add adopter-specific fixtures — test data shaped for a
+  particular adopter's workflow lives in that adopter's test
+  tree, not here.
 - Reimplement fingerprint / precondition logic — the whole point
   of parity is that kernel dispatch runs unchanged.

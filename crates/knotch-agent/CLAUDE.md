@@ -16,9 +16,10 @@ plug in their own CLI and call the same functions.
 
 | Module        | Owns                                                          |
 |---------------|---------------------------------------------------------------|
-| `input`       | `HookInput` — decoded Claude Code hook stdin JSON             |
+| `input`       | `HookInput` + `HookEvent` — decoded Claude Code hook stdin    |
 | `output`      | `HookOutput` — `Continue` / `Context` / `Block` / `UpdateInput` / `Ask` |
 | `error`       | `HookError` — unified error taxonomy                          |
+| `causation`   | `hook_causation(input, subcommand)` — single `Causation` builder every hook uses |
 | `active`      | `.knotch/active.toml` read/write, `project_root` discovery    |
 | `queue`       | `.knotch/queue/*.json` per-entry reconciler queue             |
 | `orphan`      | `~/.knotch/orphan.log` advisory logging                       |
@@ -26,8 +27,8 @@ plug in their own CLI and call the same functions.
 | `commit`      | `check` / `verify` / `record_revert` — git-driven events      |
 | `guard`       | `rewrite` — block destructive history-rewriting git ops       |
 | `subagent`    | `SubagentStop` → `EventBody::SubagentCompleted` append        |
-| `tool_call`   | harness failure detector → `EventBody::ToolCallFailed` append |
-| `model`       | harness model-lifecycle callback → `EventBody::ModelSwitched` append |
+| `tool_call`   | `PostToolUseFailure` detector → `EventBody::ToolCallFailed` append |
+| `model`       | `SessionStart.model` detector → `EventBody::ModelSwitched` append |
 | `context`     | `UserPromptSubmit` — re-inject context (opt-in)               |
 | `session_end` | `SessionEnd` — surface reconciler queue size                  |
 

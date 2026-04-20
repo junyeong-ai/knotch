@@ -13,18 +13,8 @@ functions; `knotch-cli`'s `hook` subcommand is the reference
 wrapper, third-party harnesses plug in their own CLI against the
 same library.
 
-The canonical workflow (`knotch_workflow::Knotch`) lives in
-`knotch-workflow` alongside runtime-dynamic phase / gate types.
-Adopter-specific workflows live in adopter repos (fork from
-`examples/workflow-*-case-study/` or write from scratch).
-
-- **`knotch-workflow`** — the canonical `Knotch` workflow
-  plus `DynamicPhase` / `DynamicGate` / `DynamicMilestone` for
-  runtime-configurable shapes.
-- **`knotch-schema`** — `FrontmatterSchema` (per-unit
-  required-field validator) and `LifecycleFsm` (status transition
-  + Phase × Status cross-invariant engine). Opt-in policy
-  libraries; the kernel stays pure.
+Per-crate details load on demand — see the navigation table below
+rather than spelling each crate's surface here.
 
 ## Commands
 
@@ -87,37 +77,20 @@ rules that govern their surface via `@..` paths.
 Commits follow [Conventional Commits](https://www.conventionalcommits.org)
 (`feat:` / `fix:` / `refactor:` / `perf:` / `docs:` / `chore:` / …).
 
-**Milestones are opt-in.** Add a `Knotch-Milestone: <id>` git
-trailer when the commit finalizes a milestone — the
-`verify-commit` hook then records `MilestoneShipped` against the
-active unit. Commits without the trailer pass silently; knotch
-only records what the author explicitly named.
+**Milestones are opt-in.** Commits that finalize a milestone
+carry a `Knotch-Milestone: <id>` git trailer. Full contract +
+trailer extraction details live in
+`crates/knotch-agent/CLAUDE.md`.
 
-Either form works (git joins multi-`-m` with blank lines):
+Phase events (`PhaseCompleted` / `PhaseSkipped`) do not go
+through commits — use `/knotch-mark`.
 
-```bash
-# Separate paragraphs
-git commit -m "feat: add SSO login flow" \
-           -m "Describe the change." \
-           -m "Knotch-Milestone: SPEC-123"
+## Runtime + release
 
-# Or as the last line of a single -m
-git commit -m "feat: add SSO login flow
-
-Knotch-Milestone: SPEC-123"
-```
-
-Phase events (`PhaseCompleted` / `PhaseSkipped`) are separate —
-use `/knotch-mark` rather than commit trailers.
-
-## Runtime pins
-
-Versions live in `rust-toolchain.toml` (Rust channel) and the root
-`Cargo.toml` `[workspace.dependencies]` block (every external
-crate). Update both in the same commit as any bump.
-
-## Release discipline
-
-Public API is diffed against `docs/public_api/<crate>.baseline` in
-CI. Any surface change lands together with a refreshed baseline in
-the same commit. Semver enforced by `cargo-semver-checks`.
+- Rust channel pin: `rust-toolchain.toml`. External crate
+  versions: root `Cargo.toml` `[workspace.dependencies]`. Bump
+  both together.
+- Public API surface is diffed against
+  `docs/public_api/<crate>.baseline` in CI. Every public-API
+  change regenerates the baseline in the same commit;
+  `cargo-semver-checks` enforces semver.

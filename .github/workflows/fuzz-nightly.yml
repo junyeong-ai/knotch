@@ -15,7 +15,10 @@ jobs:
     timeout-minutes: 1500  # 25h budget for a 24h run
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: nightly
+          cache: false
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-fuzz
       - name: List fuzz targets

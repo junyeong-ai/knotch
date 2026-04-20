@@ -32,8 +32,9 @@ status-transition hook.
 
 ## When to reach for this crate
 
-- Adopter workflows that keep a `spec.md` per unit with YAML
-  frontmatter (Grove, webloom).
+- Adopter workflows that keep one Markdown file (e.g. `spec.md`)
+  per unit with a YAML frontmatter block and want the header's
+  `status` field to follow every ledger `StatusTransitioned`.
 - Projects that want `knotch show --format brief` and the
   on-disk spec header to agree on `status` after a transition.
 
