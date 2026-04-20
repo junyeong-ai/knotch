@@ -1,51 +1,71 @@
-//! `SubagentStop` bookkeeping.
+//! `SubagentStop` → append `EventBody::SubagentCompleted`.
 //!
-//! Records the transcript path and last-message under
-//! `.knotch/subagents/<agent-id>.json` so later `Causation` values
-//! can reference the subagent run without inflating the main event
-//! log. No events are emitted by this hook directly.
+//! Prior to v0.2 this helper wrote a side-channel JSON file under
+//! `.knotch/subagents/<agent-id>.json`. That violated §I ("event log
+//! is the only truth") — delegation history lived outside the log
+//! and was invisible to projections, queries, and audits.
+//!
+//! The v0.2 rewrite funnels every subagent termination through
+//! `Repository::append` with a canonical `EventBody::SubagentCompleted`.
+//! The subagent's transcript path and last assistant message survive
+//! as event-body fields, so `knotch-query` can filter by agent_id,
+//! `project::subagents` can reconstruct the delegation roster, and
+//! `cargo public-api` pins the wire shape.
+//!
+//! Called by the `record-subagent` CLI wrapper
+//! (`crates/knotch-cli/src/cmd/hook/record_subagent.rs`).
 
 use std::path::Path;
 
-use serde::{Deserialize, Serialize};
+use compact_str::CompactString;
+use knotch_kernel::{
+    AppendMode, Causation, Proposal, Repository, UnitId, WorkflowKind, causation::AgentId,
+    event::EventBody,
+};
+use serde::Serialize;
 
 use crate::{error::HookError, output::HookOutput};
 
-/// On-disk subagent record.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SubagentRecord {
-    /// Harness-assigned agent id (e.g. `agent-abc123`).
-    pub agent_id: String,
-    /// Agent type (`Explore`, `Plan`, or a custom name).
-    pub agent_type: String,
-    /// Absolute path to the subagent's transcript JSONL, if present.
-    pub transcript_path: Option<String>,
-    /// Last assistant message text, if the harness provided one.
-    pub last_message: Option<String>,
-    /// ISO-8601 timestamp when the subagent stopped.
-    pub stopped_at: String,
-}
-
-/// Write a subagent record atomically. Returns
-/// [`HookOutput::Continue`] on success.
-pub fn record(
-    project_root: &Path,
-    agent_id: &str,
-    agent_type: &str,
+/// Append a `SubagentCompleted` event against the active unit.
+///
+/// The caller (the `record-subagent` CLI hook) already resolved the
+/// active unit and the subagent fields from the Claude Code
+/// `SubagentStop` stdin payload. This helper is generic over
+/// `WorkflowKind` so the same append path works for any adopter
+/// preset.
+///
+/// # Errors
+///
+/// Any `Repository::append` failure surfaces as
+/// [`HookError::Repository`]. The caller typically ignores it (the
+/// `record-subagent` hook is `SubagentStop`-triggered, which is a
+/// post-event reporting signal — nothing to block).
+pub async fn record<W, R>(
+    repo: &R,
+    unit: &UnitId,
+    agent_id: impl Into<AgentId>,
+    agent_type: Option<CompactString>,
     transcript_path: Option<&Path>,
-    last_message: Option<&str>,
-) -> Result<HookOutput, HookError> {
-    let dir = project_root.join(".knotch").join("subagents");
-    std::fs::create_dir_all(&dir)?;
-    let record = SubagentRecord {
-        agent_id: agent_id.to_owned(),
-        agent_type: agent_type.to_owned(),
-        transcript_path: transcript_path.map(|p| p.to_string_lossy().into_owned()),
-        last_message: last_message.map(str::to_owned),
-        stopped_at: jiff::Timestamp::now().to_string(),
+    last_message: Option<CompactString>,
+    causation: Causation,
+) -> Result<HookOutput, HookError>
+where
+    W: WorkflowKind,
+    W::Extension: Default,
+    R: Repository<W>,
+    Proposal<W>: Serialize,
+{
+    let proposal = Proposal {
+        causation,
+        extension: <W::Extension as Default>::default(),
+        body: EventBody::SubagentCompleted {
+            agent_id: agent_id.into(),
+            agent_type,
+            transcript_path: transcript_path.map(|p| CompactString::from(p.to_string_lossy())),
+            last_message,
+        },
+        supersedes: None,
     };
-    let path = dir.join(format!("{agent_id}.json"));
-    let body = serde_json::to_vec_pretty(&record)?;
-    crate::atomic::write(&path, &body)?;
+    repo.append(unit, vec![proposal], AppendMode::BestEffort).await?;
     Ok(HookOutput::Continue)
 }

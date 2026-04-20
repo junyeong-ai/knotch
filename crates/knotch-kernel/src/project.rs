@@ -5,10 +5,11 @@
 //! (current phase, shipped milestones, total cost, supersede-aware
 //! effective-events view).
 
+use compact_str::CompactString;
 use rustc_hash::FxHashSet;
 
 use crate::{
-    causation::Cost,
+    causation::{AgentId, Cost},
     event::{Event, EventBody},
     id::EventId,
     log::Log,
@@ -114,6 +115,53 @@ pub fn current_status<W: WorkflowKind>(log: &Log<W>) -> Option<StatusId> {
         EventBody::StatusTransitioned { target, .. } => Some(target.clone()),
         _ => None,
     })
+}
+
+/// One `SubagentCompleted` entry surfaced by [`subagents`].
+///
+/// Narrow summary structure rather than a raw `&EventBody` so the
+/// projection API stays stable when the body adds fields — callers
+/// pattern-match on this struct, not on `EventBody::SubagentCompleted`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SubagentEntry {
+    /// Harness-assigned subagent id.
+    pub agent_id: AgentId,
+    /// Subagent type tag (`"Explore"`, `"Plan"`, adopter-custom), if
+    /// the harness classified it.
+    pub agent_type: Option<CompactString>,
+    /// Absolute path to the subagent's transcript JSONL, if any.
+    pub transcript_path: Option<CompactString>,
+    /// Last-visible assistant message (capped, see
+    /// `crates/knotch-cli/src/cmd/hook/record_subagent.rs`), if any.
+    pub last_message: Option<CompactString>,
+    /// The stamp of the event that recorded the completion — useful
+    /// for "subagent roster at time T" queries via `load_until`.
+    pub at: crate::time::Timestamp,
+}
+
+/// Subagents that have completed on this unit, in append order.
+/// Supersede-aware via `effective_events` — a superseded
+/// `SubagentCompleted` drops out of the roster.
+#[must_use]
+pub fn subagents<W: WorkflowKind>(log: &Log<W>) -> Vec<SubagentEntry> {
+    effective_events(log)
+        .iter()
+        .filter_map(|evt| match &evt.body {
+            EventBody::SubagentCompleted {
+                agent_id,
+                agent_type,
+                transcript_path,
+                last_message,
+            } => Some(SubagentEntry {
+                agent_id: agent_id.clone(),
+                agent_type: agent_type.clone(),
+                transcript_path: transcript_path.clone(),
+                last_message: last_message.clone(),
+                at: evt.at,
+            }),
+            _ => None,
+        })
+        .collect()
 }
 
 /// Milestones that have shipped and not been reverted, in first-ship

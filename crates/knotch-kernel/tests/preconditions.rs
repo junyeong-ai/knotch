@@ -785,3 +785,110 @@ fn terminal_unit_refuses_non_supersede_appends() {
         "supersede must be allowed on a terminal unit, got {supersede_err:?}",
     );
 }
+
+// --- SubagentCompleted ------------------------------------------------
+
+#[test]
+fn subagent_completed_accepted_first_time() {
+    use compact_str::CompactString;
+    use knotch_kernel::causation::AgentId;
+
+    let log = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
+    let wf = Wf;
+    let ctx = AppendContext::new(&wf, &log);
+    EventBody::<Wf>::SubagentCompleted {
+        agent_id: AgentId(CompactString::from("agent-abc")),
+        agent_type: Some(CompactString::from("Explore")),
+        transcript_path: None,
+        last_message: None,
+    }
+    .check_precondition(&ctx)
+    .expect("first SubagentCompleted for agent-abc must land");
+}
+
+#[test]
+fn subagent_completed_rejects_duplicate_agent_id() {
+    use compact_str::CompactString;
+    use knotch_kernel::causation::AgentId;
+
+    let log = log(vec![
+        EventBody::UnitCreated { scope: Scope::Standard },
+        EventBody::SubagentCompleted {
+            agent_id: AgentId(CompactString::from("agent-abc")),
+            agent_type: Some(CompactString::from("Explore")),
+            transcript_path: None,
+            last_message: None,
+        },
+    ]);
+    let wf = Wf;
+    let ctx = AppendContext::new(&wf, &log);
+    let err = EventBody::<Wf>::SubagentCompleted {
+        agent_id: AgentId(CompactString::from("agent-abc")),
+        agent_type: Some(CompactString::from("Plan")),
+        transcript_path: Some(CompactString::from("/tmp/transcript.jsonl")),
+        last_message: Some(CompactString::from("different second completion")),
+    }
+    .check_precondition(&ctx)
+    .expect_err("duplicate agent_id must reject");
+    assert!(
+        matches!(err, PreconditionError::SubagentAlreadyCompleted(ref id) if id == "agent-abc")
+    );
+}
+
+#[test]
+fn subagent_completed_after_supersede_can_be_re_recorded() {
+    // A superseded SubagentCompleted no longer counts toward the
+    // "already completed" check — the agent's prior record has been
+    // retracted, so a fresh completion is admissible. Gives operators
+    // a clean escape hatch when the first event was wrong (e.g.
+    // transcript_path pointed at a rotated-out file).
+    use compact_str::CompactString;
+    use knotch_kernel::causation::AgentId;
+
+    let mut events = vec![
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::UnitCreated { scope: Scope::Standard },
+            supersedes: None,
+        },
+        knotch_kernel::Event {
+            id: EventId::new_v7(),
+            at: Timestamp::now(),
+            causation: causation(),
+            extension: (),
+            body: EventBody::SubagentCompleted {
+                agent_id: AgentId(CompactString::from("agent-abc")),
+                agent_type: None,
+                transcript_path: None,
+                last_message: None,
+            },
+            supersedes: None,
+        },
+    ];
+    let original_id = events[1].id;
+    events.push(knotch_kernel::Event {
+        id: EventId::new_v7(),
+        at: Timestamp::now(),
+        causation: causation(),
+        extension: (),
+        body: EventBody::EventSuperseded {
+            target: original_id,
+            reason: Rationale::new("rotated transcript").unwrap(),
+        },
+        supersedes: None,
+    });
+    let log = Log::from_events(UnitId::try_new("u").unwrap(), events);
+    let wf = Wf;
+    let ctx = AppendContext::new(&wf, &log);
+    EventBody::<Wf>::SubagentCompleted {
+        agent_id: AgentId(CompactString::from("agent-abc")),
+        agent_type: Some(CompactString::from("Explore")),
+        transcript_path: Some(CompactString::from("/tmp/new-transcript.jsonl")),
+        last_message: None,
+    }
+    .check_precondition(&ctx)
+    .expect("superseded prior allows fresh SubagentCompleted");
+}

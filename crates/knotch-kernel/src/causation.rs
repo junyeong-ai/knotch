@@ -324,6 +324,26 @@ pub struct AgentId(pub CompactString);
 
 impl Sensitive for AgentId {}
 
+impl From<CompactString> for AgentId {
+    fn from(s: CompactString) -> Self {
+        Self(s)
+    }
+}
+
+impl From<&str> for AgentId {
+    fn from(s: &str) -> Self {
+        Self(CompactString::from(s))
+    }
+}
+
+impl AgentId {
+    /// Access the inner slug.
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
 /// Non-sensitive model identifier (e.g. `claude-opus-4-7`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]

@@ -6,7 +6,7 @@ use compact_str::CompactString;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    causation::Causation,
+    causation::{AgentId, Causation},
     id::EventId,
     rationale::Rationale,
     scope::Scope,
@@ -181,6 +181,35 @@ pub enum EventBody<W: WorkflowKind> {
         /// Why — minimum-length rationale.
         reason: Rationale,
     },
+    /// A subagent (a task delegated from the main agent session)
+    /// finished. Carries enough metadata to reconstruct "who
+    /// delegated, of which type, with which last-visible output"
+    /// without inflating the log with per-token events — Claude Code
+    /// fires `SubagentStop` once per subagent, and the parent
+    /// session's `Causation.principal.agent_id` identifies the
+    /// delegator implicitly via adjacency in the event stream.
+    ///
+    /// Appended via `knotch-agent::subagent::record` from the
+    /// `SubagentStop` hook wrapper. The prior version of that helper
+    /// wrote a side-channel `.knotch/subagents/<id>.json` file; that
+    /// path is retired — §I "event log is the only truth" applies to
+    /// subagent bookkeeping too.
+    SubagentCompleted {
+        /// Harness-assigned subagent id (stable per delegated task).
+        agent_id: AgentId,
+        /// Subagent type tag (`"Explore"`, `"Plan"`, or an adopter-
+        /// chosen custom name). `None` when the harness did not
+        /// classify the subagent.
+        agent_type: Option<CompactString>,
+        /// Absolute path to the subagent's transcript JSONL when the
+        /// harness produced one. Kept as a string (not `PathBuf`) so
+        /// the log stays portable across Linux / macOS / Windows
+        /// path-separator conventions.
+        transcript_path: Option<CompactString>,
+        /// Last assistant message emitted by the subagent. Capped by
+        /// the harness; `None` when nothing was reported.
+        last_message: Option<CompactString>,
+    },
 }
 
 impl<W: WorkflowKind> EventBody<W> {
@@ -206,6 +235,7 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::ReconcileFailed { .. } => "reconcile_failed",
             EventBody::ReconcileRecovered { .. } => "reconcile_recovered",
             EventBody::EventSuperseded { .. } => "event_superseded",
+            EventBody::SubagentCompleted { .. } => "subagent_completed",
         }
     }
 
@@ -227,6 +257,7 @@ impl<W: WorkflowKind> EventBody<W> {
             EventBody::ReconcileFailed { .. } => 9,
             EventBody::ReconcileRecovered { .. } => 10,
             EventBody::EventSuperseded { .. } => 11,
+            EventBody::SubagentCompleted { .. } => 12,
         }
     }
 
@@ -455,6 +486,22 @@ impl<W: WorkflowKind> EventBody<W> {
                 }
                 if !target_exists {
                     return Err(E::SupersedeTargetMissing(target.to_string()));
+                }
+            }
+            EventBody::SubagentCompleted { agent_id, .. } => {
+                // One completion event per subagent id. A duplicate
+                // would produce two competing `transcript_path` /
+                // `last_message` records under the same `agent_id` and
+                // break any projection that assumes "agent X completed
+                // at time T".
+                let already_completed = effective_events(ctx.log).iter().any(|evt| {
+                    matches!(
+                        &evt.body,
+                        EventBody::SubagentCompleted { agent_id: prior, .. } if prior == agent_id,
+                    )
+                });
+                if already_completed {
+                    return Err(E::SubagentAlreadyCompleted(agent_id.0.to_string()));
                 }
             }
         }

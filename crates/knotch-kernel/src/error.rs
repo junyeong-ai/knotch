@@ -154,6 +154,12 @@ pub enum PreconditionError {
     /// Attempted to supersede an event id that is absent from the log.
     #[error("supersede target {0} not found in log")]
     SupersedeTargetMissing(String),
+    /// A `SubagentCompleted` event was proposed for an `agent_id`
+    /// that already has a completion event in the effective log.
+    /// Duplicate completions would produce competing `transcript_path`
+    /// / `last_message` records under the same agent.
+    #[error("subagent {0} already has a completion event")]
+    SubagentAlreadyCompleted(String),
     /// Forced status transition without a supplied rationale.
     #[error("forced status transition requires a rationale")]
     ForcedWithoutRationale,

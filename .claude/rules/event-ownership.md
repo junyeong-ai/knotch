@@ -30,6 +30,7 @@ additions here before shipping.
 | `ReconcileFailed`     | Reconciler | Reconciler itself on observer failure        |
 | `ReconcileRecovered`  | Reconciler | Reconciler itself on recovery                |
 | `EventSuperseded`     | CLI        | `knotch supersede <event-id> <rationale>`    |
+| `SubagentCompleted`   | Hook       | `knotch hook record-subagent` (SubagentStop) |
 
 ## Opt-in matrix
 
@@ -50,6 +51,7 @@ the two is the main source of false-positive events.
 | `ReconcileFailed`    | Automatic     | Reconciler observer returns error past retry anchor    |
 | `ReconcileRecovered` | Automatic     | Reconciler observer succeeds after a prior failure     |
 | `EventSuperseded`    | Explicit      | Operator runs `knotch supersede`                       |
+| `SubagentCompleted`  | Automatic     | Claude Code fires `SubagentStop` for a delegated task  |
 
 **Opt-in rationale** (`MilestoneShipped`): one feature usually
 lands across several incremental commits ("start X", "polish X",

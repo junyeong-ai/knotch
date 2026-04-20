@@ -279,26 +279,7 @@ pub async fn knotch_agent::session::load_context<W, R>(project_root_override: co
 pub mod knotch_agent::session_end
 pub fn knotch_agent::session_end::finalize(project_root: &std::path::Path, session_id: &str, reason: core::option::Option<&str>) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError>
 pub mod knotch_agent::subagent
-pub struct knotch_agent::subagent::SubagentRecord
-pub knotch_agent::subagent::SubagentRecord::agent_id: alloc::string::String
-pub knotch_agent::subagent::SubagentRecord::agent_type: alloc::string::String
-pub knotch_agent::subagent::SubagentRecord::last_message: core::option::Option<alloc::string::String>
-pub knotch_agent::subagent::SubagentRecord::stopped_at: alloc::string::String
-pub knotch_agent::subagent::SubagentRecord::transcript_path: core::option::Option<alloc::string::String>
-impl core::fmt::Debug for knotch_agent::subagent::SubagentRecord
-pub fn knotch_agent::subagent::SubagentRecord::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for knotch_agent::subagent::SubagentRecord
-pub fn knotch_agent::subagent::SubagentRecord::serialize<__S>(&self, __serializer: __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for knotch_agent::subagent::SubagentRecord
-pub fn knotch_agent::subagent::SubagentRecord::deserialize<__D>(__deserializer: __D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for knotch_agent::subagent::SubagentRecord
-impl core::marker::Send for knotch_agent::subagent::SubagentRecord
-impl core::marker::Sync for knotch_agent::subagent::SubagentRecord
-impl core::marker::Unpin for knotch_agent::subagent::SubagentRecord
-impl core::marker::UnsafeUnpin for knotch_agent::subagent::SubagentRecord
-impl core::panic::unwind_safe::RefUnwindSafe for knotch_agent::subagent::SubagentRecord
-impl core::panic::unwind_safe::UnwindSafe for knotch_agent::subagent::SubagentRecord
-pub fn knotch_agent::subagent::record(project_root: &std::path::Path, agent_id: &str, agent_type: &str, transcript_path: core::option::Option<&std::path::Path>, last_message: core::option::Option<&str>) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError>
+pub async fn knotch_agent::subagent::record<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, agent_id: impl core::convert::Into<knotch_kernel::causation::AgentId>, agent_type: core::option::Option<compact_str::CompactString>, transcript_path: core::option::Option<&std::path::Path>, last_message: core::option::Option<compact_str::CompactString>, causation: knotch_kernel::causation::Causation) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, <W as knotch_kernel::workflow::WorkflowKind>::Extension: core::default::Default, R: knotch_kernel::repository::Repository<W>, knotch_kernel::event::Proposal<W>: serde_core::ser::Serialize
 pub enum knotch_agent::ActiveUnit
 pub knotch_agent::ActiveUnit::Active(knotch_kernel::id::UnitId)
 pub knotch_agent::ActiveUnit::NoProject
