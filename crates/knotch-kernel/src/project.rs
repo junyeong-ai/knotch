@@ -231,11 +231,19 @@ pub struct ToolCallFailureEntry {
 }
 
 /// Retry timeline for a specific `(tool, call_id)` pair — one entry
-/// per effective `ToolCallFailed` event, sorted by attempt ascending.
-/// Empty when the pair has no recorded failures.
+/// per effective `ToolCallFailed` event, sorted by attempt
+/// ascending. Empty when the pair has no recorded failures.
 ///
-/// Precondition dispatch already enforces monotonic attempt per
-/// pair, so this projection is a simple filter + sort.
+/// The append-time precondition enforces strict monotonicity of
+/// `attempt` per `(tool, call_id)` pair, so in a well-formed log
+/// every entry has a distinct attempt value and the sort is
+/// trivially total. When the sort encounters equal attempts
+/// (possible only in hand-crafted logs that bypass the
+/// precondition check), `slice::sort_by_key` is stable and
+/// preserves the original log order between ties.
+///
+/// Complexity: `O(n log n)` — filter is `O(n)`, sort is
+/// `O(k log k)` where `k ≤ n` is the count of matching failures.
 #[must_use]
 pub fn tool_call_timeline<W: WorkflowKind>(
     log: &Log<W>,
@@ -279,6 +287,25 @@ pub fn tool_call_timeline<W: WorkflowKind>(
 /// omitted (absent key ⇔ `Cost::default()`). Callers that need a
 /// total per phase including zeroes iterate over
 /// `W::required_phases(scope)` and `cost_by_phase(...).get(p)`.
+///
+/// ## Edge cases
+///
+/// - **Unit not created** (no `UnitCreated` event): returns an
+///   empty map.
+/// - **`W::required_phases(scope)` is empty**: returns an empty
+///   map (no active phase ever exists, so no event is billable).
+/// - **`PhaseCompleted` or `PhaseSkipped` for a phase absent from
+///   `required_phases(scope)`**: the phase is tracked in the
+///   resolved set for correctness of subsequent lookups, but it
+///   never appears as the active phase, so it is never a bucket
+///   key. This matches the scope-based-omission semantics in
+///   `.claude/rules/preconditions.md`.
+/// - **Events carrying `Causation::cost == None`**: skipped — the
+///   projection only sums explicit costs.
+///
+/// Complexity: `O(n · |required_phases(scope)|)`. The per-event
+/// linear search over `required_phases` is negligible because
+/// typical workflows declare fewer than ten phases.
 #[must_use]
 pub fn cost_by_phase<W: WorkflowKind>(workflow: &W, log: &Log<W>) -> FxHashMap<W::Phase, Cost> {
     let effective = effective_events(log);
@@ -340,6 +367,16 @@ pub struct MilestoneCostEntry<W: WorkflowKind> {
 /// correctness not accounting. If an adopter wants revert-adjusted
 /// cost, they can compose this with `shipped_milestones` and drop
 /// entries whose milestone id is absent from the latter.
+///
+/// The append-time precondition forbids shipping the same milestone
+/// twice (`PreconditionError::MilestoneAlreadyShipped`), so in a
+/// well-formed log each milestone appears at most once in the
+/// output. Hand-crafted logs that bypass the precondition would
+/// produce two entries with the same milestone id and independent
+/// cost buckets — the projection assumes the invariant holds.
+///
+/// Complexity: `O(n)` in log length — a single pass accumulates
+/// pending cost and flushes on each `MilestoneShipped`.
 #[must_use]
 pub fn cost_by_milestone<W: WorkflowKind>(log: &Log<W>) -> Vec<MilestoneCostEntry<W>> {
     let mut entries: Vec<MilestoneCostEntry<W>> = Vec::new();
