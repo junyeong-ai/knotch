@@ -14,6 +14,7 @@ use figment::{
     Figment,
     providers::{Env, Format, Serialized, Toml},
 };
+use knotch_agent::queue::QueueConfig;
 use knotch_kernel::UnitId;
 use knotch_observer::ObserverManifest;
 use knotch_storage::{FileRepository, FileSystemStorage};
@@ -59,6 +60,9 @@ pub(crate) struct Config {
     /// Guard-hook policies.
     #[serde(default)]
     pub guard: GuardConfig,
+    /// Reconciler queue sizing + overflow policy.
+    #[serde(default)]
+    pub queue: QueueConfig,
 }
 
 impl Default for Config {
@@ -68,6 +72,7 @@ impl Default for Config {
             state_dir: PathBuf::from("state"),
             schema_version: knotch_proto::SCHEMA_VERSION,
             guard: GuardConfig::default(),
+            queue: QueueConfig::default(),
         }
     }
 }

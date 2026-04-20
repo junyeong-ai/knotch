@@ -37,4 +37,15 @@ pub enum HookError {
     /// Current directory is not a knotch project — silent no-op.
     #[error("not a knotch project")]
     NotAProject,
+
+    /// Queue reached its configured `max_entries` cap under an
+    /// `OverflowPolicy::Reject` policy. The caller should expose this
+    /// to the operator so the queue can be drained manually.
+    #[error("queue full: {size} entries (max={max}) — drain with `knotch reconcile`")]
+    QueueFull {
+        /// Current queue size at the time of rejection.
+        size: usize,
+        /// Configured maximum.
+        max: usize,
+    },
 }
