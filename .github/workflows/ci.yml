@@ -17,11 +17,15 @@ env:
 
 jobs:
   fmt:
+    # Uses the nightly rustfmt channel so `rustfmt.toml`'s unstable
+    # keys (`group_imports`, `imports_granularity`, `wrap_comments`,
+    # `normalize_comments`, `comment_width`, `format_strings`) apply
+    # in CI. Everything else in the workspace stays on stable 1.94.0.
     name: rustfmt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
       - run: cargo fmt --all --check
