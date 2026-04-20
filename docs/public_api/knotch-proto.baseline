@@ -24,6 +24,9 @@ impl core::panic::unwind_safe::UnwindSafe for knotch_proto::header::Header
 pub mod knotch_proto::migration
 #[non_exhaustive] pub enum knotch_proto::migration::MigrationError
 pub knotch_proto::migration::MigrationError::Custom(alloc::boxed::Box<(dyn core::error::Error + core::marker::Send + core::marker::Sync + 'static)>)
+pub knotch_proto::migration::MigrationError::Downgrade
+pub knotch_proto::migration::MigrationError::Downgrade::from: u32
+pub knotch_proto::migration::MigrationError::Downgrade::to: u32
 pub knotch_proto::migration::MigrationError::MissingLink
 pub knotch_proto::migration::MigrationError::MissingLink::from: u32
 pub knotch_proto::migration::MigrationError::MissingLink::to: u32
@@ -44,6 +47,7 @@ impl !core::panic::unwind_safe::RefUnwindSafe for knotch_proto::migration::Migra
 impl !core::panic::unwind_safe::UnwindSafe for knotch_proto::migration::MigrationError
 pub struct knotch_proto::migration::Registry
 impl knotch_proto::migration::Registry
+pub fn knotch_proto::migration::Registry::migrate(&self, value: serde_json::value::Value, from: u32, to: u32) -> core::result::Result<serde_json::value::Value, knotch_proto::migration::MigrationError>
 pub const fn knotch_proto::migration::Registry::new() -> Self
 pub fn knotch_proto::migration::Registry::register(&mut self, migrator: alloc::boxed::Box<dyn knotch_proto::migration::SchemaMigrator>) -> core::result::Result<(), knotch_proto::migration::MigrationError>
 impl core::default::Default for knotch_proto::migration::Registry
