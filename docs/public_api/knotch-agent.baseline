@@ -94,7 +94,7 @@ impl !core::panic::unwind_safe::UnwindSafe for knotch_agent::error::HookError
 pub mod knotch_agent::guard
 pub async fn knotch_agent::guard::rewrite<W, R>(repo: &R, unit: &knotch_kernel::id::UnitId, cmd: &str) -> core::result::Result<knotch_agent::output::HookOutput, knotch_agent::error::HookError> where W: knotch_kernel::workflow::WorkflowKind, R: knotch_kernel::repository::Repository<W>
 pub mod knotch_agent::input
-pub enum knotch_agent::input::HookEvent
+#[non_exhaustive] pub enum knotch_agent::input::HookEvent
 pub knotch_agent::input::HookEvent::PostToolUse
 pub knotch_agent::input::HookEvent::PostToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::input::HookEvent::PostToolUse::tool_name: compact_str::CompactString
@@ -327,7 +327,7 @@ impl core::marker::Unpin for knotch_agent::error::HookError
 impl core::marker::UnsafeUnpin for knotch_agent::error::HookError
 impl !core::panic::unwind_safe::RefUnwindSafe for knotch_agent::error::HookError
 impl !core::panic::unwind_safe::UnwindSafe for knotch_agent::error::HookError
-pub enum knotch_agent::HookEvent
+#[non_exhaustive] pub enum knotch_agent::HookEvent
 pub knotch_agent::HookEvent::PostToolUse
 pub knotch_agent::HookEvent::PostToolUse::tool_input: core::option::Option<serde_json::value::Value>
 pub knotch_agent::HookEvent::PostToolUse::tool_name: compact_str::CompactString

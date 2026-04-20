@@ -40,8 +40,16 @@ impl HookInput {
 }
 
 /// Claude Code hook event, tagged by `hook_event_name`.
+///
+/// Marked `#[non_exhaustive]` because the harness evolves: Claude
+/// Code regularly adds new hook events (e.g. notification / stop /
+/// compaction variants) and knotch should be able to surface them
+/// additively without a major version bump. Downstream `match` on
+/// `HookEvent` must carry a `_ => …` arm (typically a silent no-op
+/// so unknown events pass through rather than failing the hook).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "hook_event_name")]
+#[non_exhaustive]
 pub enum HookEvent {
     /// `SessionStart` — new or resumed session.
     #[serde(rename = "SessionStart")]

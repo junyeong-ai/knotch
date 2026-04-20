@@ -29,8 +29,12 @@ concrete `Repository` the CLI and presets use by default.
   / `fingerprint_salt` (base64) is written exactly once.
 - **CAS via expected_len** — the Storage adapter verifies the
   on-disk line count matches what the Repository loaded; mismatch
-  surfaces as `StorageError::LogMutated` and the batch retries (or
-  fails under `AllOrNothing`).
+  surfaces as `StorageError::LogMutated`. `FileRepository` retries
+  the entire load → precondition → commit cycle with bounded
+  exponential backoff (5 attempts, 25 ms base, total wait ≤ 775 ms)
+  before surfacing the final mismatch to the caller. Retry is
+  orthogonal to `AppendMode` — `AllOrNothing` affects precondition
+  rollback, never the retry decision.
 - **Cache is non-authoritative** — the resume-cache is a checkpoint
   derived from the log, not a second source of truth (constitution
   §I). In `with_cache`, the cache write happens *after* the log

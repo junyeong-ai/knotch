@@ -68,11 +68,21 @@ commit is already in the repository; we cannot block. On any
 `Err(HookError::Repository(_))` or `HookError::Io(_)`:
 
 1. Retry the `Repository::append` up to 3× with exponential backoff
-   (50ms / 200ms / 800ms).
+   (50ms / 200ms / 800ms). Note that `FileRepository` already drives
+   a bounded CAS retry internally (see `.claude/rules/append-flow.md`
+   step 6), so this outer retry only fires for non-`LogMutated`
+   errors (network, permission, lock timeout).
 2. On final failure, enqueue via
    `knotch_agent::queue::enqueue_raw(queue_dir, unit, proposal_json,
-   reason)`.
-3. Exit 0 unconditionally.
+   reason, &queue_config)`. The `QueueConfig` carries `max_entries`
+   and `OverflowPolicy` — `Reject` (default) surfaces
+   `HookError::QueueFull`, `SpillOldest` drops the lexicographically
+   oldest entry to make room.
+3. On `HookError::QueueFull`, fall back to the orphan log at
+   `~/.knotch/orphan.log` so the event is never silently dropped —
+   operators drain via `knotch reconcile` then recover the orphan
+   record by hand.
+4. Exit 0 unconditionally.
 
 `SessionStart` auto-drains the queue so durable failures self-heal
 on the next session. `knotch reconcile` manually drains;
