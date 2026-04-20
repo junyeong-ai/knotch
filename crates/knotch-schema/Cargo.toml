@@ -14,9 +14,6 @@ workspace = true
 
 [dependencies]
 knotch-kernel.workspace = true
-knotch-workflow.workspace = true
-serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
-toml.workspace = true
 compact_str.workspace = true

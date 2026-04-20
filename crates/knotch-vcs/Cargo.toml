@@ -17,7 +17,6 @@ knotch-kernel.workspace = true
 gix.workspace = true
 jiff.workspace = true
 tokio = { workspace = true, features = ["rt", "sync", "rt-multi-thread"] }
-futures.workspace = true
 thiserror.workspace = true
 compact_str.workspace = true
 winnow.workspace = true
@@ -25,4 +24,3 @@ winnow.workspace = true
 [dev-dependencies]
 tempfile.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "rt"] }
-insta.workspace = true

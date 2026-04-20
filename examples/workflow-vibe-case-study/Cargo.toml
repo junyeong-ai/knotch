@@ -18,13 +18,7 @@ path = "src/lib.rs"
 
 [dependencies]
 knotch-kernel.workspace = true
-knotch-workflow.workspace = true
-knotch-observer.workspace = true
-knotch-reconciler.workspace = true
 knotch-storage.workspace = true
-knotch-vcs.workspace = true
-knotch-lock.workspace = true
-knotch-tracing.workspace = true
 knotch-derive.workspace = true
 serde.workspace = true
 compact_str.workspace = true

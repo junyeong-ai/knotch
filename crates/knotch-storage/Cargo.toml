@@ -1,6 +1,6 @@
 [package]
 name = "knotch-storage"
-description = "Storage adapters for knotch — FileSystemStorage (JSONL), optional RedbStorage and SqliteStorage."
+description = "File-system storage adapter for knotch — FileSystemStorage (JSONL, atomic rename) + FileRepository<W>."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,11 +8,6 @@ license.workspace = true
 repository.workspace = true
 homepage.workspace = true
 authors.workspace = true
-
-[features]
-default = []
-redb-storage = ["dep:redb"]
-sqlite-storage = ["dep:sqlx"]
 
 [lints]
 workspace = true
@@ -29,13 +24,8 @@ thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 jiff.workspace = true
-arcstr.workspace = true
-blake3.workspace = true
 compact_str.workspace = true
-rustix.workspace = true
 tracing.workspace = true
-redb = { workspace = true, optional = true }
-sqlx = { workspace = true, optional = true }
 
 [dev-dependencies]
 knotch-derive = { workspace = true }
@@ -43,6 +33,5 @@ knotch-lock = { workspace = true }
 knotch-testing = { workspace = true }
 tempfile.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "fs", "io-util", "time"] }
-proptest.workspace = true
 serde.workspace = true
 serde_json.workspace = true

@@ -19,8 +19,6 @@ workspace = true
 syn.workspace = true
 quote.workspace = true
 proc-macro2.workspace = true
-darling.workspace = true
-proc-macro-error2.workspace = true
 
 [dev-dependencies]
 knotch-kernel = { workspace = true }

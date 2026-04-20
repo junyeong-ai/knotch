@@ -14,13 +14,11 @@ workspace = true
 
 [dependencies]
 knotch-schema.workspace = true
-serde.workspace = true
 serde_json.workspace = true
 yaml_serde.workspace = true
 thiserror.workspace = true
 compact_str.workspace = true
 tokio = { workspace = true, features = ["fs", "rt", "io-util"] }
-tracing.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

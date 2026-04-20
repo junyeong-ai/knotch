@@ -18,9 +18,7 @@ workspace = true
 knotch-kernel.workspace = true
 knotch-observer.workspace = true
 knotch-workflow.workspace = true
-knotch-storage.workspace = true
 knotch-testing.workspace = true
 anyhow.workspace = true
-tempfile.workspace = true
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time", "sync"] }
 tokio-util.workspace = true

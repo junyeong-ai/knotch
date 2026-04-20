@@ -15,10 +15,8 @@ workspace = true
 [dependencies]
 knotch-kernel.workspace = true
 knotch-observer.workspace = true
-knotch-vcs.workspace = true
 tokio = { workspace = true, features = ["rt", "sync", "time", "macros"] }
 tokio-util = { workspace = true, features = ["rt"] }
-futures.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 jiff.workspace = true
@@ -29,4 +27,3 @@ knotch-observer.workspace = true
 knotch-testing.workspace = true
 serde.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-proptest.workspace = true

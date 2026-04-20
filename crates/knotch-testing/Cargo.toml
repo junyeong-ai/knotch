@@ -14,18 +14,12 @@ workspace = true
 
 [dependencies]
 knotch-kernel.workspace = true
-knotch-proto.workspace = true
-knotch-storage.workspace = true
 knotch-vcs.workspace = true
-knotch-lock.workspace = true
-knotch-observer.workspace = true
-knotch-reconciler.workspace = true
 tokio = { workspace = true, features = ["rt", "sync", "time"] }
 futures.workspace = true
 async-stream.workspace = true
 dashmap.workspace = true
 arc-swap.workspace = true
-serde_json.workspace = true
 jiff.workspace = true
 compact_str.workspace = true
 
