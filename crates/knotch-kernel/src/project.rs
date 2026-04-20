@@ -210,9 +210,7 @@ pub fn model_timeline<W: WorkflowKind>(log: &Log<W>) -> Vec<ModelTimelineEntry> 
         if let EventBody::ModelSwitched { to, .. } = &evt.body {
             timeline.push(ModelTimelineEntry { at: evt.at, model: to.clone() });
             seeded = true;
-        } else if !seeded
-            && let Principal::Agent { model, .. } = &evt.causation.principal
-        {
+        } else if !seeded && let Principal::Agent { model, .. } = &evt.causation.principal {
             timeline.push(ModelTimelineEntry { at: evt.at, model: model.clone() });
             seeded = true;
         }
@@ -293,18 +291,16 @@ pub fn tool_call_timeline<W: WorkflowKind>(
 ///
 /// ## Edge cases
 ///
-/// - **Unit not created** (no `UnitCreated` event): returns an
-///   empty map.
-/// - **`W::required_phases(scope)` is empty**: returns an empty
-///   map (no active phase ever exists, so no event is billable).
+/// - **Unit not created** (no `UnitCreated` event): returns an empty map.
+/// - **`W::required_phases(scope)` is empty**: returns an empty map (no active phase ever
+///   exists, so no event is billable).
 /// - **`PhaseCompleted` or `PhaseSkipped` for a phase absent from
-///   `required_phases(scope)`**: the phase is tracked in the
-///   resolved set for correctness of subsequent lookups, but it
-///   never appears as the active phase, so it is never a bucket
-///   key. This matches the scope-based-omission semantics in
+///   `required_phases(scope)`**: the phase is tracked in the resolved set for correctness
+///   of subsequent lookups, but it never appears as the active phase, so it is never a
+///   bucket key. This matches the scope-based-omission semantics in
 ///   `.claude/rules/preconditions.md`.
-/// - **Events carrying `Causation::cost == None`**: skipped — the
-///   projection only sums explicit costs.
+/// - **Events carrying `Causation::cost == None`**: skipped — the projection only sums
+///   explicit costs.
 ///
 /// Complexity: `O(n · |required_phases(scope)|)`. The per-event
 /// linear search over `required_phases` is negligible because

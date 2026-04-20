@@ -246,8 +246,7 @@ fn extract_event_body_variants(source: &str) -> Vec<String> {
         if indent != 4 {
             continue;
         }
-        let token_end =
-            line.find(|c: char| !c.is_alphanumeric() && c != '_').unwrap_or(line.len());
+        let token_end = line.find(|c: char| !c.is_alphanumeric() && c != '_').unwrap_or(line.len());
         if token_end == 0 {
             continue;
         }
@@ -420,8 +419,19 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> std::io::Result<()> {
 fn ci() -> anyhow::Result<()> {
     // Ordered so fast gates run first and cheap failures stop the
     // pipeline before expensive ones.
+    //
+    // `fmt` invokes `cargo +nightly` to match the CI `fmt` job —
+    // `rustfmt.toml` sets `unstable_features = true` plus
+    // nightly-only keys (`group_imports`, `imports_granularity`,
+    // `wrap_comments`, …). Stable rustfmt silently ignores those
+    // keys, so running stable `cargo fmt` locally would pass on
+    // formatting that CI's nightly rustfmt subsequently rewrites
+    // and rejects. Pinning to nightly here keeps the local gate
+    // aligned with CI; a missing nightly toolchain fails fast with
+    // rustup's own error rather than spuriously green-lighting the
+    // diff.
     let steps: [&[&str]; 7] = [
-        &["cargo", "fmt", "--all", "--check"],
+        &["cargo", "+nightly", "fmt", "--all", "--check"],
         &["cargo", "clippy", "--workspace", "--all-targets", "--", "-D", "warnings"],
         &["cargo", "knotch-linter"],
         &["cargo", "nextest", "run", "--workspace"],

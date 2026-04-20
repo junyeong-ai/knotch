@@ -14,8 +14,7 @@
 //! one to.
 
 use knotch_kernel::{
-    AppendMode, Causation, Proposal, Repository, UnitId, WorkflowKind,
-    causation::ModelId,
+    AppendMode, Causation, Proposal, Repository, UnitId, WorkflowKind, causation::ModelId,
     event::EventBody,
 };
 use serde::Serialize;

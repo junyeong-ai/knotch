@@ -5,13 +5,13 @@
 //! - [`check`] — `PreToolUse(git commit *)`. Validates that the proposed milestone (if
 //!   the commit carries a trailer) is not already in the unit's shipped set. Emits no
 //!   events.
-//! - [`verify_proposal`] — `PostToolUse(git commit *)`. Produces the
-//!   `MilestoneShipped { status: Verified }` proposal when the commit's
-//!   `Knotch-Milestone:` trailer names a milestone. The CLI layer passes it to
-//!   [`crate::queue::post_tool_append`] so the append runs under the retry + queue +
-//!   orphan contract (`.claude/rules/hook-integration.md`).
-//! - [`revert_proposal`] — `PostToolUse(git revert *)`. Produces the
-//!   `MilestoneReverted` proposal tying the revert SHA to the original.
+//! - [`verify_proposal`] — `PostToolUse(git commit *)`. Produces the `MilestoneShipped {
+//!   status: Verified }` proposal when the commit's `Knotch-Milestone:` trailer names a
+//!   milestone. The CLI layer passes it to [`crate::queue::post_tool_append`] so the
+//!   append runs under the retry + queue + orphan contract
+//!   (`.claude/rules/hook-integration.md`).
+//! - [`revert_proposal`] — `PostToolUse(git revert *)`. Produces the `MilestoneReverted`
+//!   proposal tying the revert SHA to the original.
 //!
 //! ## Milestone opt-in
 //!

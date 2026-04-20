@@ -270,10 +270,7 @@ fn model_timeline_preserves_chronological_order_when_switch_precedes_agent_princ
     let log = log_from(events);
     let tl = model_timeline(&log);
 
-    assert!(
-        tl.windows(2).all(|w| w[0].at <= w[1].at),
-        "timeline must be chronological: {tl:?}"
-    );
+    assert!(tl.windows(2).all(|w| w[0].at <= w[1].at), "timeline must be chronological: {tl:?}");
     assert_eq!(tl.len(), 1, "post-seed Agent events with matching model add nothing");
     assert_eq!(tl[0].at.as_millisecond(), 2_000);
     assert_eq!(tl[0].model, ModelId("opus-4-7".into()));

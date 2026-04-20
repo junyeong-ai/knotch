@@ -255,9 +255,7 @@ impl<W: WorkflowKind> FileRepository<W> {
         }
 
         if matches!(mode, AppendMode::AllOrNothing) && !rejected.is_empty() {
-            return Ok(CommitOutcome::Rolled {
-                report: AppendReport::new(Vec::new(), rejected),
-            });
+            return Ok(CommitOutcome::Rolled { report: AppendReport::new(Vec::new(), rejected) });
         }
 
         let header_missing = existing_header.is_none() && lines.is_empty();

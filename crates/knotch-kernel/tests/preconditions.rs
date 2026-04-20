@@ -1136,10 +1136,8 @@ fn reconcile_recovered_rejected_when_prior_failure_was_superseded() {
         },
     ];
     let l = Log::from_events(UnitId::try_new("u").unwrap(), events);
-    let body: EventBody<Wf> = EventBody::ReconcileRecovered {
-        anchor,
-        attempts_total: NonZeroU32::new(2).unwrap(),
-    };
+    let body: EventBody<Wf> =
+        EventBody::ReconcileRecovered { anchor, attempts_total: NonZeroU32::new(2).unwrap() };
     let err = body.check_precondition(&ctx(&l)).unwrap_err();
     assert!(matches!(err, PreconditionError::NoPriorFailure), "got {err:?}");
 }
