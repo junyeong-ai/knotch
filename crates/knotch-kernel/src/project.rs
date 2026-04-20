@@ -252,10 +252,10 @@ pub fn shipped_milestones<W: WorkflowKind>(log: &Log<W>) -> Vec<W::Milestone> {
     let mut shipped: Vec<W::Milestone> = Vec::new();
     for evt in effective_events(log) {
         match &evt.body {
-            EventBody::MilestoneShipped { milestone, .. } => {
-                if !shipped.iter().any(|m| m.id() == milestone.id()) {
-                    shipped.push(milestone.clone());
-                }
+            EventBody::MilestoneShipped { milestone, .. }
+                if !shipped.iter().any(|m| m.id() == milestone.id()) =>
+            {
+                shipped.push(milestone.clone());
             }
             EventBody::MilestoneReverted { milestone, .. } => {
                 shipped.retain(|m| m.id() != milestone.id());
