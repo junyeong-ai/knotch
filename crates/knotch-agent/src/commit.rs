@@ -5,12 +5,12 @@
 //! - [`check`] — `PreToolUse(git commit *)`. Validates that the proposed milestone (if
 //!   the commit carries a trailer) is not already in the unit's shipped set. Emits no
 //!   events.
-//! - [`build_verify_proposal`] — `PostToolUse(git commit *)`. Produces the
+//! - [`verify_proposal`] — `PostToolUse(git commit *)`. Produces the
 //!   `MilestoneShipped { status: Verified }` proposal when the commit's
 //!   `Knotch-Milestone:` trailer names a milestone. The CLI layer passes it to
 //!   [`crate::queue::post_tool_append`] so the append runs under the retry + queue +
 //!   orphan contract (`.claude/rules/hook-integration.md`).
-//! - [`build_revert_proposal`] — `PostToolUse(git revert *)`. Produces the
+//! - [`revert_proposal`] — `PostToolUse(git revert *)`. Produces the
 //!   `MilestoneReverted` proposal tying the revert SHA to the original.
 //!
 //! ## Milestone opt-in
@@ -83,7 +83,7 @@ where
 /// The CLI layer wraps the returned proposal with the retry + queue
 /// + orphan contract in [`crate::queue::post_tool_append`].
 #[must_use]
-pub fn build_verify_proposal<W>(
+pub fn verify_proposal<W>(
     workflow: &W,
     commit_message: &str,
     commit_sha: CommitRef,
@@ -120,7 +120,7 @@ where
 /// produces a proposal whose kernel precondition will reject on
 /// append.
 #[must_use]
-pub fn build_revert_proposal<W>(
+pub fn revert_proposal<W>(
     revert: CommitRef,
     original: CommitRef,
     milestone: W::Milestone,
@@ -139,7 +139,7 @@ where
 }
 
 /// Parse the first line of a conventional-commit message into
-/// `(kind, description)`. Used by [`verify`] to populate
+/// `(kind, description)`. Used by [`verify_proposal`] to populate
 /// `MilestoneShipped::commit_kind` — the kernel precondition
 /// rejects non-implementation kinds.
 ///
@@ -227,7 +227,7 @@ pub fn extract_milestone_id(commit_message: &str) -> Option<String> {
 /// message source is present, or when the command fails to tokenize.
 #[cfg(unix)]
 #[must_use]
-pub fn extract_commit_message(cmd: &str) -> Option<String> {
+pub fn extract_message(cmd: &str) -> Option<String> {
     let tokens = shell_words::split(cmd).ok()?;
     let mut it = tokens.iter();
 
@@ -289,7 +289,7 @@ pub fn extract_commit_message(cmd: &str) -> Option<String> {
 /// string through the wrong shell grammar.
 #[cfg(not(unix))]
 #[must_use]
-pub fn extract_commit_message(_cmd: &str) -> Option<String> {
+pub fn extract_message(_cmd: &str) -> Option<String> {
     None
 }
 
@@ -346,7 +346,7 @@ mod parser_tests {
     }
 }
 
-// `extract_commit_message` is POSIX-only (see its `#[cfg(unix)]`).
+// `extract_message` is POSIX-only (see its `#[cfg(unix)]`).
 // On Windows the stub returns `None` for every input, so the tests
 // below would either be no-ops (asserting `Some(...)`) or false-green
 // (asserting `None`). Gate the whole suite on Unix instead.
@@ -354,24 +354,24 @@ mod parser_tests {
 mod commit_message_tests {
     use super::*;
 
-    // ---- extract_commit_message ----
+    // ---- extract_message ----
 
     #[test]
     fn commit_msg_single_m_double_quote() {
         let cmd = r#"git commit -m "feat: add login""#;
-        assert_eq!(extract_commit_message(cmd).as_deref(), Some("feat: add login"));
+        assert_eq!(extract_message(cmd).as_deref(), Some("feat: add login"));
     }
 
     #[test]
     fn commit_msg_single_m_single_quote() {
         let cmd = "git commit -m 'feat: add login'";
-        assert_eq!(extract_commit_message(cmd).as_deref(), Some("feat: add login"));
+        assert_eq!(extract_message(cmd).as_deref(), Some("feat: add login"));
     }
 
     #[test]
     fn commit_msg_message_equals_flag() {
         let cmd = r#"git commit --message="feat: add login""#;
-        assert_eq!(extract_commit_message(cmd).as_deref(), Some("feat: add login"));
+        assert_eq!(extract_message(cmd).as_deref(), Some("feat: add login"));
     }
 
     #[test]
@@ -379,18 +379,18 @@ mod commit_message_tests {
         // Git convention: second `-m` is a body paragraph.
         let cmd = r#"git commit -m "feat: add login" -m "Knotch-Milestone: SPEC-123""#;
         assert_eq!(
-            extract_commit_message(cmd).as_deref(),
+            extract_message(cmd).as_deref(),
             Some("feat: add login\n\nKnotch-Milestone: SPEC-123")
         );
         // And the trailer extractor picks the second paragraph up:
-        let body = extract_commit_message(cmd).unwrap();
+        let body = extract_message(cmd).unwrap();
         assert_eq!(extract_milestone_id(&body).as_deref(), Some("SPEC-123"));
     }
 
     #[test]
     fn commit_msg_m_and_long_form_mixed() {
         let cmd = r#"git commit --message="feat: subject" -m "Knotch-Milestone: X""#;
-        let body = extract_commit_message(cmd).unwrap();
+        let body = extract_message(cmd).unwrap();
         assert_eq!(extract_milestone_id(&body).as_deref(), Some("X"));
     }
 
@@ -400,7 +400,7 @@ mod commit_message_tests {
         let path = tmp.path().join("msg.txt");
         std::fs::write(&path, "feat: from file\n\nKnotch-Milestone: FROMFILE").unwrap();
         let cmd = format!("git commit -F {}", path.display());
-        let body = extract_commit_message(&cmd).unwrap();
+        let body = extract_message(&cmd).unwrap();
         assert_eq!(extract_milestone_id(&body).as_deref(), Some("FROMFILE"));
     }
 
@@ -409,19 +409,19 @@ mod commit_message_tests {
         // `git commit -F -` reads from stdin — we cannot replay it
         // from the stored command alone, so we refuse rather than
         // silently misinterpret.
-        assert!(extract_commit_message("git commit -F -").is_none());
+        assert!(extract_message("git commit -F -").is_none());
     }
 
     #[test]
     fn commit_msg_returns_none_for_non_git() {
-        assert!(extract_commit_message("ls -la").is_none());
-        assert!(extract_commit_message("echo hello").is_none());
+        assert!(extract_message("ls -la").is_none());
+        assert!(extract_message("echo hello").is_none());
     }
 
     #[test]
     fn commit_msg_returns_none_without_message_source() {
         // `git commit` with no -m / -F — opens $EDITOR, not
         // replayable here.
-        assert!(extract_commit_message("git commit --amend").is_none());
+        assert!(extract_message("git commit --amend").is_none());
     }
 }

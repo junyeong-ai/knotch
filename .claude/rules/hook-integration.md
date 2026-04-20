@@ -35,11 +35,11 @@ Knotch-Milestone: SPEC-123
 Agents can emit the trailer either as the last paragraph of the
 first `-m` or as a second `-m` argument. Git joins multiple `-m`
 values with blank lines, so both forms produce the same commit
-body. `knotch-agent::commit::extract_commit_message` reassembles
+body. `knotch-agent::commit::extract_message` reassembles
 every `-m` / `--message=` / `-F <file>` source via
 [`shell-words`](https://crates.io/crates/shell-words).
 
-**Platform scope**: `extract_commit_message` is Unix-only. It uses
+**Platform scope**: `extract_message` is Unix-only. It uses
 POSIX shell quoting rules (`\` escape, `"..."` / `'...'`
 semantics), which do not match cmd.exe / PowerShell. On Windows
 the function is a stub that returns `None`, so the `check-commit`
@@ -131,7 +131,7 @@ The `if` field on hook handlers (which scopes a hook to specific
 versions the hook fires on every Bash call. Each subcommand must
 re-validate `tool_input.command` and return `HookOutput::Continue`
 immediately when the prefix does not match its target. Helpers:
-`knotch_agent::commit::extract_commit_message`,
+`knotch_agent::commit::extract_message`,
 `knotch_agent::commit::parse_conventional`.
 
 ## Causation construction

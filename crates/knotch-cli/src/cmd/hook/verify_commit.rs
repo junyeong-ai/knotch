@@ -18,7 +18,7 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
     if !command.trim_start().starts_with("git commit") {
         return Ok(HookOutput::Continue);
     }
-    let Some(msg) = knotch_agent::commit::extract_commit_message(command) else {
+    let Some(msg) = knotch_agent::commit::extract_message(command) else {
         return Ok(HookOutput::Continue);
     };
     let Some(sha) = input.bash_response_stdout().and_then(extract_sha_from_stdout) else {
@@ -32,7 +32,7 @@ pub(crate) async fn run(config: &Config, input: HookInput) -> anyhow::Result<Hoo
     let causation = hook_causation(&input, "verify-commit");
     let commit_ref = CommitRef::new(compact_str::CompactString::from(sha));
     let repo = config.build_repository()?;
-    let Some(proposal) = knotch_agent::commit::build_verify_proposal::<ConfigWorkflow>(
+    let Some(proposal) = knotch_agent::commit::verify_proposal::<ConfigWorkflow>(
         repo.workflow(),
         &msg,
         commit_ref,

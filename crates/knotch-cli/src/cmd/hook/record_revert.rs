@@ -90,7 +90,7 @@ where
         );
         return Ok(HookOutput::Continue);
     };
-    let proposal = knotch_agent::commit::build_revert_proposal::<W>(
+    let proposal = knotch_agent::commit::revert_proposal::<W>(
         args.revert,
         args.original,
         milestone,
