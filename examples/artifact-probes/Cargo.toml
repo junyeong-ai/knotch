@@ -1,0 +1,23 @@
+[package]
+name = "knotch-example-artifact-probes"
+description = "Inject a filesystem probe into AppendContext so PhaseCompleted refuses to land without its declared artifacts on disk."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "knotch-example-artifact-probes"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+knotch-workflow.workspace = true
+knotch-storage.workspace = true
+anyhow.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

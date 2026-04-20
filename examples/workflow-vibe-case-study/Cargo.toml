@@ -1,0 +1,37 @@
+[package]
+name = "workflow-vibe-case-study"
+description = "Case study: an AI-pair-programming workflow (Intent → Explore → Implement → Verify) with cost aggregation and LLM-summary projections. Demonstrates how to fork knotch's canonical workflow and add preset-specific helpers."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+knotch-kernel.workspace = true
+knotch-workflow.workspace = true
+knotch-observer.workspace = true
+knotch-reconciler.workspace = true
+knotch-storage.workspace = true
+knotch-vcs.workspace = true
+knotch-lock.workspace = true
+knotch-tracing.workspace = true
+knotch-derive.workspace = true
+serde.workspace = true
+compact_str.workspace = true
+rust_decimal.workspace = true
+jiff.workspace = true
+
+[dev-dependencies]
+knotch-testing.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

@@ -1,0 +1,23 @@
+[package]
+name = "knotch-example-batch-append"
+description = "Multi-proposal atomic append — record a gate decision and a status transition together, or neither."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "knotch-example-batch-append"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+knotch-workflow.workspace = true
+knotch-storage.workspace = true
+anyhow.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
