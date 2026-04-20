@@ -476,7 +476,25 @@ impl<W: WorkflowKind> Repository<W> for FileRepository<W> {
         // is `FnOnce` by contract and does not depend on event state —
         // it projects cache-local intent, not log-derived state. Cache
         // write happens after the log append commits.
-        let cache_map = self.storage.read_cache(unit).await.map_err(storage_err)?;
+        //
+        // The resume-cache is non-authoritative (constitution §I), so
+        // a cache read error is never a reason to block an append. Fall
+        // back to an empty map and let the mutator run; the mutator is
+        // a pure projection that must tolerate the missing-cache case
+        // anyway (same as NotFound on first use). Observer dedup folds
+        // any duplicate work on rebuild into no-ops.
+        let cache_map = match self.storage.read_cache(unit).await {
+            Ok(map) => map,
+            Err(err) => {
+                tracing::warn!(
+                    unit = unit.as_str(),
+                    error = %err,
+                    "knotch: resume-cache read failed — starting from empty, \
+                     cache will rebuild on next load (log is authoritative)",
+                );
+                serde_json::Map::new()
+            }
+        };
         let mut cache = ResumeCache::from(cache_map);
         mutate_cache(&mut cache);
 

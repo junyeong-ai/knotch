@@ -291,3 +291,71 @@ async fn load_until_drops_events_after_cutoff() {
     let future_log = repo.load_until(&unit, future).await.expect("load_until");
     assert_eq!(future_log.events().len(), full.events().len());
 }
+
+// --- B4 — cache-write-failure regression ----------------------------------
+
+/// The resume-cache is non-authoritative (constitution §I). When the
+/// cache write fails after a successful log append, the append must
+/// still report `Ok` — losing cache data is safe because observers
+/// rebuild on next load via fingerprint dedup, but losing an event is
+/// not. This regression test sabotages the cache path so `write_cache`
+/// is guaranteed to fail, then verifies the log still ends up with the
+/// committed event.
+#[tokio::test]
+async fn with_cache_survives_cache_write_failure() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let repo = FileRepository::<Wf>::new(dir.path(), Wf);
+    let unit = UnitId::new("cache-failure");
+
+    // Seed so the unit directory exists and `UnitCreated` is in place.
+    repo.append(
+        &unit,
+        vec![proposal(EventBody::UnitCreated { scope: Scope::Standard })],
+        AppendMode::BestEffort,
+    )
+    .await
+    .expect("seed");
+
+    // Sabotage: create a non-empty directory at `.resume-cache.json`.
+    // `atomic::write` renames a temp file onto the cache path; renaming
+    // onto a non-empty directory fails on every platform, so the cache
+    // write we trigger below will surface Err.
+    let cache_path = repo.storage().cache_path(&unit);
+    tokio::fs::create_dir_all(&cache_path).await.expect("create cache dir");
+    tokio::fs::write(cache_path.join("blocker.txt"), b"obstacle")
+        .await
+        .expect("plant obstacle");
+
+    // Trigger with_cache. The cache mutator runs, the log append
+    // commits, then write_cache fails — `with_cache` must return Ok.
+    let body = EventBody::MilestoneShipped {
+        milestone: Milestone::Alpha,
+        commit: CommitRef::new("cache01"),
+        commit_kind: CommitKind::Feat,
+        status: knotch_kernel::CommitStatus::Verified,
+    };
+    let report = repo
+        .with_cache(
+            &unit,
+            vec![proposal(body)],
+            AppendMode::BestEffort,
+            Box::new(|cache| {
+                cache.set("cursor", &"abc").expect("cache set");
+            }),
+        )
+        .await
+        .expect("with_cache returns Ok despite cache write failure");
+    assert_eq!(report.accepted.len(), 1, "log event still accepted");
+    assert!(report.rejected.is_empty());
+
+    // Log holds both events — the authoritative state is intact.
+    let log = repo.load(&unit).await.expect("load");
+    assert_eq!(log.events().len(), 2);
+    assert_eq!(shipped_milestones(&log), vec![Milestone::Alpha]);
+
+    // Sabotage survived — cache path is still the directory we planted.
+    assert!(
+        cache_path.is_dir(),
+        "cache sabotage should survive: write failed as designed",
+    );
+}
