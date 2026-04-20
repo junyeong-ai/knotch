@@ -960,3 +960,84 @@ fn approval_rejects_duplicate_from_same_approver_and_accepts_another() {
     };
     assert!(second.check_precondition(&AppendContext::new(&WF, &log)).is_ok());
 }
+
+// --- ToolCallFailed ---------------------------------------------------
+
+fn tool_call_failed(tool: &str, call_id: &str, attempt: u32) -> EventBody<Wf> {
+    EventBody::ToolCallFailed {
+        tool: tool.into(),
+        call_id: call_id.into(),
+        attempt: NonZeroU32::new(attempt).expect("attempt is non-zero"),
+        reason: knotch_kernel::event::FailureReason::Timeout { after_secs: 5 },
+    }
+}
+
+#[test]
+fn tool_call_failed_accepts_strictly_increasing_attempts_per_pair() {
+    let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
+    let first = tool_call_failed("Bash", "call-1", 1);
+    assert!(first.check_precondition(&ctx(&l)).is_ok());
+
+    let l2 = log(vec![
+        EventBody::UnitCreated { scope: Scope::Standard },
+        tool_call_failed("Bash", "call-1", 1),
+    ]);
+    let second = tool_call_failed("Bash", "call-1", 2);
+    assert!(second.check_precondition(&ctx(&l2)).is_ok());
+}
+
+#[test]
+fn tool_call_failed_rejects_non_monotonic_attempt_on_same_pair() {
+    let l = log(vec![
+        EventBody::UnitCreated { scope: Scope::Standard },
+        tool_call_failed("Bash", "call-1", 3),
+    ]);
+    let regression = tool_call_failed("Bash", "call-1", 2);
+    let err = regression.check_precondition(&ctx(&l)).unwrap_err();
+    assert!(
+        matches!(err, PreconditionError::NonMonotonicAttempt { attempt: 2, prior: 3 }),
+        "got {err:?}",
+    );
+    // Equal attempt is also rejected — strict monotonicity.
+    let equal = tool_call_failed("Bash", "call-1", 3);
+    let err = equal.check_precondition(&ctx(&l)).unwrap_err();
+    assert!(matches!(err, PreconditionError::NonMonotonicAttempt { attempt: 3, prior: 3 }));
+}
+
+#[test]
+fn tool_call_failed_attempts_are_scoped_per_tool_and_call_id_pair() {
+    // A prior ToolCallFailed on (Bash, call-1) does not constrain
+    // attempts on (Bash, call-2) or (Read, call-1).
+    let l = log(vec![
+        EventBody::UnitCreated { scope: Scope::Standard },
+        tool_call_failed("Bash", "call-1", 5),
+    ]);
+    let different_call_id = tool_call_failed("Bash", "call-2", 1);
+    assert!(different_call_id.check_precondition(&ctx(&l)).is_ok());
+    let different_tool = tool_call_failed("Read", "call-1", 1);
+    assert!(different_tool.check_precondition(&ctx(&l)).is_ok());
+}
+
+// --- ModelSwitched ----------------------------------------------------
+
+fn model_switched(from: &str, to: &str) -> EventBody<Wf> {
+    EventBody::ModelSwitched {
+        from: knotch_kernel::causation::ModelId(from.into()),
+        to: knotch_kernel::causation::ModelId(to.into()),
+    }
+}
+
+#[test]
+fn model_switched_accepts_distinct_models() {
+    let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
+    let body = model_switched("sonnet-4-6", "opus-4-7");
+    assert!(body.check_precondition(&ctx(&l)).is_ok());
+}
+
+#[test]
+fn model_switched_rejects_noop_switch() {
+    let l = log(vec![EventBody::UnitCreated { scope: Scope::Standard }]);
+    let body = model_switched("opus-4-7", "opus-4-7");
+    let err = body.check_precondition(&ctx(&l)).unwrap_err();
+    assert!(matches!(err, PreconditionError::NoOpModelSwitch { .. }), "got {err:?}");
+}
