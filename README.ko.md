@@ -424,14 +424,13 @@ iwr -useb https://raw.githubusercontent.com/knotch-rs/knotch/main/scripts/uninst
 |---|---|---|
 | 포맷 | `cargo +nightly fmt --all --check` | nightly rustfmt 가 `rustfmt.toml` 의 unstable key (import grouping, comment wrap) 를 적용 |
 | Lint | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | stable + beta 툴체인에서 `-D warnings` |
-| 테스트 | `cargo nextest run --workspace --all-features` + `cargo test --workspace --all-features --doc` | ubuntu / macos / windows × stable / beta / MSRV 1.94 |
+| 테스트 | `cargo nextest run --workspace --all-features` + `cargo test --workspace --all-features --doc` | ubuntu / macos / windows × stable / beta, 그리고 MSRV 게이트를 겸하는 `ubuntu / 1.94 MSRV` 행 |
 | 커버리지 | `cargo llvm-cov` | Codecov 로 업로드 |
 | 구조 lint | `cargo knotch-linter` | R1 (DirectLogWriteRule), R2 (FingerprintAlgorithmRule), R3 (KernelNoIoRule) |
 | 미사용 dep | `cargo machete` | 워크스페이스 전체 |
 | 보안 | `cargo deny check` | 라이선스 allowlist + CVE 권고 |
 | Semver | `cargo semver-checks` | patch / minor / major 분류, 버전 범프 불일치 시 실패 |
 | Public API | `cargo public-api --diff-against docs/public_api/<crate>.baseline` | 표면 변경 시 동일 commit 에서 baseline 갱신 필요 |
-| MSRV | `cargo msrv verify --workspace` | `[workspace.package].rust-version = "1.94"` 강제 |
 | 문서 인용 | `cargo xtask docs-lint` | `.claude/rules/` 의 `crate/path.rs:LINE` 인용이 여전히 resolve 되는지 |
 | Fuzzing | `cargo fuzz` (nightly workflow, target 당 3600초) | 매일 예약 실행 |
 | 설치 | `install-test.yml` | 3-OS × (from-source + prebuilt) 샌드박스 왕복 검증 |

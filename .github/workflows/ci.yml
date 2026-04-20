@@ -162,17 +162,12 @@ jobs:
             fi
           done
 
-  msrv:
-    name: cargo-msrv (verify 1.94)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-msrv
-      - run: cargo msrv verify --workspace
+  # MSRV is verified by the `test (ubuntu-latest / 1.94)` matrix row
+  # above — it runs the full workspace test suite against the pinned
+  # minimum toolchain, which is a stricter gate than `cargo-msrv
+  # verify` (cargo-build check only). A separate cargo-msrv job would
+  # duplicate coverage while adding an extra CLI surface whose stable
+  # flag set has churned between releases.
 
   audit:
     name: cargo-audit

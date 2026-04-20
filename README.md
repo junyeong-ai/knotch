@@ -419,14 +419,13 @@ Every push runs the following; failure blocks merge.
 |---|---|---|
 | Format | `cargo +nightly fmt --all --check` | Nightly rustfmt applies the unstable keys in `rustfmt.toml` (import grouping, comment wrap) |
 | Lint | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | `-D warnings` stable + beta toolchains |
-| Tests | `cargo nextest run --workspace --all-features` + `cargo test --workspace --all-features --doc` | ubuntu / macos / windows × stable / beta / MSRV 1.94 |
+| Tests | `cargo nextest run --workspace --all-features` + `cargo test --workspace --all-features --doc` | ubuntu / macos / windows × stable / beta, plus a dedicated `ubuntu / 1.94 MSRV` row that doubles as the MSRV gate |
 | Coverage | `cargo llvm-cov` | Uploaded to Codecov |
 | Structural lint | `cargo knotch-linter` | R1 (DirectLogWriteRule), R2 (FingerprintAlgorithmRule), R3 (KernelNoIoRule) |
 | Unused deps | `cargo machete` | Workspace-wide |
 | Security | `cargo deny check` | License allowlist + CVE advisories |
 | Semver | `cargo semver-checks` | Classifies patch / minor / major; fails on version-bump mismatch |
 | Public API | `cargo public-api --diff-against docs/public_api/<crate>.baseline` | Any surface change requires refreshed baseline in the same commit |
-| MSRV | `cargo msrv verify --workspace` | Enforces `[workspace.package].rust-version = "1.94"` |
 | Docs citations | `cargo xtask docs-lint` | Every `crate/path.rs:LINE` citation in `.claude/rules/` must still resolve |
 | Fuzzing | `cargo fuzz` (nightly workflow, 3600s per target) | Scheduled daily |
 | Install | `install-test.yml` | 3-OS × (from-source + prebuilt) sandboxed round-trip |
