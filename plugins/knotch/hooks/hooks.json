@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {"type": "command", "command": "knotch hook load-context"}
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {"type": "command", "if": "Bash(git commit *)",      "command": "knotch hook check-commit"},
+          {"type": "command", "if": "Bash(git push --force*)", "command": "knotch hook guard-rewrite"},
+          {"type": "command", "if": "Bash(git push -f *)",     "command": "knotch hook guard-rewrite"},
+          {"type": "command", "if": "Bash(git reset --hard*)", "command": "knotch hook guard-rewrite"},
+          {"type": "command", "if": "Bash(git branch -D *)",   "command": "knotch hook guard-rewrite"}
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {"type": "command", "if": "Bash(git commit *)", "command": "knotch hook verify-commit"},
+          {"type": "command", "if": "Bash(git revert *)", "command": "knotch hook record-revert"}
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {"type": "command", "command": "knotch hook record-subagent"}
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "knotch",
+  "description": "Event-sourced workflow ledger for AI-agent development. Adds skills to emit workflow events (query / mark / gate / transition) and hooks that intercept git operations so the ledger stays authoritative.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Knotch contributors"
+  },
+  "homepage": "https://knotch.dev",
+  "repository": "https://github.com/knotch-rs/knotch",
+  "license": "MIT OR Apache-2.0"
+}

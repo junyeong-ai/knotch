@@ -1,0 +1,33 @@
+// Optional knotch hooks. Copy any block below into the `hooks`
+// section of your `.claude/settings.json` to enable it.
+//
+// These are OFF by default because they fire on every prompt /
+// session end and the cost — while small — is not zero.
+//
+// JSONC (JSON with comments) is accepted by most tooling; strip
+// comments with `jq '.'` before merging if your settings.json
+// validator rejects them.
+{
+  "hooks": {
+    // Fires on every user prompt. Re-injects the active-unit context
+    // so mid-session `knotch unit use X` elsewhere is picked up.
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "knotch hook refresh-context" }
+        ]
+      }
+    ],
+
+    // Fires when the session ends via /clear, logout, or other exits.
+    // Surfaces reconciler-queue size so operators know to drain it.
+    "SessionEnd": [
+      {
+        "matcher": "clear|logout|other",
+        "hooks": [
+          { "type": "command", "command": "knotch hook finalize-session" }
+        ]
+      }
+    ]
+  }
+}
