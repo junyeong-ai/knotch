@@ -477,6 +477,12 @@ fn knotch_mandatory_hook_block() -> Value {
                         {"type": "command", "if": "Bash(git commit *)", "command": "knotch hook verify-commit"},
                         {"type": "command", "if": "Bash(git revert *)", "command": "knotch hook record-revert"}
                     ]
+                },
+                {
+                    "matcher": "",
+                    "hooks": [
+                        {"type": "command", "command": "knotch hook record-tool-failure"}
+                    ]
                 }
             ],
             "SubagentStop": [

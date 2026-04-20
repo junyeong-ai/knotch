@@ -74,11 +74,19 @@ pub enum HookEvent {
         #[serde(default)]
         tool_input: Option<serde_json::Value>,
     },
-    /// `PostToolUse` — after a tool call completes successfully.
+    /// `PostToolUse` — after a tool call completes (successfully or
+    /// otherwise). The hook can inspect `tool_response` to classify
+    /// outcomes; `record-tool-failure` emits `ToolCallFailed` when
+    /// it detects a failure signal here.
     #[serde(rename = "PostToolUse")]
     PostToolUse {
         /// Tool name.
         tool_name: CompactString,
+        /// Harness-assigned per-call identifier (`tool_use_id` in
+        /// Claude Code stdin). Unique per invocation — the
+        /// `(tool, call_id)` pair is the retry-timeline key.
+        #[serde(default, rename = "tool_use_id")]
+        tool_use_id: Option<CompactString>,
         /// Tool input payload.
         #[serde(default)]
         tool_input: Option<serde_json::Value>,

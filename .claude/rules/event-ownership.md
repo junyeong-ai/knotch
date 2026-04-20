@@ -31,7 +31,7 @@ additions here before shipping.
 | `ReconcileRecovered`  | Reconciler | Reconciler itself on recovery                |
 | `EventSuperseded`     | CLI        | `knotch supersede <event-id> <rationale>`    |
 | `SubagentCompleted`   | Hook       | `knotch hook record-subagent` (SubagentStop) |
-| `ToolCallFailed`      | Agent lib  | `knotch_agent::tool_call::record_failure` (harness-wired)|
+| `ToolCallFailed`      | Hook       | `knotch hook record-tool-failure` (PostToolUse)         |
 | `ModelSwitched`       | Agent lib  | `knotch_agent::model::record_switch` (harness-wired) |
 | `ApprovalRecorded`    | CLI        | `knotch approve <unit> <event-id> <decision> <rationale>`|
 
@@ -55,7 +55,7 @@ the two is the main source of false-positive events.
 | `ReconcileRecovered` | Automatic     | Reconciler observer succeeds after a prior failure     |
 | `EventSuperseded`    | Explicit      | Operator runs `knotch supersede`                       |
 | `SubagentCompleted`  | Automatic     | Claude Code fires `SubagentStop` for a delegated task  |
-| `ToolCallFailed`     | Automatic     | Harness's failure detector (post-tool hook or retry loop) |
+| `ToolCallFailed`     | Automatic     | Claude Code PostToolUse `tool_response.error` or non-zero Bash `exit_code` |
 | `ModelSwitched`      | Automatic     | Harness's model-lifecycle callback (no Claude Code trigger) |
 | `ApprovalRecorded`   | Explicit      | Reviewer runs `knotch approve`                         |
 

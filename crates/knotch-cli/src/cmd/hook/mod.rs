@@ -20,6 +20,7 @@ pub(crate) mod guard_rewrite;
 pub(crate) mod load_context;
 pub(crate) mod record_revert;
 pub(crate) mod record_subagent;
+pub(crate) mod record_tool_failure;
 pub(crate) mod refresh_context;
 pub(crate) mod verify_commit;
 
@@ -51,6 +52,9 @@ pub(crate) enum HookCommand {
     GuardRewrite,
     /// Record a subagent transcript (SubagentStop).
     RecordSubagent,
+    /// Record `ToolCallFailed` when PostToolUse carries a failure
+    /// signal in `tool_response`.
+    RecordToolFailure,
     /// Surface reconciler-queue size at session end (SessionEnd).
     FinalizeSession,
 }
@@ -75,7 +79,7 @@ impl HookCommand {
             Self::RefreshContext => "UserPromptSubmit",
             Self::CheckCommit | Self::GuardRewrite => "PreToolUse",
 
-            Self::VerifyCommit | Self::RecordRevert => "PostToolUse",
+            Self::VerifyCommit | Self::RecordRevert | Self::RecordToolFailure => "PostToolUse",
             Self::RecordSubagent => "SubagentStop",
             Self::FinalizeSession => "SessionEnd",
         }
@@ -113,6 +117,7 @@ pub(crate) async fn run(config: &Config, cmd: HookCommand) -> ExitCode {
         HookCommand::RecordRevert => record_revert::run(config, input).await,
         HookCommand::GuardRewrite => guard_rewrite::run(config, input).await,
         HookCommand::RecordSubagent => record_subagent::run(config, input).await,
+        HookCommand::RecordToolFailure => record_tool_failure::run(config, input).await,
         HookCommand::FinalizeSession => finalize_session::run(config, input).await,
     };
 
