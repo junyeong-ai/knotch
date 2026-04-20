@@ -1,17 +1,17 @@
-//! Harness-side recording of mid-session model switches.
+//! Harness-side recording of between-session model switches.
 //!
-//! Claude Code has no dedicated "model switched" hook event — the
-//! closest signal is `SessionStart`, which fires whenever Claude
-//! boots or resumes a session and exposes the current model via the
-//! `$KNOTCH_MODEL` environment variable.
-//! [`record_switch_if_changed`] is the detector used by the
-//! `knotch hook load-context` subcommand: on every session start it
-//! compares `$KNOTCH_MODEL` against `project::model_timeline`'s last
-//! entry and appends `ModelSwitched` when they differ.
+//! Claude Code stamps the current model name on every
+//! `SessionStart` payload (startup / resume / clear / compact).
+//! [`record_switch_if_changed`] is the detector used by
+//! `knotch hook load-context`: on every session start it compares
+//! the payload's model against `project::model_timeline`'s last
+//! entry and appends a `ModelSwitched` event when they differ.
 //!
-//! Third-party harnesses that know their model at event time (not
-//! just at session boundaries) should call [`record_switch`]
-//! directly from their model-lifecycle code.
+//! Mid-session `/model` commands are architecturally invisible to
+//! hooks — Claude Code does not re-fire `SessionStart` on `/model`
+//! switches. Harnesses that do know their model at tool-call time
+//! should call [`record_switch`] directly from their own
+//! model-lifecycle code.
 
 use std::path::Path;
 
