@@ -1,0 +1,29 @@
+[package]
+name = "knotch-linter"
+description = "cargo knotch-linter — AST-based detector of direct log writes (R41) and naming forbiddens."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "cargo-knotch-linter"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+syn = { workspace = true, features = ["full", "parsing", "visit", "extra-traits"] }
+proc-macro2 = { workspace = true, features = ["span-locations"] }
+clap.workspace = true
+anyhow.workspace = true
+miette.workspace = true
+thiserror.workspace = true
+compact_str.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

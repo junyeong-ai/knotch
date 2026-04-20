@@ -1,0 +1,6 @@
+//! Intentional R2 violation for self-lint integration tests.
+//! Not under any crate root — loaded by path, never compiled.
+
+pub struct CacheManager;
+pub trait RequestHandler {}
+pub enum JobProcessor { Tick }
