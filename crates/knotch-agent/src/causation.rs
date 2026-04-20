@@ -23,19 +23,18 @@ use crate::input::HookInput;
 
 /// Build a `Causation` for a hook-emitted event.
 ///
-/// `agent_id` is populated from the hook's event-level `agent_id`
-/// when the payload exposes one (`SubagentStart`, `SubagentStop`,
-/// and any event fired inside a delegated subagent). Main-session
-/// hooks leave it `None`; the session id alone identifies the
+/// `agent_id` is populated whenever Claude Code surfaces one —
+/// the envelope carries it on every hook that runs inside a
+/// subagent scope ([`HookInput::agent_id`]), and `SubagentStop`
+/// duplicates it in its variant payload. Main-session hooks
+/// leave it `None`; the session id alone identifies the
 /// conversation.
 #[must_use]
 pub fn hook_causation(input: &HookInput, subcommand: &str) -> Causation {
-    let mut causation = Causation::new(
-        Source::Hook,
-        Trigger::GitHook { name: CompactString::from(subcommand) },
-    )
-    .with_session(SessionId::parse(input.session_id.as_str()));
-    if let Some(agent_id) = input.event.agent_id() {
+    let mut causation =
+        Causation::new(Source::Hook, Trigger::GitHook { name: CompactString::from(subcommand) })
+            .with_session(SessionId::parse(input.session_id.as_str()));
+    if let Some(agent_id) = input.agent_id() {
         causation = causation.with_agent_id(AgentId::from(agent_id));
     }
     causation
