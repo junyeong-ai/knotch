@@ -1,0 +1,26 @@
+[package]
+name = "knotch-adr"
+description = "Specialised knotch workflow for Architectural Decision Record (ADR) lifecycles — one unit per ADR, proposed → active → {superseded, deprecated}."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+knotch-kernel.workspace = true
+knotch-derive.workspace = true
+knotch-schema.workspace = true
+knotch-storage.workspace = true
+serde.workspace = true
+compact_str.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
