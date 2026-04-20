@@ -534,7 +534,7 @@ Adopters migrating from their own state layer follow the phased
 pattern in [`docs/migrations/README.md`](docs/migrations/README.md).
 Existing plans live in their respective repos: Grove
 (`grove/docs/migration/knotch-migration-plan.md`, phases `M1..M6`)
-and webloom (`webloom/docs/migration/knotch-migration-assessment.md`,
+and webloom (`webloom/docs/integrations/knotch/README.md`,
 phases `W1..W5`).
 
 ---

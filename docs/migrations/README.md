@@ -11,7 +11,7 @@ migration must follow.
 | Adopter | Canonical plan | Shape |
 |---|---|---|
 | Grove | `../../../grove/docs/migration/knotch-migration-plan.md` | phased `M1..M6` — inventory → pilot → reconciler cutover → hook/skill cutover → Python shrink → hardening |
-| webloom | `../../../webloom/docs/migration/knotch-migration-assessment.md` | phased `W1..W5` — workflow fork → pilot → skill cutover → hook install → cleanup |
+| webloom | `../../../webloom/docs/integrations/knotch/README.md` | phased `W1..W5` — workflow fork → pilot → skill cutover → hook install → cleanup |
 
 Each plan is adopter-owned (per `@../../.claude/rules/governance.md`
 "project-branded rule files stay in the project"). knotch does not

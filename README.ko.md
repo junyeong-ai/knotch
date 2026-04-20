@@ -538,7 +538,7 @@ progressive-disclosure 진입점입니다. 모든 주장은 `crate/path.rs:LINE`
 [`docs/migrations/README.md`](docs/migrations/README.md) 의 phased
 패턴을 따릅니다. 기존 계획은 각 repo 에 있습니다: Grove
 (`grove/docs/migration/knotch-migration-plan.md`, phase `M1..M6`)
-와 webloom (`webloom/docs/migration/knotch-migration-assessment.md`,
+와 webloom (`webloom/docs/integrations/knotch/README.md`,
 phase `W1..W5`).
 
 ---
