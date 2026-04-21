@@ -60,7 +60,7 @@ bump the major.
 Any rule that can be a CI gate is. **No rule is enforced by review
 alone.** Active gates:
 
-- `cargo clippy --workspace --all-targets -- -D warnings`
+- `cargo clippy --workspace --all-targets --all-features -- -D warnings`
 - `cargo knotch-linter` (R1, R2, R3)
 - `cargo public-api --diff-against docs/public_api/<crate>.baseline`
 - `cargo semver-checks`

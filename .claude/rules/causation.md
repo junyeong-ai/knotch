@@ -96,6 +96,7 @@ hook) or construct `Causation::new(...)` directly. See
 - Source / Trigger splits remain orthogonal so new subagent
   vocabularies, harnesses, or observer names never require
   kernel enum changes.
-- `agent_id` at the top level (not nested inside Principal or
-  Trigger) keeps query predicates cheap — filtering by subagent
-  is a single `causation.agent_id == Some(want)` check.
+- `agent_id` as a top-level `Causation` field (not buried inside
+  a `Trigger` variant) keeps query predicates cheap — filtering
+  by subagent is a single `causation.agent_id == Some(want)`
+  check no matter which `Trigger` variant the event carries.

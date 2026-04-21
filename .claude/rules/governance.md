@@ -59,25 +59,6 @@ Refuse without further discussion:
 ## When a feature walks the line
 
 Ship it as an opt-in crate (Tier 4 or 5), not in the kernel.
-Recent precedent: `knotch-frontmatter` (Markdown ↔ ledger
-status sync) and `knotch-adr` (ADR lifecycle) both live as
-optional Tier-5 crates because fewer than half of hypothetical
-adopters need them. A third adopter who doesn't use Markdown
-files or ADRs pays zero cost.
-
-## Metrics (evaluated quarterly)
-
-- **M1 — kernel public-API growth.** ≤5% lines added per
-  quarter after v1.0. A surging kernel signals workflow-specific
-  leakage.
-- **M2 — workflow divergence.** If a new adopter workflow forces
-  a kernel change, the pattern is escaping policy. Audit via
-  the rubric above before accepting.
-- **M3 — adopter count.** Target: three independent workflows in
-  production within twelve months of v1.0.
-- **M4 — shared-rule reuse.** Adopters who `@`-import this
-  rule tree vs. copy it. Higher import ratio = universality is
-  holding.
-- **M5 — feature-request refusal rate.** Healthy: 40-60%. Lower
-  → scope contract drifting; higher → library too narrow to
-  matter.
+Precedent: `knotch-frontmatter` (Markdown ↔ ledger status sync)
+and `knotch-adr` (ADR lifecycle) both live as optional Tier-5
+crates so an adopter who needs neither pays zero cost.
