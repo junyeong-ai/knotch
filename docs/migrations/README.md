@@ -2,25 +2,14 @@
 
 knotch is a library for AI-agent-driven workflow state. Adopters
 replace their internal state-management code by following the
-phased pattern below. Plans live in the adopter repos; this
-document is the coordination index + the universal rules every
-migration must follow.
-
-## Known adopter plans
-
-| Adopter | Canonical plan | Shape |
-|---|---|---|
-| Grove | `../../../grove/docs/migration/knotch-migration-plan.md` | phased `M1..M6` — inventory → pilot → reconciler cutover → hook/skill cutover → Python shrink → hardening |
-| webloom | `../../../webloom/docs/integrations/knotch/README.md` | phased `W1..W5` — workflow fork → pilot → skill cutover → hook install → cleanup |
-
-Each plan is adopter-owned (per `@../../.claude/rules/governance.md`
-"project-branded rule files stay in the project"). knotch does not
-ship adopter-specific migration docs.
+phased pattern below. Per-project migration plans stay in the
+adopter's own repository — this document is the universal
+playbook every migration must follow.
 
 ## Universal rules
 
-These are non-negotiable for every adopter. Plans may add detail
-but not relax these.
+Non-negotiable for every adopter. Plans may add detail but not
+relax these.
 
 ### Integration: CLI subprocess, never in-process bindings
 
@@ -36,8 +25,6 @@ projection read" justification for in-process bindings does not
 match any adopter flow today; if reporting ever demands that
 shape, the answer is a cached materialised view fed by `knotch
 show`, not a language binding.
-
-Further rationale: Grove plan §5, webloom plan §6.
 
 ### Phased pattern
 
@@ -66,10 +53,11 @@ the prior phase exits cleanly.
 ### Data migration
 
 Internal snapshot → `log.jsonl` via per-event replay through the
-CLI. The fingerprint-dedup invariant (`@../../.claude/rules/fingerprint.md`)
-makes the replay script idempotent; crash / re-run never
-double-appends. Stamp migration events with
-`--causation-source migration` so downstream queries can filter.
+CLI. The fingerprint-dedup invariant
+(`@../../.claude/rules/fingerprint.md`) makes the replay script
+idempotent; crash / re-run never double-appends. Stamp migration
+events with `--causation-source migration` so downstream queries
+can filter.
 
 ### Rollback
 
@@ -96,15 +84,8 @@ differ — identifiers are serialised into the log and bumping
 them requires a `SchemaMigrator` (see
 `crates/knotch-proto/CLAUDE.md`).
 
-## Coordination between adopters
+## knotch's role
 
-Grove and webloom plans are independent. webloom's plan chooses
-to gate its cutover on Grove's pilot completion (webloom plan §3
-Precondition A) — that is webloom's internal decision, not a
-knotch-side constraint. Either adopter can move when its team
-judges its own preconditions met.
-
-knotch's role in coordination:
 - Ship binaries + library + skills.
 - Maintain `CHANGELOG.md` with adopter-visible breaking notes.
 - Publish baselines under `docs/public_api/*.baseline` so each
@@ -117,10 +98,11 @@ knotch's role in coordination:
 ## What knotch does not ship for migrations
 
 Per `@../../.claude/rules/governance.md`:
-- Adopter-specific migration plans (Grove's plan lives in Grove;
-  webloom's in webloom).
-- Adopter-specific rules or skills (`.claude/rules/` here ships
-  only ledger-structural rules).
+
+- Adopter-specific migration plans — those live in the adopter's
+  own repository.
+- Adopter-specific rules or skills — `.claude/rules/` here ships
+  only ledger-structural rules.
 - In-process language bindings (see universal rule above).
 - Bulk-import subcommands or one-shot migration utilities —
   adopter migration is a per-release concern of each adopter,

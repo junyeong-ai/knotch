@@ -53,9 +53,13 @@ knotch log feat-auth                # 원본 이벤트 스트림
   (RFC 8785 JCS canonical 형식 위의 BLAKE3 해시). 같은 proposal 을
   재시도하면 `rejected: [{ reason: "duplicate" }]` 가 반환됩니다 —
   이것은 **at-least-once 전달의 성공 신호**이며 에러가 아닙니다.
-- **Agent-first observability.** 모든 이벤트는 `Causation` 체인을
-  담습니다 (agent id, 모델, harness, 세션 id, trace id, 툴콜 id,
-  비용). `knotch-tracing` 은 이 정보를 구조화된 span 으로 방출하므로
+- **Agent-first observability.** 모든 이벤트는 타입화된 `Causation`
+  을 담습니다 — `Source` (CLI / hook / observer), `SessionId`,
+  선택적 subagent `AgentId`, 그리고 `Trigger` (command / git hook
+  / tool invocation / observer name). 모델 전환은 전용
+  `ModelSwitched` 이벤트로 기록되므로 per-unit `model_timeline`
+  projection 이 시점별 활성 모델을 항상 반영합니다.
+  `knotch-tracing` 은 이 정보를 구조화된 span 으로 방출하므로
   외부 observability (OTel, Prometheus) 가 동일한 id 들로 join
   가능합니다.
 - **Git 과의 상관.** 마일스톤은 `Knotch-Milestone: <id>` git trailer 로
@@ -261,7 +265,7 @@ knotch/
 │   ├── knotch-adr/           # Tier-5: ADR lifecycle WorkflowKind
 │   ├── knotch-observer/      # Observer trait + git/artifact/pending/subprocess
 │   ├── knotch-reconciler/    # 결정론적 observer composition
-│   ├── knotch-query/         # Cross-unit QueryBuilder + LLM summary
+│   ├── knotch-query/         # Cross-unit QueryBuilder (AND-composed predicate)
 │   ├── knotch-tracing/       # Attribute schema + span helper
 │   ├── knotch-linter/        # cargo knotch-linter (R1/R2/R3 enforcement)
 │   ├── knotch-agent/         # Claude Code hook/skill 통합 라이브러리
@@ -269,9 +273,9 @@ knotch/
 │   └── knotch-testing/       # 개발용: InMemoryRepository + simulation harness
 ├── examples/                 # Minimal, pr-workflow, compliance, case-study 2종, …
 ├── plugins/knotch/           # Claude Code 플러그인 번들 (hooks/ + skills/)
-├── .claude/rules/            # 구조적 불변 조건 (path-scoped rule 파일)
-├── .claude/skills/           # 에이전트 스킬 (knotch-{mark,gate,query,transition})
-├── docs/public_api/          # Public-API baseline (라이브러리 crate 별)
+├── .claude/rules/            # 구조적 불변 조건 (Claude Code 가 path-scope 로 로드)
+├── .claude/skills/           # 에이전트 스킬 (knotch-{mark,gate,query,transition,approve})
+├── docs/public_api/          # Per-crate public-API baseline (CI 에서 diff)
 ├── docs/migrations/          # 어답터 migration playbook
 └── xtask/                    # cargo xtask {ci,docs-lint,public-api,plugin-sync}
 ```
@@ -380,7 +384,9 @@ cargo binstall knotch-cli
 ### 체크섬 검증이 포함된 수동 설치
 
 ```bash
-VERSION=0.1.0
+# 최신 릴리스 태그를 조회 (또는 특정 v*.*.* 태그를 직접 지정).
+VERSION=$(curl -fsSL https://api.github.com/repos/junyeong-ai/knotch/releases/latest \
+  | grep -oE '"tag_name": *"v[^"]+"' | head -n1 | cut -d'"' -f4 | sed 's/^v//')
 TARGET=x86_64-unknown-linux-musl
 BASE="https://github.com/junyeong-ai/knotch/releases/download/v$VERSION"
 curl -fLO "$BASE/knotch-v$VERSION-$TARGET.tar.gz"
@@ -392,7 +398,7 @@ install -m 755 knotch "$HOME/.local/bin/knotch"
 
 모든 릴리스 아티팩트에는 SLSA build provenance
 (`actions/attest-build-provenance`) 가 추가로 서명됩니다 —
-`gh attestation verify <archive>.tar.gz --owner knotch-rs` 로 검증할 수
+`gh attestation verify <archive>.tar.gz --owner junyeong-ai` 로 검증할 수
 있습니다.
 
 ### 소스에서 빌드
@@ -426,13 +432,13 @@ iwr -useb https://raw.githubusercontent.com/junyeong-ai/knotch/main/scripts/unin
 | Lint | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | stable + beta 툴체인에서 `-D warnings` |
 | 테스트 | `cargo nextest run --workspace --all-features` + `cargo test --workspace --all-features --doc` | ubuntu / macos / windows × stable / beta, 그리고 MSRV 게이트를 겸하는 `ubuntu / 1.94 MSRV` 행 |
 | 커버리지 | `cargo llvm-cov` | Codecov 로 업로드 |
-| 구조 lint | `cargo knotch-linter` | R1 (DirectLogWriteRule), R2 (FingerprintAlgorithmRule), R3 (KernelNoIoRule) |
+| 구조 lint | `cargo knotch-linter` | R1 (DirectLogWriteRule), R2 (ForbiddenNameRule), R3 (KernelNoIoRule) |
 | 미사용 dep | `cargo machete` | 워크스페이스 전체 |
 | 보안 | `cargo deny check` | 라이선스 allowlist + CVE 권고 |
 | Semver | `cargo semver-checks` | patch / minor / major 분류, 버전 범프 불일치 시 실패 |
 | Public API | `cargo public-api --diff-against docs/public_api/<crate>.baseline` | 표면 변경 시 동일 commit 에서 baseline 갱신 필요 |
 | 문서 인용 | `cargo xtask docs-lint` | `.claude/rules/` 의 `crate/path.rs:LINE` 인용이 여전히 resolve 되는지 |
-| Fuzzing | `cargo fuzz` (nightly workflow, target 당 3600초) | 매일 예약 실행 |
+| Fuzzing | `cargo fuzz` (nightly workflow) | 매일 예약 실행 |
 | 설치 | `install-test.yml` | 3-OS × (from-source + prebuilt) 샌드박스 왕복 검증 |
 
 `#![forbid(unsafe_code)]` 가 `Cargo.toml [workspace.lints.rust]` 에
@@ -535,10 +541,9 @@ progressive-disclosure 진입점입니다. 모든 주장은 `crate/path.rs:LINE`
 
 자체 상태 레이어에서 마이그레이션하는 adopter 는
 [`docs/migrations/README.md`](docs/migrations/README.md) 의 phased
-패턴을 따릅니다. 기존 계획은 각 repo 에 있습니다: Grove
-(`grove/docs/migration/knotch-migration-plan.md`, phase `M1..M6`)
-와 webloom (`webloom/docs/integrations/knotch/README.md`,
-phase `W1..W5`).
+패턴을 따릅니다. adopter-specific 계획은 해당 adopter 자신의
+저장소에서 관리됩니다 — knotch 는 범용 playbook 만 제공하며
+프로젝트 브랜드가 박힌 마이그레이션 문서는 싣지 않습니다.
 
 ---
 

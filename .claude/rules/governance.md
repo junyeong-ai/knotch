@@ -43,9 +43,9 @@ Refuse without further discussion:
   `.claude/rules/`.
 - **Scope vocabulary expansion** beyond the current variants.
   Workflows extend via their own Phase / Gate / Milestone types.
-- **Project-branded rule files.** Grove-specific rules live in
-  Grove, webloom-specific rules live in webloom. knotch ships
-  only ledger-structural rules.
+- **Project-branded rule files.** Adopter-specific rules stay
+  in the adopter's own repository. knotch ships only
+  ledger-structural rules.
 - **ADR section vocabularies, numbering schemes, promotion
   pipelines.** `knotch-adr` ships the minimal frontmatter schema
   + lifecycle FSM and stops there — sections and numbering stay

@@ -51,10 +51,15 @@ every subcommand respects both uniformly.
   content-addressed (BLAKE3 over the RFC 8785 JCS canonical form).
   Retrying a proposal produces `rejected: [{ reason: "duplicate" }]`
   — the **success signal for at-least-once delivery**, not an error.
-- **Agent-first observability.** Every event carries a `Causation`
-  chain (agent id, model, harness, session id, trace id, tool-call
-  id, cost). `knotch-tracing` emits those as structured spans so
-  external observability (OTel, Prometheus) joins on the same ids.
+- **Agent-first observability.** Every event carries a typed
+  `Causation` — the `Source` (CLI / hook / observer), a
+  `SessionId`, an optional subagent `AgentId`, and a `Trigger`
+  (command / git hook / tool invocation / observer name). Model
+  switches land as dedicated `ModelSwitched` events, so the
+  per-unit `model_timeline` projection always reflects the model
+  active at any point. `knotch-tracing` emits these as structured
+  spans so external observability (OTel, Prometheus) joins on the
+  same ids.
 - **Git-correlated.** Milestones attach to commits through a
   `Knotch-Milestone: <id>` git trailer; reverts surface through
   `knotch hook record-revert`; the reconciler promotes pending
@@ -257,17 +262,17 @@ knotch/
 │   ├── knotch-adr/           # Tier-5: ADR lifecycle WorkflowKind
 │   ├── knotch-observer/      # Observer trait + git/artifact/pending/subprocess
 │   ├── knotch-reconciler/    # Deterministic observer composition
-│   ├── knotch-query/         # Cross-unit QueryBuilder + LLM summary
+│   ├── knotch-query/         # Cross-unit QueryBuilder (AND-composed predicates)
 │   ├── knotch-tracing/       # Attribute schema + span helpers
 │   ├── knotch-linter/        # cargo knotch-linter (R1/R2/R3 enforcement)
 │   ├── knotch-agent/         # Claude Code hook/skill integration library
 │   ├── knotch-cli/           # `knotch` reference binary
 │   └── knotch-testing/       # Dev-only: InMemoryRepository + simulation harness
-├── examples/                 # Minimal, pr-workflow, compliance, 2 case-studies, …
+├── examples/                 # Minimal, pr-workflow, compliance, workflow case-studies, …
 ├── plugins/knotch/           # Claude Code plugin bundle (hooks/ + skills/)
-├── .claude/rules/            # Structural invariants (10 path-scoped rule files)
-├── .claude/skills/           # Agent skills (knotch-{mark,gate,query,transition})
-├── docs/public_api/          # Public-API baselines (17 library crates)
+├── .claude/rules/            # Path-scoped structural invariants (loaded by Claude Code)
+├── .claude/skills/           # Agent skills (knotch-{mark,gate,query,transition,approve})
+├── docs/public_api/          # Per-crate public-API baselines (diffed in CI)
 ├── docs/migrations/          # Adopter migration playbook
 └── xtask/                    # cargo xtask {ci,docs-lint,public-api,plugin-sync}
 ```
@@ -376,7 +381,9 @@ by `[package.metadata.binstall]` in `crates/knotch-cli/Cargo.toml`.
 ### Manual install with checksum verification
 
 ```bash
-VERSION=0.1.0
+# Resolve the latest release tag (or pin to a specific v*.*.* tag yourself).
+VERSION=$(curl -fsSL https://api.github.com/repos/junyeong-ai/knotch/releases/latest \
+  | grep -oE '"tag_name": *"v[^"]+"' | head -n1 | cut -d'"' -f4 | sed 's/^v//')
 TARGET=x86_64-unknown-linux-musl
 BASE="https://github.com/junyeong-ai/knotch/releases/download/v$VERSION"
 curl -fLO "$BASE/knotch-v$VERSION-$TARGET.tar.gz"
@@ -388,7 +395,7 @@ install -m 755 knotch "$HOME/.local/bin/knotch"
 
 Every release artifact is additionally signed with SLSA build
 provenance (`actions/attest-build-provenance`) — verify with
-`gh attestation verify <archive>.tar.gz --owner knotch-rs`.
+`gh attestation verify <archive>.tar.gz --owner junyeong-ai`.
 
 ### Build from source
 
@@ -421,13 +428,13 @@ Every push runs the following; failure blocks merge.
 | Lint | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | `-D warnings` stable + beta toolchains |
 | Tests | `cargo nextest run --workspace --all-features` + `cargo test --workspace --all-features --doc` | ubuntu / macos / windows × stable / beta, plus a dedicated `ubuntu / 1.94 MSRV` row that doubles as the MSRV gate |
 | Coverage | `cargo llvm-cov` | Uploaded to Codecov |
-| Structural lint | `cargo knotch-linter` | R1 (DirectLogWriteRule), R2 (FingerprintAlgorithmRule), R3 (KernelNoIoRule) |
+| Structural lint | `cargo knotch-linter` | R1 (DirectLogWriteRule), R2 (ForbiddenNameRule), R3 (KernelNoIoRule) |
 | Unused deps | `cargo machete` | Workspace-wide |
 | Security | `cargo deny check` | License allowlist + CVE advisories |
 | Semver | `cargo semver-checks` | Classifies patch / minor / major; fails on version-bump mismatch |
 | Public API | `cargo public-api --diff-against docs/public_api/<crate>.baseline` | Any surface change requires refreshed baseline in the same commit |
 | Docs citations | `cargo xtask docs-lint` | Every `crate/path.rs:LINE` citation in `.claude/rules/` must still resolve |
-| Fuzzing | `cargo fuzz` (nightly workflow, 3600s per target) | Scheduled daily |
+| Fuzzing | `cargo fuzz` (nightly workflow) | Scheduled daily |
 | Install | `install-test.yml` | 3-OS × (from-source + prebuilt) sandboxed round-trip |
 
 `#![forbid(unsafe_code)]` is declared workspace-wide in
@@ -531,10 +538,9 @@ different binary, same library.
 
 Adopters migrating from their own state layer follow the phased
 pattern in [`docs/migrations/README.md`](docs/migrations/README.md).
-Existing plans live in their respective repos: Grove
-(`grove/docs/migration/knotch-migration-plan.md`, phases `M1..M6`)
-and webloom (`webloom/docs/integrations/knotch/README.md`,
-phases `W1..W5`).
+Adopter-specific plans stay in the adopter's own repository —
+knotch ships the universal playbook, not project-branded
+migration docs.
 
 ---
 

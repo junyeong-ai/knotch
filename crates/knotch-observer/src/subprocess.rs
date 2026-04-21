@@ -3,9 +3,9 @@
 //! `SubprocessObserver` spawns an external binary (Python, Node,
 //! Bash, Go — anything with stdin/stdout) and treats it as a
 //! first-class `Observer<W>`. The wire protocol is JSON over
-//! stdin/stdout. This is the path that lets non-Rust adopters —
-//! Grove (Python), webloom (Node) — keep their observer logic in
-//! their native language while the kernel + reconciler stay Rust.
+//! stdin/stdout. This is the path that lets non-Rust adopters
+//! keep their observer logic in their native language while the
+//! kernel + reconciler stay Rust.
 //!
 //! ## Wire protocol
 //!
