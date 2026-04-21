@@ -31,10 +31,12 @@ concrete `Repository` the CLI and presets use by default.
   on-disk line count matches what the Repository loaded; mismatch
   surfaces as `StorageError::LogMutated`. `FileRepository` retries
   the entire load → precondition → commit cycle with bounded
-  exponential backoff (5 attempts, 25 ms base, total wait ≤ 775 ms)
-  before surfacing the final mismatch to the caller. Retry is
-  orthogonal to `AppendMode` — `AllOrNothing` affects precondition
-  rollback, never the retry decision.
+  exponential backoff — `CAS_MAX_RETRIES = 5` attempts,
+  `CAS_BASE_DELAY = 25 ms` doubling per attempt, total wait
+  ≤ 775 ms (see `src/file_repository.rs:42,45`) — before surfacing
+  the final mismatch to the caller. Retry is orthogonal to
+  `AppendMode` — `AllOrNothing` affects precondition rollback,
+  never the retry decision.
 - **Cache is non-authoritative** — the resume-cache is a checkpoint
   derived from the log, not a second source of truth (constitution
   §I). In `with_cache`, the cache write happens *after* the log

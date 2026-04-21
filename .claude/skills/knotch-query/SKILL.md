@@ -46,33 +46,14 @@ Filters AND-combine. `execute` walks `repo.list_units()` and loads
 each. For large workspaces, prefer `where_status` or `where_phase`
 early — they short-circuit per-unit.
 
-## Workflow-specific projections
-
-Summary helpers are workflow-specific — the canonical `Knotch`
-workflow ships only the core projections above. Adopter workflows
-that want LLM-facing summaries add them on their own
-`WorkflowKind` impl; see `examples/workflow-vibe-case-study/src/lib.rs`
-for a reference implementation (`summary_for_llm`).
-
-## Custom projections
-
-Implement `Projection<W>` (trait in `knotch_kernel::project`):
-
-```rust
-pub struct UnshippedGates;
-impl<W: WorkflowKind> Projection<W> for UnshippedGates {
-    type View = Vec<W::Gate>;
-    fn project(log: &Log<W>) -> Self::View { ... }
-}
-```
-
-Projections must be pure: no I/O, no `Timestamp::now()`, no hidden
-state. Verified by policy, not by compiler.
-
 ## Do not
 
 - Walk `log.events()` by hand if a projection already exists.
 - Cache the `Arc<Log<W>>` returned by `load` — projections are
   cheap; a stale log hides fresh events.
-- Call `project_*` inside `repo.append`'s precondition — the
-  precondition already sees the right snapshot via `AppendContext`.
+
+## Extending (dev-only)
+
+Defining new projections or workflow-specific summary helpers is
+a crate-level change, not a skill invocation. See
+`crates/knotch-query/CLAUDE.md` and `crates/knotch-kernel/CLAUDE.md`.

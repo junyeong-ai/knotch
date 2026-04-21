@@ -1,3 +1,10 @@
+---
+name: knotch-approve
+description: Record a named human reviewer's approval (or rejection) of a prior event on the active unit. Use for human-in-the-loop sign-off on gate decisions, status transitions, or milestone ships — never for agent self-review. Emits `ApprovalRecorded` with a bounded rationale so audits surface the signature instead of hunting through prose.
+argument-hint: "<unit> <event-id> <decision> <rationale> --as <person>"
+allowed-tools: Bash(knotch approve *) Bash(knotch log *) Bash(knotch current)
+---
+
 # knotch-approve
 
 Record a human approval — or rejection — against a prior event on
