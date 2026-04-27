@@ -88,7 +88,7 @@ assert_cmd       = "2.0"
 predicates       = "3.1"
 figment          = "0.10"
 toml             = "0.8"
-winnow           = "0.7"
+winnow           = "1.0"
 shell-words      = "1.1"
 
 # --- observability ---
